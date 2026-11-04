@@ -3,191 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ApexNotes | Advanced NEET Prep Suite</title>
+    <title>ApexNotes Pro | Advanced Cloud NEET Suite</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase Client -->
+    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
-<body class="bg-slate-900 text-slate-100 h-full font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 h-full font-sans antialiased selection:bg-indigo-600 selection:text-white">
 
     <div class="flex h-screen overflow-hidden">
         
         <!-- Sidebar Navigation -->
-        <aside class="w-64 bg-slate-950 border-r border-slate-800 hidden md:flex flex-col justify-between p-6">
+        <aside class="w-64 bg-slate-900/80 backdrop-blur-xl border-r border-slate-800/80 hidden md:flex flex-col justify-between p-6 z-30">
             <div>
                 <div class="flex items-center gap-3 mb-8">
-                    <div class="bg-indigo-600 p-2.5 rounded-xl text-white shadow-lg">
+                    <div class="bg-gradient-to-tr from-indigo-600 to-violet-600 p-2.5 rounded-2xl text-white shadow-xl shadow-indigo-600/20">
                         <i data-lucide="layers" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-lg text-white">ApexNotes</h1>
-                        <p class="text-xs text-slate-400">NEET Hub Pro</p>
+                        <h1 class="font-extrabold text-base tracking-wide text-white">ApexNotes</h1>
+                        <p class="text-[11px] font-medium text-indigo-400">NEET Intelligence Hub</p>
                     </div>
                 </div>
+
                 <nav class="space-y-1.5" id="sidebarNav">
-                    <button onclick="switchTab('notes')" id="navNotes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium bg-indigo-600/10 text-indigo-400 border border-indigo-500/20">
+                    <button onclick="ApexCore.switchTab('notes')" id="navNotes" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 transition-all">
                         <i data-lucide="book-open" class="w-4 h-4"></i> Study Notes & Drops
                     </button>
-                    <button onclick="switchTab('tests')" id="navTests" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-900">
+                    <button onclick="ApexCore.switchTab('tests')" id="navTests" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
                         <i data-lucide="award" class="w-4 h-4"></i> Mock Tests & Reports
                     </button>
-                    <button onclick="switchTab('audio')" id="navAudio" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-900">
-                        <i data-lucide="headphones" class="w-4 h-4"></i> Encrypted Media Stream
+                    <button onclick="ApexCore.switchTab('audio')" id="navAudio" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                        <i data-lucide="headphones" class="w-4 h-4"></i> Encrypted Media Vault
                     </button>
-                    <button onclick="switchTab('bloopers')" id="navBloopers" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-900">
+                    <button onclick="ApexCore.switchTab('bloopers')" id="navBloopers" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
                         <i data-lucide="smile" class="w-4 h-4"></i> Classroom Wall
                     </button>
-                    <button onclick="switchTab('vip')" id="navVip" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-amber-400 hover:bg-slate-900 border border-amber-500/20 mt-4">
-                        <i data-lucide="crown" class="w-4 h-4"></i> VIP Plans
+                    <button onclick="ApexCore.switchTab('vip')" id="navVip" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 mt-4 transition-all">
+                        <i data-lucide="crown" class="w-4 h-4"></i> VIP Tier Access
                     </button>
                 </nav>
             </div>
             
-            <!-- Auth & User Status Section -->
-            <div id="authSection" class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
+            <!-- Auth Status Card -->
+            <div class="bg-slate-900/90 border border-slate-800/80 p-4 rounded-2xl space-y-3 shadow-lg">
                 <div id="loggedOutView">
-                    <p class="text-xs text-slate-400 mb-2">Zero local footprint</p>
-                    <button onclick="toggleAuthModal()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-semibold transition">
+                    <p class="text-[10px] text-slate-400 mb-2 uppercase tracking-wider font-semibold">Zero Local Footprint</p>
+                    <button onclick="ApexCore.toggleModal('authModal')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-bold transition shadow-md shadow-indigo-600/20">
                         Sign In / Register
                     </button>
                 </div>
                 <div id="loggedInView" class="hidden space-y-2">
                     <div class="flex items-center justify-between">
-                        <span id="userEmailDisplay" class="text-xs font-semibold text-slate-200 truncate max-w-[120px]">user@gmail.com</span>
-                        <span id="badgeDisplay" class="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-bold">Free</span>
+                        <span id="userEmailDisplay" class="text-[11px] font-bold text-slate-200 truncate max-w-[110px]">user@gmail.com</span>
+                        <span id="badgeDisplay" class="text-[9px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-extrabold uppercase">Free</span>
                     </div>
-                    <button onclick="handleLogout()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-[11px] font-semibold transition">
+                    <button onclick="ApexCore.handleLogout()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-[10px] font-bold transition">
                         Sign Out & Wipe Session
                     </button>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Content Portal -->
-        <main class="flex-1 flex flex-col overflow-y-auto">
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col overflow-y-auto bg-slate-950">
             
-            <header class="bg-slate-950/80 backdrop-blur border-b border-slate-800 px-6 py-4 sticky top-0 z-20 flex justify-between items-center">
-                <h2 class="font-bold text-base text-white">ApexNotes Student Portal</h2>
-                <button onclick="toggleUploadModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
-                    + Upload Content
+            <header class="bg-slate-900/60 backdrop-blur-xl border-b border-slate-800/80 px-6 py-4 sticky top-0 z-20 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <h2 class="font-bold text-sm text-white tracking-wide">ApexNotes Student Cloud Portal</h2>
+                    <span id="syncIndicator" class="text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-mono flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Active
+                    </span>
+                </div>
+                <button onclick="ApexCore.toggleModal('uploadModal')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md shadow-indigo-600/20 flex items-center gap-1.5">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Upload Content
                 </button>
             </header>
 
             <div class="p-6 md:p-8 max-w-5xl mx-auto w-full space-y-8">
                 
                 <!-- Creator Admin Panel -->
-                <div id="adminPanel" class="hidden bg-slate-950 border-2 border-indigo-500/50 p-6 rounded-2xl shadow-xl space-y-4">
-                    <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-                        <span class="text-xs font-semibold bg-indigo-600 text-white px-2.5 py-1 rounded-full">👑 Creator Admin Panel</span>
-                        <span class="text-xs text-slate-400">Secure Token Generator & VIP Management</span>
+                <div id="adminPanel" class="hidden bg-slate-900/80 border-2 border-indigo-500/40 p-6 rounded-2xl shadow-2xl space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-extrabold bg-indigo-600 text-white px-2.5 py-1 rounded-full uppercase tracking-wider">👑 Creator Admin Panel</span>
+                            <span class="text-xs text-slate-400">Secure Token Generator & Access Manager</span>
+                        </div>
                     </div>
                     
-                    <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3">
-                        <label class="block text-xs font-semibold text-indigo-400">Generate Anti-Bypass Signed Media Token</label>
+                    <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-3">
+                        <label class="block text-xs font-bold text-indigo-400">Generate Anti-Bypass Signed Media Token (24h Expiry)</label>
                         <div class="grid gap-2 sm:grid-cols-2">
-                            <input type="text" id="rawMediaUrl" placeholder="Paste heavy video/audio URL..." class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
-                            <button onclick="generateSecureTokenLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-semibold transition">Generate Signed Token</button>
+                            <input type="text" id="rawMediaUrl" placeholder="Paste heavy video/audio URL..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <button onclick="ApexCore.generateSecureTokenLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition">Generate Signed Token</button>
                         </div>
-                        <div id="generatedTokenOutput" class="hidden p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px] font-mono text-emerald-400 break-all"></div>
+                        <div id="generatedTokenOutput" class="hidden p-3 bg-slate-900 rounded-lg border border-slate-800 text-[11px] font-mono text-emerald-400 break-all"></div>
                     </div>
 
                     <div class="grid gap-4 sm:grid-cols-2">
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
-                            <label class="block text-xs font-semibold text-slate-400">Update Monthly Price (₹)</label>
+                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-2">
+                            <label class="block text-xs font-bold text-slate-400">Update Monthly Price (₹)</label>
                             <div class="flex gap-2">
-                                <input type="number" id="priceInput" value="99" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
-                                <button onclick="updatePrice()" class="bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-semibold">Save</button>
+                                <input type="number" id="priceInput" value="99" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                                <button onclick="ApexCore.updatePrice()" class="bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold">Save</button>
                             </div>
                         </div>
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
-                            <label class="block text-xs font-semibold text-slate-400">Grant VIP Access (Email)</label>
+                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-2">
+                            <label class="block text-xs font-bold text-slate-400">Grant VIP Access (Email)</label>
                             <div class="flex gap-2">
-                                <input type="email" id="vipEmail" placeholder="student@gmail.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
-                                <button onclick="grantVIP()" class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-semibold">Grant VIP</button>
+                                <input type="email" id="vipEmail" placeholder="student@gmail.com" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                                <button onclick="ApexCore.grantVIP()" class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-bold">Grant VIP</button>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab 1: Study Notes & Free Drops -->
-                <div id="tabNotes" class="space-y-4">
-                    <div class="bg-gradient-to-r from-indigo-950 via-slate-950 to-purple-950 border border-indigo-500/30 p-6 rounded-2xl shadow-xl flex justify-between items-center">
+                <!-- Tab 1: Study Notes & Early Drops -->
+                <div id="tabNotes" class="space-y-5">
+                    <div class="bg-gradient-to-r from-indigo-950/60 via-slate-900/80 to-purple-950/60 border border-indigo-500/20 p-6 rounded-2xl shadow-xl flex justify-between items-center backdrop-blur-md">
                         <div>
-                            <span class="text-xs font-semibold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full">⚡ Pre-Class Early Drop</span>
-                            <h3 class="text-base font-bold text-white mt-2">Botany: Morphology of Flowering Plants (Root Modifications)</h3>
-                            <p class="text-xs text-slate-400 mt-0.5">Free public study drop available for all students.</p>
+                            <span class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full uppercase tracking-wider">⚡ Pre-Class Early Drop</span>
+                            <h3 class="text-sm font-bold text-white mt-2.5">Botany: Morphology of Flowering Plants (Root Modifications)</h3>
+                            <p class="text-xs text-slate-400 mt-1">Free public study drop available instantly across all devices.</p>
                         </div>
-                        <button onclick="alert('Opening public pre-class drop note.')" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">View Drop</button>
+                        <button onclick="alert('Opening public pre-class drop note.')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 transition">View Drop</button>
                     </div>
 
-                    <h3 class="text-lg font-bold text-white pt-4">Cloud Study Notes & Question Banks</h3>
+                    <h3 class="text-base font-extrabold text-white pt-2">Cloud Study Notes & Question Banks</h3>
                     <div id="notesContainer" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <p class="text-xs text-slate-500">Fetching notes from cloud storage...</p>
+                        <div class="p-6 bg-slate-900/50 border border-slate-800/80 rounded-2xl animate-pulse text-xs text-slate-500">Syncing notes from cloud...</div>
                     </div>
                 </div>
 
-                <!-- Tab 2: Timed Mock Tests & Cloud Reports -->
+                <!-- Tab 2: Timed Mock Tests & Reports -->
                 <div id="tabTests" class="hidden space-y-6">
-                    <div class="bg-slate-950 border border-slate-800 p-6 rounded-2xl space-y-6">
+                    <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl space-y-6 shadow-xl backdrop-blur-md">
                         <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                             <div>
-                                <span class="text-xs font-semibold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full">NEET Minor Exam Pattern</span>
-                                <h3 class="text-lg font-bold text-white mt-1">Mock Test #1: Cell Biology & Biomolecules</h3>
+                                <span class="text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full uppercase tracking-wider">NEET Minor Exam Pattern</span>
+                                <h3 class="text-base font-bold text-white mt-1.5">Mock Test #1: Cell Biology & Biomolecules</h3>
                             </div>
                             <div class="text-right">
-                                <span class="text-xs text-slate-400 block">Timer Remaining</span>
-                                <span id="testTimer" class="font-mono text-amber-400 font-bold text-base">45:00</span>
+                                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Timer Remaining</span>
+                                <span id="testTimer" class="font-mono text-amber-400 font-extrabold text-sm">45:00</span>
                             </div>
                         </div>
 
                         <div class="space-y-4">
-                            <div class="p-4 bg-slate-900 border border-slate-800 rounded-xl space-y-3">
-                                <p class="text-sm font-semibold text-white">Q1. Which cell organelle is devoid of membrane?</p>
-                                <div class="space-y-2 text-sm text-slate-300">
-                                    <label class="flex items-center gap-3 p-2.5 bg-slate-950 rounded-lg border border-slate-800 cursor-pointer hover:border-indigo-500">
+                            <div class="p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-3">
+                                <p class="text-xs font-bold text-white">Q1. Which cell organelle is devoid of membrane?</p>
+                                <div class="space-y-2 text-xs text-slate-300">
+                                    <label class="flex items-center gap-3 p-2.5 bg-slate-900/80 rounded-lg border border-slate-800 cursor-pointer hover:border-indigo-500 transition">
                                         <input type="radio" name="q1" value="A"> A. Ribosome
                                     </label>
-                                    <label class="flex items-center gap-3 p-2.5 bg-slate-950 rounded-lg border border-slate-800 cursor-pointer hover:border-indigo-500">
+                                    <label class="flex items-center gap-3 p-2.5 bg-slate-900/80 rounded-lg border border-slate-800 cursor-pointer hover:border-indigo-500 transition">
                                         <input type="radio" name="q1" value="B"> B. Lysosome
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        <button onclick="submitTestReport()" class="bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-xs font-semibold">Submit Test & Sync Cloud Report</button>
+                        <button onclick="ApexCore.submitTestReport()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 transition">Submit Test & Sync Cloud Report</button>
                     </div>
 
-                    <!-- Cloud Performance Reports -->
-                    <div class="bg-slate-950 border border-slate-800 p-6 rounded-2xl space-y-4">
-                        <h3 class="text-base font-bold text-white">📊 My Cloud Performance Reports</h3>
+                    <!-- Cloud Reports -->
+                    <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl space-y-4 shadow-xl backdrop-blur-md">
+                        <h3 class="text-sm font-bold text-white">📊 My Cloud Performance Reports</h3>
                         <div id="reportsContainer" class="space-y-2">
-                            <p class="text-xs text-slate-500">Zero local device storage used. Fetching test history from cloud...</p>
+                            <p class="text-xs text-slate-500">Sign in to sync and view encrypted test performance logs.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab 3: Encrypted Media Stream Player -->
+                <!-- Tab 3: Encrypted Media Stream Vault -->
                 <div id="tabAudio" class="hidden space-y-4">
-                    <h3 class="text-lg font-bold text-white">🎙️ Token-Protected Media & Lecture Vault</h3>
-                    <div class="bg-slate-950 border border-slate-800 p-6 rounded-2xl space-y-4">
-                        <p class="text-xs text-slate-400">Paste your signed token link to stream encrypted heavy media securely:</p>
+                    <h3 class="text-base font-extrabold text-white">🎙️ Token-Protected Media & Lecture Vault</h3>
+                    <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl space-y-4 shadow-xl backdrop-blur-md">
+                        <p class="text-xs text-slate-400">Paste your signed token link to stream protected heavy media securely:</p>
                         <div class="flex gap-2">
-                            <input type="text" id="tokenPlayerInput" placeholder="Paste token-secured URL here..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
-                            <button onclick="playSecuredMedia()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">Verify & Stream</button>
+                            <input type="text" id="tokenPlayerInput" placeholder="Paste token-secured URL here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                            <button onclick="ApexCore.playSecuredMedia()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition">Verify & Stream</button>
                         </div>
-                        <div id="mediaContainer" class="pt-4"></div>
+                        <div id="mediaContainer" class="pt-2"></div>
                     </div>
                 </div>
 
                 <!-- Tab 4: Classroom Wall -->
                 <div id="tabBloopers" class="hidden space-y-4">
-                    <h3 class="text-lg font-bold text-white">😂 Classroom Wall & Teacher Quotes</h3>
+                    <h3 class="text-base font-extrabold text-white">😂 Classroom Wall & Teacher Quotes</h3>
                     <div class="grid gap-4 sm:grid-cols-2">
-                        <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl space-y-2">
-                            <p class="text-sm italic text-slate-200">"Negative marking tumhe khud yaad karne aayegi!"</p>
-                            <span class="text-xs text-indigo-400 font-semibold block">— Raghuraj Sir (Chemistry)</span>
+                        <div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-md">
+                            <p class="text-xs italic text-slate-200">"Negative marking tumhe khud yaad karne aayegi!"</p>
+                            <span class="text-[11px] text-indigo-400 font-bold block">— Raghuraj Sir (Chemistry)</span>
                         </div>
                     </div>
                 </div>
@@ -195,34 +203,34 @@
                 <!-- Tab 5: VIP Plans -->
                 <div id="tabVip" class="hidden space-y-6">
                     <div class="text-center max-w-xl mx-auto space-y-2">
-                        <h3 class="text-2xl font-bold text-white">Unlock ApexNotes VIP Membership</h3>
-                        <p class="text-sm text-slate-400">Get automatic access to token-protected video vaults and premium test series.</p>
+                        <h3 class="text-2xl font-extrabold text-white">Unlock ApexNotes VIP Membership</h3>
+                        <p class="text-xs text-slate-400">Get automatic access to token-protected video vaults and premium test series.</p>
                     </div>
 
-                    <div class="grid gap-6 md:grid-cols-3 pt-4">
-                        <div class="bg-slate-950 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between space-y-6">
+                    <div class="grid gap-6 md:grid-cols-3 pt-2">
+                        <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl flex flex-col justify-between space-y-6 shadow-xl backdrop-blur-md">
                             <div>
-                                <span class="text-xs font-semibold bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full">Monthly Pass</span>
+                                <span class="text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full uppercase">Monthly Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹99 <span class="text-xs font-normal text-slate-400">/ mo</span></div>
                             </div>
-                            <button onclick="initiatePayment(99, 'Monthly VIP Pass')" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-semibold">Pay via PhonePe / Paytm</button>
+                            <button onclick="ApexCore.initiatePayment(99, 'Monthly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Pay via UPI / PayTM</button>
                         </div>
 
-                        <div class="bg-slate-950 border-2 border-indigo-500 p-6 rounded-2xl flex flex-col justify-between space-y-6 relative shadow-xl">
-                            <div class="absolute -top-3 right-6 bg-indigo-600 text-white text-[10px] font-bold px-3 py-0.5 rounded-full uppercase">Best Value</div>
+                        <div class="bg-slate-900/80 border-2 border-indigo-500/80 p-6 rounded-2xl flex flex-col justify-between space-y-6 relative shadow-2xl backdrop-blur-md">
+                            <div class="absolute -top-3 right-6 bg-indigo-600 text-white text-[9px] font-extrabold px-3 py-0.5 rounded-full uppercase tracking-wider">Best Value</div>
                             <div>
-                                <span class="text-xs font-semibold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full">Yearly Pass</span>
+                                <span class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full uppercase">Yearly Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹799 <span class="text-xs font-normal text-slate-400">/ yr</span></div>
                             </div>
-                            <button onclick="initiatePayment(799, 'Yearly VIP Pass')" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-semibold">Pay via Razorpay</button>
+                            <button onclick="ApexCore.initiatePayment(799, 'Yearly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Pay via Razorpay</button>
                         </div>
 
-                        <div class="bg-slate-950 border border-slate-800 p-6 rounded-2xl flex flex-col justify-between space-y-6">
+                        <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl flex flex-col justify-between space-y-6 shadow-xl backdrop-blur-md">
                             <div>
-                                <span class="text-xs font-semibold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full">Lifetime Pass</span>
+                                <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full uppercase">Lifetime Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹1500 <span class="text-xs font-normal text-slate-400">/ lifetime</span></div>
                             </div>
-                            <button onclick="initiatePayment(1500, 'Lifetime VIP Membership')" class="w-full bg-amber-600 text-white py-2.5 rounded-xl text-xs font-semibold">Secure Lifetime Access</button>
+                            <button onclick="ApexCore.initiatePayment(1500, 'Lifetime VIP Membership')" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2.5 rounded-xl text-xs font-extrabold transition">Secure Lifetime Access</button>
                         </div>
                     </div>
                 </div>
@@ -232,17 +240,17 @@
     </div>
 
     <!-- Auth Modal -->
-    <div id="authModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur z-50 flex items-center justify-center p-4">
+    <div id="authModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-6 shadow-2xl">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-lg text-white">Sign In to ApexNotes</h3>
-                <button onclick="toggleAuthModal()" class="text-slate-400 hover:text-white">✕</button>
+                <h3 class="font-bold text-base text-white">Sign In to ApexNotes</h3>
+                <button onclick="ApexCore.toggleModal('authModal')" class="text-slate-400 hover:text-white">✕</button>
             </div>
             <div class="space-y-3">
-                <button onclick="socialLogin('google')" class="w-full bg-white text-slate-900 font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2">
+                <button onclick="ApexCore.socialLogin('google')" class="w-full bg-white text-slate-900 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition">
                     Continue with Google
                 </button>
-                <button onclick="socialLogin('apple')" class="w-full bg-slate-800 text-white font-semibold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700">
+                <button onclick="ApexCore.socialLogin('apple')" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 hover:bg-slate-700 transition">
                     Continue with Apple
                 </button>
             </div>
@@ -250,173 +258,192 @@
     </div>
 
     <!-- Upload Notes Modal -->
-    <div id="uploadModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur z-50 flex items-center justify-center p-4">
+    <div id="uploadModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl">
             <div class="flex justify-between items-center">
                 <h3 class="font-bold text-base text-white">Upload Content / Notes</h3>
-                <button onclick="toggleUploadModal()" class="text-slate-400 hover:text-white">✕</button>
+                <button onclick="ApexCore.toggleModal('uploadModal')" class="text-slate-400 hover:text-white">✕</button>
             </div>
             <div class="space-y-3">
-                <input type="text" id="noteTitle" placeholder="Title (e.g. Zoology Chapter)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
-                <input type="text" id="noteSubject" placeholder="Subject (Physics / Chemistry / Botany)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
-                <input type="text" id="noteUrl" placeholder="Cloud File URL" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white">
-                <button onclick="uploadNote()" class="w-full bg-indigo-600 text-white py-2.5 rounded-xl text-xs font-semibold">Publish to Cloud</button>
+                <input type="text" id="noteTitle" placeholder="Title (e.g. Zoology Chapter)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                <input type="text" id="noteSubject" placeholder="Subject (Physics / Chemistry / Botany)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                <input type="text" id="noteUrl" placeholder="Cloud File URL" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                <button onclick="ApexCore.uploadNote()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Publish to Cloud</button>
             </div>
         </div>
     </div>
 
+    <!-- Enterprise Modular Controller Script -->
     <script>
         const SUPABASE_URL = 'https://glfxzceeoaaprmjlgjyb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const myAdminEmail = "lakshya@gmail.com";
+        const ADMIN_EMAIL = 'lakshya@gmail.com';
 
-        function switchTab(tab) {
-            ['Notes', 'Tests', 'Audio', 'Bloopers', 'Vip'].forEach(t => {
-                const el = document.getElementById(`tab${t}`);
-                if (el) el.classList.add('hidden');
-                const nav = document.getElementById(`nav${t}`);
-                if (nav) nav.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-900";
-            });
-            const activeTab = document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
-            if (activeTab) activeTab.classList.remove('hidden');
-            const activeNav = document.getElementById(`nav${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
-            if (activeNav) {
-                if(tab === 'vip') {
-                    activeNav.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20";
-                } else {
-                    activeNav.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium bg-indigo-600/10 text-indigo-400 border border-indigo-500/20";
+        class ApexCoreEngine {
+            constructor() {
+                this.supabase = null;
+                this.currentUser = null;
+                this.initClient();
+            }
+
+            initClient() {
+                try {
+                    if (window.supabase && typeof window.supabase.createClient === 'function') {
+                        this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                        this.bootstrap();
+                    } else {
+                        setTimeout(() => this.initClient(), 100);
+                    }
+                } catch(e) {
+                    console.error("Supabase initialization error:", e);
                 }
             }
-            if(tab === 'tests') fetchReports();
-        }
 
-        function toggleAuthModal() { document.getElementById('authModal').classList.toggle('hidden'); }
-        function toggleUploadModal() { document.getElementById('uploadModal').classList.toggle('hidden'); }
+            async bootstrap() {
+                try {
+                    lucide.createIcons();
+                    await this.checkSession();
+                    await this.fetchNotes();
+                } catch(err) {
+                    console.error("Bootstrap execution error:", err);
+                }
+            }
 
-        async function checkUserSession() {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session && session.user) {
-                    document.getElementById('loggedOutView').classList.add('hidden');
-                    document.getElementById('loggedInView').classList.remove('hidden');
-                    document.getElementById('userEmailDisplay').innerText = session.user.email;
-                    if (session.user.email === myAdminEmail) {
-                        document.getElementById('adminPanel').classList.remove('hidden');
-                        document.getElementById('badgeDisplay').innerText = "Creator Admin";
-                        document.getElementById('badgeDisplay').className = "text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-bold";
+            switchTab(tab) {
+                const tabs = ['Notes', 'Tests', 'Audio', 'Bloopers', 'Vip'];
+                tabs.forEach(t => {
+                    const el = document.getElementById(`tab${t}`);
+                    const nav = document.getElementById(`nav${t}`);
+                    if (el) el.classList.add('hidden');
+                    if (nav) {
+                        nav.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all";
+                    }
+                });
+
+                const activeEl = document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+                const activeNav = document.getElementById(`nav${tab.charAt(0).toUpperCase() + tab.slice(1)}`);
+                
+                if (activeEl) activeEl.classList.remove('hidden');
+                if (activeNav) {
+                    if (tab === 'vip') {
+                        activeNav.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 transition-all";
                     } else {
-                        checkVipStatus(session.user.email);
+                        activeNav.className = "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600/10 text-indigo-400 border border-indigo-500/20 transition-all";
                     }
                 }
-            } catch(err) {
-                console.log("Session check notice:", err);
+                if (tab === 'tests') this.fetchReports();
             }
-        }
 
-        async function checkVipStatus(email) {
-            try {
-                const { data } = await supabase.from('profiles').select('is_subscribed').eq('email', email).single();
-                if (data && data.is_subscribed) {
-                    document.getElementById('badgeDisplay').innerText = "VIP Member";
-                    document.getElementById('badgeDisplay').className = "text-[10px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full font-bold";
+            toggleModal(modalId) {
+                const modal = document.getElementById(modalId);
+                if (modal) modal.classList.toggle('hidden');
+            }
+
+            async checkSession() {
+                if (!this.supabase) return;
+                try {
+                    const { data: { session } } = await this.supabase.auth.getSession();
+                    if (session && session.user) {
+                        this.currentUser = session.user;
+                        document.getElementById('loggedOutView').classList.add('hidden');
+                        document.getElementById('loggedInView').classList.remove('hidden');
+                        document.getElementById('userEmailDisplay').innerText = session.user.email;
+                        
+                        if (session.user.email === ADMIN_EMAIL) {
+                            document.getElementById('adminPanel').classList.remove('hidden');
+                            document.getElementById('badgeDisplay').innerText = "Creator Admin";
+                            document.getElementById('badgeDisplay').className = "text-[9px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-extrabold uppercase";
+                        } else {
+                            this.verifyVip(session.user.email);
+                        }
+                    }
+                } catch(e) {
+                    console.log("Session check warning:", e);
                 }
-            } catch(e) {}
-        }
-
-        async function socialLogin(provider) {
-            await supabase.auth.signInWithOAuth({ provider: provider });
-        }
-
-        async function handleLogout() {
-            await supabase.auth.signOut();
-            sessionStorage.clear();
-            window.location.reload();
-        }
-
-        function generateSecureTokenLink() {
-            const rawUrl = document.getElementById('rawMediaUrl').value;
-            if(!rawUrl) { alert('Please enter a media URL first!'); return; }
-            
-            const expiryTime = Date.now() + (24 * 60 * 60 * 1000);
-            const secretHash = btoa(rawUrl + "-apex-secure-key-" + expiryTime);
-            const secureSignedLink = `${window.location.origin}/#stream?token=${secretHash}&exp=${expiryTime}&src=${encodeURIComponent(rawUrl)}`;
-            
-            const out = document.getElementById('generatedTokenOutput');
-            out.classList.remove('hidden');
-            out.innerText = secureSignedLink;
-        }
-
-        function playSecuredMedia() {
-            const inputVal = document.getElementById('tokenPlayerInput').value;
-            const container = document.getElementById('mediaContainer');
-            
-            if(!inputVal.includes('token=')) {
-                container.innerHTML = `<p class="text-xs text-rose-400">❌ Access Denied: Invalid or Unverified Token Link.</p>`;
-                return;
             }
 
-            try {
-                const urlParams = new URLSearchParams(inputVal.split('#stream?')[1]);
-                const exp = parseInt(urlParams.get('exp'));
-                const originalSrc = decodeURIComponent(urlParams.get('src'));
+            async verifyVip(email) {
+                try {
+                    const { data } = await this.supabase.from('profiles').select('is_subscribed').eq('email', email).single();
+                    if (data && data.is_subscribed) {
+                        document.getElementById('badgeDisplay').innerText = "VIP Member";
+                        document.getElementById('badgeDisplay').className = "text-[9px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full font-extrabold uppercase";
+                    }
+                } catch(e) {}
+            }
 
-                if(Date.now() > exp) {
-                    container.innerHTML = `<p class="text-xs text-rose-400">❌ This secure token link has expired (24h limit reached).</p>`;
+            async socialLogin(provider) {
+                if (!this.supabase) return;
+                await this.supabase.auth.signInWithOAuth({ provider });
+            }
+
+            async handleLogout() {
+                if (!this.supabase) return;
+                await this.supabase.auth.signOut();
+                window.location.reload();
+            }
+
+            generateSecureTokenLink() {
+                const rawUrl = document.getElementById('rawMediaUrl').value;
+                if (!rawUrl) { alert('Please enter a valid media URL first.'); return; }
+                const expiry = Date.now() + (24 * 60 * 60 * 1000);
+                const hash = btoa(rawUrl + "-apex-secret-" + expiry);
+                const link = `${window.location.origin}/#stream?token=${hash}&exp=${expiry}&src=${encodeURIComponent(rawUrl)}`;
+                const out = document.getElementById('generatedTokenOutput');
+                out.classList.remove('hidden');
+                out.innerText = link;
+            }
+
+            playSecuredMedia() {
+                const val = document.getElementById('tokenPlayerInput').value;
+                const container = document.getElementById('mediaContainer');
+                if (!val.includes('token=')) {
+                    container.innerHTML = `<p class="text-xs text-rose-400">❌ Access Denied: Invalid or Unverified Token Link.</p>`;
                     return;
                 }
-
-                container.innerHTML = `
-                    <div class="space-y-2">
-                        <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded">✔ Token Verified & Secured</span>
-                        <video controls class="w-full rounded-xl border border-slate-800 max-h-96">
-                            <source src="${originalSrc}" type="video/mp4">
-                            Your browser does not support video streaming.
-                        </video>
-                    </div>
-                `;
-            } catch(e) {
-                container.innerHTML = `<p class="text-xs text-rose-400">❌ Malformed token structure.</p>`;
+                try {
+                    const params = new URLSearchParams(val.split('#stream?')[1]);
+                    const exp = parseInt(params.get('exp'));
+                    const src = decodeURIComponent(params.get('src'));
+                    if (Date.now() > exp) {
+                        container.innerHTML = `<p class="text-xs text-rose-400">❌ Token expired (24h limit reached).</p>`;
+                        return;
+                    }
+                    container.innerHTML = `
+                        <div class="space-y-2">
+                            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded font-mono">✔ Token Verified & Secured</span>
+                            <video controls class="w-full rounded-xl border border-slate-800 max-h-96">
+                                <source src="${src}" type="video/mp4">
+                                Your browser does not support video streaming.
+                            </video>
+                        </div>`;
+                } catch(e) {
+                    container.innerHTML = `<p class="text-xs text-rose-400">❌ Malformed token structure.</p>`;
+                }
             }
-        }
 
-        async function submitTestReport() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) { alert('Please sign in first to sync your test report to the cloud.'); toggleAuthModal(); return; }
-
-            const score = 172; 
-            const { error } = await supabase.from('student_submissions').insert([{
-                user_email: session.user.email,
-                test_name: 'Mock Test #1: Cell Biology',
-                score: score,
-                status: 'Evaluated'
-            }]);
-
-            if(error) {
-                alert('Error syncing report: ' + error.message);
-            } else {
-                alert('Test submitted successfully! Report securely stored in cloud.');
-                fetchReports();
+            async submitTestReport() {
+                if (!this.currentUser) { alert('Please sign in first.'); this.toggleModal('authModal'); return; }
+                const { error } = await this.supabase.from('student_submissions').insert([{
+                    user_email: this.currentUser.email,
+                    test_name: 'Mock Test #1: Cell Biology',
+                    score: 172,
+                    status: 'Evaluated'
+                }]);
+                if (error) alert('Error syncing report: ' + error.message);
+                else { alert('Test submitted successfully to cloud.'); this.fetchReports(); }
             }
-        }
 
-        async function fetchReports() {
-            try {
-                const { data: { session } } = await supabase.auth.getSession();
+            async fetchReports() {
+                if (!this.currentUser) return;
+                const { data } = await this.supabase.from('student_submissions').select('*').eq('user_email', this.currentUser.email);
                 const container = document.getElementById('reportsContainer');
-                if(!session) {
-                    container.innerHTML = `<p class="text-xs text-slate-500">Sign in to view your encrypted cloud test history.</p>`;
-                    return;
-                }
-
-                const { data } = await supabase.from('student_submissions').select('*').eq('user_email', session.user.email);
-                if(!data || data.length === 0) {
+                if (!data || data.length === 0) {
                     container.innerHTML = `<p class="text-xs text-slate-500">No submission logs found in cloud.</p>`;
                     return;
                 }
-
                 container.innerHTML = data.map(r => `
-                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex justify-between items-center text-xs">
+                    <div class="bg-slate-950/60 border border-slate-800/80 p-3 rounded-xl flex justify-between items-center text-xs">
                         <div>
                             <span class="font-bold text-white block">${r.test_name}</span>
                             <span class="text-slate-400">Status: ${r.status}</span>
@@ -424,61 +451,58 @@
                         <span class="font-mono text-emerald-400 font-bold">${r.score} Marks</span>
                     </div>
                 `).join('');
-            } catch(e) {}
-        }
+            }
 
-        async function fetchNotes() {
-            try {
-                const { data, error } = await supabase.from('notes').select('*');
-                const container = document.getElementById('notesContainer');
-                if (error || !data || data.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-500">No cloud notes available or tables need setup in Supabase SQL editor.</p>`;
-                    return;
-                }
-                container.innerHTML = data.map(n => `
-                    <div class="bg-slate-950 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4">
-                        <div>
-                            <span class="text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full">${n.subject}</span>
-                            <h4 class="font-bold text-sm text-white mt-2">${n.title}</h4>
+            async fetchNotes() {
+                try {
+                    const { data } = await this.supabase.from('notes').select('*');
+                    const container = document.getElementById('notesContainer');
+                    if (!data || data.length === 0) {
+                        container.innerHTML = `<p class="text-xs text-slate-500">No cloud notes available.</p>`;
+                        return;
+                    }
+                    container.innerHTML = data.map(n => `
+                        <div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl backdrop-blur-md">
+                            <div>
+                                <span class="text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full uppercase">${n.subject}</span>
+                                <h4 class="font-bold text-xs text-white mt-2.5">${n.title}</h4>
+                            </div>
+                            <a href="${n.file_url}" target="_blank" class="text-center bg-slate-950 hover:bg-slate-800 text-slate-300 py-2 rounded-xl text-xs font-bold border border-slate-800 transition">Open Cloud Link</a>
                         </div>
-                        <a href="${n.file_url}" target="_blank" class="text-center bg-slate-900 text-slate-300 py-2 rounded-xl text-xs font-semibold border border-slate-800">Open Cloud Link</a>
-                    </div>
-                `).join('');
-            } catch(e) {
-                console.log("Notes fetch error:", e);
+                    `).join('');
+                } catch(e) {}
+            }
+
+            async uploadNote() {
+                const title = document.getElementById('noteTitle').value;
+                const subject = document.getElementById('noteSubject').value;
+                const file_url = document.getElementById('noteUrl').value;
+                if (!title || !subject || !file_url) { alert('Please fill in all fields.'); return; }
+                const { error } = await this.supabase.from('notes').insert([{ title, subject, file_url }]);
+                if (error) { alert('Upload failed: ' + error.message); return; }
+                alert('Published to cloud successfully!');
+                this.toggleModal('uploadModal');
+                this.fetchNotes();
+            }
+
+            async updatePrice() {
+                const val = document.getElementById('priceInput').value;
+                await this.supabase.from('app_settings').update({ setting_value: val }).eq('setting_key', 'subscription_price');
+                alert('Subscription price updated successfully!');
+            }
+
+            async grantVIP() {
+                const email = document.getElementById('vipEmail').value;
+                await this.supabase.from('profiles').update({ is_subscribed: true }).eq('email', email);
+                alert(`VIP Access granted successfully to ${email}`);
+            }
+
+            initiatePayment(amount, plan) {
+                alert(`Redirecting to Secure Gateway for ${plan} — Amount: ₹${amount}`);
             }
         }
 
-        async function uploadNote() {
-            const title = document.getElementById('noteTitle').value;
-            const subject = document.getElementById('noteSubject').value;
-            const file_url = document.getElementById('noteUrl').value;
-            const { error } = await supabase.from('notes').insert([{ title, subject, file_url }]);
-            if(error) { alert('Upload failed: ' + error.message); return; }
-            alert('Published to cloud successfully!');
-            toggleUploadModal();
-            fetchNotes();
-        }
-
-        async function updatePrice() {
-            const val = document.getElementById('priceInput').value;
-            await supabase.from('app_settings').update({ setting_value: val }).eq('setting_key', 'subscription_price');
-            alert('Subscription price updated successfully!');
-        }
-
-        async function grantVIP() {
-            const email = document.getElementById('vipEmail').value;
-            await supabase.from('profiles').update({ is_subscribed: true }).eq('email', email);
-            alert(`VIP Access granted successfully to ${email}`);
-        }
-
-        function initiatePayment(amount, plan) {
-            alert(`Redirecting to Secure Gateway for ${plan} — Amount: ₹${amount}`);
-        }
-
-        lucide.createIcons();
-        checkUserSession();
-        fetchNotes();
+        const ApexCore = new ApexCoreEngine();
     </script>
 </body>
 </html>

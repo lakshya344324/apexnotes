@@ -39,7 +39,7 @@
                         <i data-lucide="headphones" class="w-4 h-4"></i> Encrypted Media Vault
                     </button>
                     <button onclick="ApexCore.switchTab('bloopers')" id="navBloopers" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
-                        <i data-lucide="smile" class="w-4 h-4"></i> Classroom Wall
+                        <i data-lucide="smile" class="w-4 h-4"></i> Classroom Wall & Events
                     </button>
                     <button onclick="ApexCore.switchTab('vip')" id="navVip" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 mt-4 transition-all">
                         <i data-lucide="crown" class="w-4 h-4"></i> VIP Tier Access
@@ -85,23 +85,37 @@
             <div class="p-6 md:p-8 max-w-5xl mx-auto w-full space-y-8">
                 
                 <!-- Creator Admin Panel -->
-                <div id="adminPanel" class="hidden bg-slate-900/80 border-2 border-indigo-500/40 p-6 rounded-2xl shadow-2xl space-y-5">
+                <div id="adminPanel" class="hidden bg-slate-900/90 border-2 border-indigo-500/50 p-6 rounded-2xl shadow-2xl space-y-6">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] font-extrabold bg-indigo-600 text-white px-2.5 py-1 rounded-full uppercase tracking-wider">👑 Creator Admin Panel</span>
-                            <span class="text-xs text-slate-400">Secure Token Generator & Access Manager</span>
+                            <span class="text-xs text-slate-400">Full Control Hub</span>
                         </div>
                     </div>
                     
+                    <!-- 1. Custom Test Builder -->
                     <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-3">
-                        <label class="block text-xs font-bold text-indigo-400">Generate Anti-Bypass Signed Media Token (24h Expiry)</label>
+                        <label class="block text-xs font-bold text-indigo-400">➕ Create & Publish Custom Mock Test Question</label>
                         <div class="grid gap-2 sm:grid-cols-2">
-                            <input type="text" id="rawMediaUrl" placeholder="Paste heavy video/audio URL..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                            <button onclick="ApexCore.generateSecureTokenLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-2 rounded-lg text-xs font-bold transition">Generate Signed Token</button>
+                            <input type="text" id="adminTestTitle" placeholder="Test Name (e.g. Zoology Minor #2)" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <input type="text" id="adminQuestionText" placeholder="Question statement..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <input type="text" id="adminOptionA" placeholder="Option A" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <input type="text" id="adminOptionB" placeholder="Option B" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
                         </div>
-                        <div id="generatedTokenOutput" class="hidden p-3 bg-slate-900 rounded-lg border border-slate-800 text-[11px] font-mono text-emerald-400 break-all"></div>
+                        <button onclick="ApexCore.publishCustomTest()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-xs font-bold transition">Publish Custom Test to Cloud</button>
                     </div>
 
+                    <!-- 2. Classroom Event / Quote Publisher -->
+                    <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-3">
+                        <label class="block text-xs font-bold text-amber-400">📢 Publish Classroom Event / Quote / Announcement</label>
+                        <div class="grid gap-2 sm:grid-cols-2">
+                            <input type="text" id="adminEventText" placeholder="Quote or Event description..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <input type="text" id="adminEventAuthor" placeholder="Author / Teacher (e.g. Raghuraj Sir)" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                        </div>
+                        <button onclick="ApexCore.publishClassEvent()" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2 rounded-lg text-xs font-extrabold transition">Publish to Classroom Wall</button>
+                    </div>
+
+                    <!-- 3. Signed Token Generator & Pricing -->
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-2">
                             <label class="block text-xs font-bold text-slate-400">Update Monthly Price (₹)</label>
@@ -143,7 +157,7 @@
                         <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                             <div>
                                 <span class="text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full uppercase tracking-wider">NEET Minor Exam Pattern</span>
-                                <h3 class="text-base font-bold text-white mt-1.5">Mock Test #1: Cell Biology & Biomolecules</h3>
+                                <h3 id="activeTestTitle" class="text-base font-bold text-white mt-1.5">Mock Test #1: Cell Biology & Biomolecules</h3>
                             </div>
                             <div class="text-right">
                                 <span class="text-[10px] text-slate-400 block font-semibold uppercase">Timer Remaining</span>
@@ -151,7 +165,7 @@
                             </div>
                         </div>
 
-                        <div class="space-y-4">
+                        <div id="testContainer" class="space-y-4">
                             <div class="p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-3">
                                 <p class="text-xs font-bold text-white">Q1. Which cell organelle is devoid of membrane?</p>
                                 <div class="space-y-2 text-xs text-slate-300">
@@ -189,10 +203,10 @@
                     </div>
                 </div>
 
-                <!-- Tab 4: Classroom Wall -->
+                <!-- Tab 4: Classroom Wall & Events -->
                 <div id="tabBloopers" class="hidden space-y-4">
                     <h3 class="text-base font-extrabold text-white">😂 Classroom Wall & Teacher Quotes</h3>
-                    <div class="grid gap-4 sm:grid-cols-2">
+                    <div id="eventsContainer" class="grid gap-4 sm:grid-cols-2">
                         <div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-md">
                             <p class="text-xs italic text-slate-200">"Negative marking tumhe khud yaad karne aayegi!"</p>
                             <span class="text-[11px] text-indigo-400 font-bold block">— Raghuraj Sir (Chemistry)</span>
@@ -200,7 +214,7 @@
                     </div>
                 </div>
 
-                <!-- Tab 5: VIP Plans -->
+                <!-- Tab 5: VIP Plans (PhonePe, Paytm, Razorpay) -->
                 <div id="tabVip" class="hidden space-y-6">
                     <div class="text-center max-w-xl mx-auto space-y-2">
                         <h3 class="text-2xl font-extrabold text-white">Unlock ApexNotes VIP Membership</h3>
@@ -213,7 +227,7 @@
                                 <span class="text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full uppercase">Monthly Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹99 <span class="text-xs font-normal text-slate-400">/ mo</span></div>
                             </div>
-                            <button onclick="ApexCore.initiatePayment(99, 'Monthly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Pay via UPI / PayTM</button>
+                            <button onclick="ApexCore.initiatePayment(99, 'Monthly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20">Pay via PhonePe / Paytm / UPI</button>
                         </div>
 
                         <div class="bg-slate-900/80 border-2 border-indigo-500/80 p-6 rounded-2xl flex flex-col justify-between space-y-6 relative shadow-2xl backdrop-blur-md">
@@ -222,7 +236,7 @@
                                 <span class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full uppercase">Yearly Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹799 <span class="text-xs font-normal text-slate-400">/ yr</span></div>
                             </div>
-                            <button onclick="ApexCore.initiatePayment(799, 'Yearly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Pay via Razorpay</button>
+                            <button onclick="ApexCore.initiatePayment(799, 'Yearly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20">Pay via Razorpay / Card</button>
                         </div>
 
                         <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl flex flex-col justify-between space-y-6 shadow-xl backdrop-blur-md">
@@ -230,7 +244,7 @@
                                 <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full uppercase">Lifetime Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹1500 <span class="text-xs font-normal text-slate-400">/ lifetime</span></div>
                             </div>
-                            <button onclick="ApexCore.initiatePayment(1500, 'Lifetime VIP Membership')" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2.5 rounded-xl text-xs font-extrabold transition">Secure Lifetime Access</button>
+                            <button onclick="ApexCore.initiatePayment(1500, 'Lifetime VIP Membership')" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2.5 rounded-xl text-xs font-extrabold transition shadow-lg shadow-amber-600/20">Secure Lifetime Access</button>
                         </div>
                     </div>
                 </div>
@@ -239,7 +253,7 @@
         </main>
     </div>
 
-    <!-- Auth Modal -->
+    <!-- Auth Modal (Google & Apple OAuth) -->
     <div id="authModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-6 shadow-2xl">
             <div class="flex justify-between items-center">
@@ -247,10 +261,10 @@
                 <button onclick="ApexCore.toggleModal('authModal')" class="text-slate-400 hover:text-white">✕</button>
             </div>
             <div class="space-y-3">
-                <button onclick="ApexCore.socialLogin('google')" class="w-full bg-white text-slate-900 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition">
+                <button onclick="ApexCore.socialLogin('google')" class="w-full bg-white text-slate-900 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition shadow-md">
                     Continue with Google
                 </button>
-                <button onclick="ApexCore.socialLogin('apple')" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 hover:bg-slate-700 transition">
+                <button onclick="ApexCore.socialLogin('apple')" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 hover:bg-slate-700 transition shadow-md">
                     Continue with Apple
                 </button>
             </div>
@@ -304,6 +318,8 @@
                     lucide.createIcons();
                     await this.checkSession();
                     await this.fetchNotes();
+                    await this.fetchCustomTests();
+                    await this.fetchClassEvents();
                 } catch(err) {
                     console.error("Bootstrap execution error:", err);
                 }
@@ -374,7 +390,11 @@
 
             async socialLogin(provider) {
                 if (!this.supabase) return;
-                await this.supabase.auth.signInWithOAuth({ provider });
+                const { error } = await this.supabase.auth.signInWithOAuth({ 
+                    provider,
+                    options: { redirectTo: window.location.origin }
+                });
+                if(error) alert('Login error: ' + error.message);
             }
 
             async handleLogout() {
@@ -383,22 +403,100 @@
                 window.location.reload();
             }
 
-            generateSecureTokenLink() {
-                const rawUrl = document.getElementById('rawMediaUrl').value;
-                if (!rawUrl) { alert('Please enter a valid media URL first.'); return; }
-                const expiry = Date.now() + (24 * 60 * 60 * 1000);
-                const hash = btoa(rawUrl + "-apex-secret-" + expiry);
-                const link = `${window.location.origin}/#stream?token=${hash}&exp=${expiry}&src=${encodeURIComponent(rawUrl)}`;
-                const out = document.getElementById('generatedTokenOutput');
-                out.classList.remove('hidden');
-                out.innerText = link;
+            // --- Admin Custom Test Builder ---
+            async publishCustomTest() {
+                const title = document.getElementById('adminTestTitle').value;
+                const qText = document.getElementById('adminQuestionText').value;
+                const optA = document.getElementById('adminOptionA').value;
+                const optB = document.getElementById('adminOptionB').value;
+
+                if(!title || !qText) { alert('Please enter test title and question.'); return; }
+
+                const { error } = await this.supabase.from('notes').insert([{
+                    title: `TEST: ${title}`,
+                    subject: `Q: ${qText} | A) ${optA} | B) ${optB}`,
+                    file_url: '#'
+                }]);
+
+                if(error) alert('Error publishing test: ' + error.message);
+                else {
+                    alert('Custom test published successfully to cloud!');
+                    this.fetchCustomTests();
+                }
+            }
+
+            async fetchCustomTests() {
+                try {
+                    const { data } = await this.supabase.from('notes').select('*').ilike('title', 'TEST:%');
+                    if(data && data.length > 0) {
+                        const latest = data[data.length - 1];
+                        document.getElementById('activeTestTitle').innerText = latest.title.replace('TEST: ', '');
+                        document.getElementById('testContainer').innerHTML = `
+                            <div class="p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-3">
+                                <p class="text-xs font-bold text-white">${latest.subject}</p>
+                                <div class="space-y-2 text-xs text-slate-300">
+                                    <label class="flex items-center gap-3 p-2.5 bg-slate-900/80 rounded-lg border border-slate-800 cursor-pointer">
+                                        <input type="radio" name="custom_q" value="A"> Option A
+                                    </label>
+                                    <label class="flex items-center gap-3 p-2.5 bg-slate-900/80 rounded-lg border border-slate-800 cursor-pointer">
+                                        <input type="radio" name="custom_q" value="B"> Option B
+                                    </label>
+                                </div>
+                            </div>
+                        `;
+                    }
+                } catch(e) {}
+            }
+
+            // --- Admin Classroom Wall & Event Publisher ---
+            async publishClassEvent() {
+                const text = document.getElementById('adminEventText').value;
+                const author = document.getElementById('adminEventAuthor').value;
+
+                if(!text || !author) { alert('Please enter event text and author.'); return; }
+
+                const { error } = await this.supabase.from('app_settings').insert([{
+                    setting_key: `event_${Date.now()}`,
+                    setting_value: `${text}___${author}`
+                }]);
+
+                if(error) alert('Error publishing event: ' + error.message);
+                else {
+                    alert('Classroom event published successfully!');
+                    this.fetchClassEvents();
+                }
+            }
+
+            async fetchClassEvents() {
+                try {
+                    const { data } = await this.supabase.from('app_settings').select('*').ilike('setting_key', 'event_%');
+                    const container = document.getElementById('eventsContainer');
+                    let html = `
+                        <div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-md">
+                            <p class="text-xs italic text-slate-200">"Negative marking tumhe khud yaad karne aayegi!"</p>
+                            <span class="text-[11px] text-indigo-400 font-bold block">— Raghuraj Sir (Chemistry)</span>
+                        </div>
+                    `;
+                    if(data && data.length > 0) {
+                        html += data.map(ev => {
+                            const parts = ev.setting_value.split('___');
+                            return `
+                                <div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-md">
+                                    <p class="text-xs italic text-slate-200">"${parts[0]}"</p>
+                                    <span class="text-[11px] text-amber-400 font-bold block">— ${parts[1] || 'Instructor'}</span>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                    container.innerHTML = html;
+                } catch(e) {}
             }
 
             playSecuredMedia() {
                 const val = document.getElementById('tokenPlayerInput').value;
                 const container = document.getElementById('mediaContainer');
                 if (!val.includes('token=')) {
-                    container.innerHTML = `<p class="text-xs text-rose-400">❌ Access Denied: Invalid or Unverified Token Link.</p>`;
+                    container.innerHTML = `<p class="text-xs text-rose-400">❌ Access Denied: Invalid Token Link.</p>`;
                     return;
                 }
                 try {
@@ -426,7 +524,7 @@
                 if (!this.currentUser) { alert('Please sign in first.'); this.toggleModal('authModal'); return; }
                 const { error } = await this.supabase.from('student_submissions').insert([{
                     user_email: this.currentUser.email,
-                    test_name: 'Mock Test #1: Cell Biology',
+                    test_name: document.getElementById('activeTestTitle').innerText,
                     score: 172,
                     status: 'Evaluated'
                 }]);
@@ -455,7 +553,7 @@
 
             async fetchNotes() {
                 try {
-                    const { data } = await this.supabase.from('notes').select('*');
+                    const { data } = await this.supabase.from('notes').select('*').not('title', 'ilike', 'TEST:%');
                     const container = document.getElementById('notesContainer');
                     if (!data || data.length === 0) {
                         container.innerHTML = `<p class="text-xs text-slate-500">No cloud notes available.</p>`;
@@ -498,7 +596,7 @@
             }
 
             initiatePayment(amount, plan) {
-                alert(`Redirecting to Secure Gateway for ${plan} — Amount: ₹${amount}`);
+                alert(`Redirecting to Secure Gateway (PhonePe / Paytm / UPI / Razorpay) for ${plan} — Amount: ₹${amount}`);
             }
         }
 

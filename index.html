@@ -84,7 +84,7 @@
                             <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500 transition-transform duration-300" id="icon_menuExams"></i>
                         </button>
                         <div id="menuExams" class="pl-4 space-y-1 pt-1.5 border-t border-slate-800/50 hidden">
-                            <button onclick="QuantumCore.route('exams', 'live')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-amber-600/20 transition flex items-center justify-between">⏱️ Sequential Test (9am-12pm) <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span></button>
+                            <button onclick="QuantumCore.route('exams', 'live')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-amber-600/20 transition flex items-center justify-between">⏱️ Sequential Test (9am-12am) <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span></button>
                             <button onclick="QuantumCore.route('exams', 'telemetry')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-amber-600/20 transition">📊 Telemetry & Analytics</button>
                         </div>
                     </div>
@@ -152,7 +152,7 @@
                     
                     <div class="grid gap-6 md:grid-cols-2">
                         <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                            <label class="block text-xs font-bold text-indigo-400">📤 Bulk Inject 90 or 180 Questions (JSON / Batch)</label>
+                            <label class="block text-xs font-bold text-indigo-400">📤 Bulk Inject Questions (JSON / Batch)</label>
                             <input type="text" id="adminBulkTestTitle" placeholder="Test Name (e.g. NEET Minor Full Test #1)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                             <textarea id="adminBulkJsonInput" placeholder='Paste JSON array: [{"q":1, "text":"Q stmt", "a":"OptA", "b":"OptB", "c":"OptC", "d":"OptD", "ans":"A"}, ...]' rows="5" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white font-mono"></textarea>
                             <button onclick="QuantumCore.injectBulkExam()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Inject Bulk Exam Questions to Cloud</button>
@@ -189,12 +189,12 @@
                     </div>
                 </div>
 
-                <!-- Section: Sequential Timed Exam Taker (9am - 12pm) -->
+                <!-- Section: Sequential Timed Exam Taker (9am - 12am) -->
                 <div id="sectionExams" class="hidden space-y-6">
                     <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl space-y-6 shadow-2xl backdrop-blur-xl">
                         <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-4 gap-2">
                             <div>
-                                <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full uppercase tracking-wider">Window: 9:00 AM – 12:00 PM</span>
+                                <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full uppercase tracking-wider">Window: 9:00 AM – 12:00 AM</span>
                                 <h3 id="activeExamTitle" class="text-base font-bold text-white mt-2">NEET Full Mock Examination</h3>
                             </div>
                             <div class="text-left md:text-right">
@@ -302,7 +302,7 @@
                 this.isAdmin = false;
                 this.questionsList = [];
                 this.currentQuestionIdx = 0;
-                this.studentResponses = {}; // stores question index -> selected option
+                this.studentResponses = {};
                 this.initClient();
             }
 
@@ -314,23 +314,36 @@
                     } else {
                         setTimeout(() => this.initClient(), 100);
                     }
-                } catch(e) { console.error(e); }
+                } catch(e) { 
+                    console.error(e); 
+                    this.removeLoader();
+                }
+            }
+
+            removeLoader() {
+                const loader = document.getElementById('quantumLoader');
+                if(loader) { 
+                    loader.style.opacity = '0'; 
+                    setTimeout(() => loader.remove(), 700); 
+                }
             }
 
             async bootstrap() {
+                const safetyTimer = setTimeout(() => this.removeLoader(), 1500);
+
                 try {
                     lucide.createIcons();
-                    await this.checkSession();
-                    await this.fetchNotes('botany');
-                    await this.loadBulkExamQuestions();
-                    await this.fetchClassEvents();
+                    await this.checkSession().catch(e => console.log(e));
+                    await this.fetchNotes('botany').catch(e => console.log(e));
+                    await this.loadBulkExamQuestions().catch(e => console.log(e));
+                    await this.fetchClassEvents().catch(e => console.log(e));
                     this.checkTestWindow();
-                    
-                    setTimeout(() => {
-                        const loader = document.getElementById('quantumLoader');
-                        if(loader) { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 700); }
-                    }, 600);
-                } catch(err) { console.error(err); }
+                } catch(err) {
+                    console.error(err);
+                } finally {
+                    clearTimeout(safetyTimer);
+                    this.removeLoader();
+                }
             }
 
             toggleMobileMenu() {
@@ -367,6 +380,7 @@
                     document.getElementById('loggedOutView').classList.add('hidden');
                     document.getElementById('loggedInView').classList.remove('hidden');
                     document.getElementById('userEmailDisplay').innerText = "Admin (Override)";
+                    document.getElementById('studentGoogleIdentityBadge').innerText = "Google Account: Admin Override";
                     this.fetchAdminSubmissions();
                     alert('Admin unlocked!');
                 } else { alert('Invalid PIN'); }
@@ -399,14 +413,15 @@
                 const now = new Date();
                 const hours = now.getHours();
                 const badge = document.getElementById('testWindowBadge');
-                if (this.isAdmin || (hours >= 9 && hours < 12)) {
-                    if(badge) badge.innerText = "🟢 Window Active (9am - 12pm)";
+                
+                // Active from 9:00 AM (hour 9) to 12:00 AM midnight (hour 0 or >= 9)
+                if (this.isAdmin || (hours >= 9 || hours < 24)) {
+                    if(badge) badge.innerText = "🟢 Window Active (9am - 12am)";
                 } else {
-                    if(badge) badge.innerText = "🔴 Locked (Active 9am - 12pm)";
+                    if(badge) badge.innerText = "🔴 Locked";
                 }
             }
 
-            // --- Bulk Exam Injector for Admin ---
             async injectBulkExam() {
                 if(!this.isAdmin) return;
                 const title = document.getElementById('adminBulkTestTitle').value;
@@ -470,7 +485,6 @@
                     </label>
                 `;
 
-                // Show Final Submit button on the last question
                 const submitWrapper = document.getElementById('examSubmitButtonWrapper');
                 if(this.currentQuestionIdx === this.questionsList.length - 1) {
                     submitWrapper.innerHTML = `<button onclick="QuantumCore.submitFinalExam()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-6 py-2.5 rounded-xl text-xs font-black transition shadow-lg">Final Submit All</button>`;
@@ -479,22 +493,14 @@
                 }
             }
 
-            saveResponse(opt) {
-                this.studentResponses[this.currentQuestionIdx] = opt;
-            }
+            saveResponse(opt) { this.studentResponses[this.currentQuestionIdx] = opt; }
 
             nextQuestion() {
-                if(this.currentQuestionIdx < this.questionsList.length - 1) {
-                    this.currentQuestionIdx++;
-                    this.renderQuestion();
-                }
+                if(this.currentQuestionIdx < this.questionsList.length - 1) { this.currentQuestionIdx++; this.renderQuestion(); }
             }
 
             prevQuestion() {
-                if(this.currentQuestionIdx > 0) {
-                    this.currentQuestionIdx--;
-                    this.renderQuestion();
-                }
+                if(this.currentQuestionIdx > 0) { this.currentQuestionIdx--; this.renderQuestion(); }
             }
 
             async submitFinalExam() {
@@ -505,13 +511,11 @@
                 }
 
                 const email = this.isAdmin ? 'admin@quantum.local' : this.currentUser.email;
-                
-                // Calculate score
                 let correctCount = 0;
                 this.questionsList.forEach((q, idx) => {
                     if(this.studentResponses[idx] === q.correct_option) correctCount++;
                 });
-                let calculatedScore = correctCount * 4; // +4 for correct
+                let calculatedScore = correctCount * 4;
 
                 const { error } = await this.supabase.from('student_submissions').insert([{
                     user_email: email,

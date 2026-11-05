@@ -16,13 +16,6 @@
                     },
                     animation: {
                         'neural-pulse': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'matrix-glow': 'glow 2s ease-in-out infinite alternate',
-                    },
-                    keyframes: {
-                        glow: {
-                            '0%': { boxShadow: '0 0 5px rgba(99, 102, 241, 0.2)' },
-                            '100%': { boxShadow: '0 0 20px rgba(99, 102, 241, 0.8)' }
-                        }
                     }
                 }
             }
@@ -32,7 +25,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Supabase Core SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Chart.js for Quantum Telemetry Analytics -->
+    <!-- Chart.js for Telemetry Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-[#05050a] text-slate-100 h-full font-mono antialiased selection:bg-indigo-500 selection:text-white overflow-hidden">
@@ -43,7 +36,7 @@
             <div class="absolute inset-0 border-4 border-indigo-500/20 rounded-full animate-ping"></div>
             <div class="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <div class="text-xs font-mono tracking-widest text-indigo-400 uppercase">Initializing Neural Matrix & Zero-Footprint Sync...</div>
+        <div class="text-xs font-mono tracking-widest text-indigo-400 uppercase">Initializing Neural Matrix & Supabase Sync...</div>
     </div>
 
     <div class="flex h-screen overflow-hidden">
@@ -204,7 +197,7 @@
                     <div class="bg-gradient-to-r from-indigo-950/50 via-slate-900/60 to-purple-950/50 border border-indigo-500/20 p-6 rounded-3xl shadow-xl flex justify-between items-center backdrop-blur-xl">
                         <div>
                             <span id="activeStudyLabel" class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full uppercase tracking-wider">⚡ Botany Modules Matrix</span>
-                            <h3 class="text-base font-bold text-white mt-3">Advanced NEET NEET-2027 Curriculum Modules</h3>
+                            <h3 class="text-base font-bold text-white mt-3">Advanced NEET-2027 Curriculum Modules</h3>
                             <p class="text-xs text-slate-400 mt-1">Zero-device local caching enabled. Direct cloud synchronization.</p>
                         </div>
                         <button onclick="alert('Module synchronization verified.')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/30 transition">Verify Sync</button>
@@ -215,7 +208,7 @@
                     </div>
                 </div>
 
-                <!-- Section: Timed Mock Exams (9am - 12pm) -->
+                <!-- Section: Timed Mock Exams (9am - 12pm Window) -->
                 <div id="sectionExams" class="hidden space-y-6">
                     <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl space-y-6 shadow-2xl backdrop-blur-xl">
                         <div class="flex justify-between items-center border-b border-slate-800 pb-4">
@@ -507,8 +500,9 @@
                 const badge = document.getElementById('testWindowBadge');
                 const btn = document.getElementById('submitTestBtn');
                 
-                if (hours >= 9 && hours < 12) {
-                    if(badge) badge.innerText = "🟢 Active (Closes 12:00 PM)";
+                // 9 AM to 12 PM Window check (Bypassed if Admin PIN is active)
+                if (this.isAdmin || (hours >= 9 && hours < 12)) {
+                    if(badge) badge.innerText = this.isAdmin ? "🟢 Admin Override Active" : "🟢 Active (Closes 12:00 PM)";
                     if(btn) btn.disabled = false;
                 } else {
                     if(badge) badge.innerText = "🔴 Locked (Active 9am - 12pm)";
@@ -601,13 +595,13 @@
                 const optB = document.getElementById('adminOptionB').value;
                 if(!title || !qText) return;
 
-                await this.supabase.from('notes').insert([{
+                const { error } = await this.supabase.from('notes').insert([{
                     title: `TEST: ${title}`,
                     subject: `Q: ${qText} | A) ${optA} | B) ${optB}`,
                     file_url: '#'
                 }]);
-                alert('Test injected!');
-                this.fetchCustomTests();
+                if(error) alert('Error: ' + error.message);
+                else { alert('Test injected!'); this.fetchCustomTests(); }
             }
 
             async fetchCustomTests() {
@@ -639,12 +633,12 @@
                 const author = document.getElementById('adminEventAuthor').value;
                 if(!text || !author) return;
 
-                await this.supabase.from('app_settings').insert([{
+                const { error } = await this.supabase.from('app_settings').insert([{
                     setting_key: `event_${Date.now()}`,
                     setting_value: `${text}___${author}`
                 }]);
-                alert('Broadcasted!');
-                this.fetchClassEvents();
+                if(error) alert('Error: ' + error.message);
+                else { alert('Broadcasted!'); this.fetchClassEvents(); }
             }
 
             async fetchClassEvents() {
@@ -677,17 +671,30 @@
 
             async submitTestReport() {
                 if(!this.currentUser && !this.isAdmin) { alert('Authenticate first.'); this.toggleModal('authModal'); return; }
-                const now = new Date();
-                if(now.getHours() < 9 || now.getHours() >= 12) { alert('Blocked: Tests allowed only between 9:00 AM and 12:00 PM.'); return; }
+                
+                if(!this.isAdmin) {
+                    const now = new Date();
+                    if(now.getHours() < 9 || now.getHours() >= 12) { 
+                        alert('Blocked: Tests allowed only between 9:00 AM and 12:00 PM.'); 
+                        return; 
+                    }
+                }
 
                 const email = this.isAdmin ? 'admin@quantum.local' : this.currentUser.email;
-                await this.supabase.from('student_submissions').insert([{
+                const testName = document.getElementById('activeTestTitle').innerText;
+
+                const { error } = await this.supabase.from('student_submissions').insert([{
                     user_email: email,
-                    test_name: document.getElementById('activeTestTitle').innerText,
+                    test_name: testName,
                     score: 675,
                     status: 'Evaluated'
                 }]);
-                alert('Test report synchronized with cloud.');
+
+                if(error) {
+                    alert('Cloud Sync Failed: ' + error.message);
+                } else {
+                    alert('Test report successfully synchronized with cloud!');
+                }
             }
 
             async fetchNotes(filterSub = '') {
@@ -716,10 +723,14 @@
                 const file_url = document.getElementById('noteUrl').value;
                 if(!title || !subject || !file_url) return;
 
-                await this.supabase.from('notes').insert([{ title, subject, file_url }]);
-                alert('Note injected successfully!');
-                this.toggleModal('uploadModal');
-                this.fetchNotes('botany');
+                const { error } = await this.supabase.from('notes').insert([{ title, subject, file_url }]);
+                if(error) {
+                    alert('Upload failed: ' + error.message);
+                } else {
+                    alert('Note injected successfully!');
+                    this.toggleModal('uploadModal');
+                    this.fetchNotes('botany');
+                }
             }
         }
 

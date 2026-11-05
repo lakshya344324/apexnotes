@@ -142,10 +142,10 @@
 
             <div class="p-4 md:p-10 max-w-6xl mx-auto w-full space-y-8">
                 
-                <!-- Admin Override Control Matrix (PIN Secured) -->
+                <!-- Admin Override Control Matrix (PIN Secured with Direct Student Reply Option) -->
                 <div id="adminPanel" class="hidden bg-slate-900/90 border-2 border-indigo-500/60 p-6 rounded-3xl shadow-2xl space-y-6 backdrop-blur-xl">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <span class="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase tracking-widest font-mono">👑 ADMIN_LIVE_SYNC_PANEL</span>
+                        <span class="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase tracking-widest font-mono">👑 ADMIN_LIVE_REPLY_PANEL</span>
                     </div>
                     
                     <div class="grid gap-6 md:grid-cols-2">
@@ -164,12 +164,13 @@
                         </div>
                     </div>
 
+                    <!-- Live Student Doubts Inbox with Direct Admin Reply Box -->
                     <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
                         <div class="flex justify-between items-center">
-                            <label class="block text-xs font-bold text-emerald-400">📥 Live Real-Time Student Inbox (Auto-Syncs Every 2s)</label>
+                            <label class="block text-xs font-bold text-emerald-400">📥 Live Student Doubts & Direct Reply Inbox</label>
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                         </div>
-                        <div id="adminChatInbox" class="space-y-2 max-h-48 overflow-y-auto font-mono text-xs">
+                        <div id="adminChatInbox" class="space-y-3 max-h-72 overflow-y-auto font-mono text-xs">
                             <p class="text-xs text-slate-500">Listening for live incoming student doubts...</p>
                         </div>
                     </div>
@@ -222,7 +223,7 @@
                     </div>
                 </div>
 
-                <!-- Section: Personal Assistance & Doubt Hub -->
+                <!-- Section: Personal Assistance & Doubt Hub (With Admin Replies Displayed) -->
                 <div id="sectionDoubt" class="hidden space-y-6">
                     <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl space-y-5 shadow-2xl backdrop-blur-xl">
                         <h3 class="text-base font-extrabold text-white">💬 Live Personal Assistance & Doubt Transmission</h3>
@@ -236,8 +237,8 @@
                             <button onclick="QuantumCore.sendStudentChat()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl text-xs font-black transition w-full">Transmit Query Live</button>
                         </div>
                         <div class="pt-4 border-t border-slate-800 space-y-3">
-                            <h4 class="text-xs font-bold text-white">My Transmitted Query History</h4>
-                            <div id="studentChatHistory" class="space-y-2">
+                            <h4 class="text-xs font-bold text-white">My Transmitted Query History & Admin Replies</h4>
+                            <div id="studentChatHistory" class="space-y-3">
                                 <p class="text-xs text-slate-500">No transmission records.</p>
                             </div>
                         </div>
@@ -286,7 +287,7 @@
         </div>
     </div>
 
-    <!-- Real-Time Core Engine Script -->
+    <!-- Real-Time Core Engine Script with Admin Reply Support -->
     <script>
         const SUPABASE_URL = 'https://glfxzceeoaaprmjlgjyb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
@@ -393,7 +394,7 @@
                     document.getElementById('userEmailDisplay').innerText = "Admin (Override)";
                     document.getElementById('studentGoogleIdentityBadge').innerText = "Google Account: Admin Override";
                     this.fetchAdminChats();
-                    alert('Admin live-sync unlocked!');
+                    alert('Admin live-sync & reply panel unlocked!');
                 } else { alert('Invalid PIN'); }
             }
 
@@ -437,7 +438,7 @@
                 const content = document.getElementById('chatContentInput').value;
                 if(!content) { alert('Enter query.'); return; }
 
-                const email = this.currentUser ? this.currentUser.email : (this.isAdmin ? 'admin@quantum.local' : 'student@quantum.local');
+                const email = this.currentUser ? this.currentUser.email : 'student@quantum.local';
                 const { error } = await this.supabase.from('student_chats').insert([{
                     student_email: email,
                     media_type: mediaType,
@@ -452,15 +453,35 @@
                 }
             }
 
+            // --- ADMIN DIRECT REPLY TO STUDENT ---
+            async sendAdminReply(studentEmail, chatId) {
+                const replyText = document.getElementById(`adminReplyInput_${chatId}`).value;
+                if(!replyText) { alert('Enter reply message.'); return; }
+
+                const { error } = await this.supabase.from('student_chats').insert([{
+                    student_email: studentEmail,
+                    media_type: 'admin_reply',
+                    content: `💡 Admin Response: ${replyText}`
+                }]);
+
+                if(error) {
+                    alert('Failed to send reply: ' + error.message);
+                } else {
+                    alert(`Reply successfully sent live to ${studentEmail}!`);
+                    document.getElementById(`adminReplyInput_${chatId}`).value = '';
+                    this.fetchAdminChats();
+                }
+            }
+
             async fetchStudentChats() {
                 if(!this.currentUser) return;
                 try {
-                    const { data } = await this.supabase.from('student_chats').select('*').eq('student_email', this.currentUser.email).order('created_at', { ascending: false });
+                    const { data } = await this.supabase.from('student_chats').select('*').eq('student_email', this.currentUser.email).order('created_at', { ascending: true });
                     const container = document.getElementById('studentChatHistory');
                     if(!data || data.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500">No transmissions.</p>`; return; }
                     container.innerHTML = data.map(c => `
-                        <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl text-xs space-y-1">
-                            <span class="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-mono uppercase">${c.media_type}</span>
+                        <div class="bg-slate-950 border ${c.media_type === 'admin_reply' ? 'border-indigo-500/50 bg-indigo-950/20' : 'border-slate-800'} p-3 rounded-xl text-xs space-y-1">
+                            <span class="text-[9px] ${c.media_type === 'admin_reply' ? 'bg-indigo-600 text-white' : 'bg-indigo-500/20 text-indigo-300'} px-2 py-0.5 rounded font-mono uppercase">${c.media_type}</span>
                             <p class="text-slate-200">${c.content}</p>
                         </div>
                     `).join('');
@@ -473,13 +494,23 @@
                     const { data } = await this.supabase.from('student_chats').select('*').order('created_at', { ascending: false });
                     const container = document.getElementById('adminChatInbox');
                     if(!data || data.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500">Inbox empty. Listening live...</p>`; return; }
-                    container.innerHTML = data.map(c => `
-                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs space-y-1 font-mono">
+                    
+                    // Filter out admin replies from main doubt cards so admin sees student questions cleanly
+                    const doubts = data.filter(c => c.media_type !== 'admin_reply');
+
+                    container.innerHTML = doubts.map(c => `
+                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3 font-mono">
                             <div class="flex justify-between text-[10px] text-indigo-400">
-                                <span>${c.student_email}</span>
+                                <span class="font-bold text-white">${c.student_email}</span>
                                 <span class="uppercase bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">${c.media_type}</span>
                             </div>
-                            <p class="text-slate-100">${c.content}</p>
+                            <p class="text-slate-100 text-xs">${c.content}</p>
+                            
+                            <!-- Admin Direct Reply Box -->
+                            <div class="pt-2 border-t border-slate-800 flex gap-2">
+                                <input type="text" id="adminReplyInput_${c.id}" placeholder="Type reply to student..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white">
+                                <button onclick="QuantumCore.sendAdminReply('${c.student_email}', '${c.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap">Reply</button>
+                            </div>
                         </div>
                     `).join('');
                 } catch(e) {}

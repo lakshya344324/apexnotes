@@ -39,10 +39,13 @@
         <div class="text-xs font-mono tracking-widest text-indigo-400 uppercase">Initializing Neural Matrix & Supabase Sync...</div>
     </div>
 
-    <div class="flex h-screen overflow-hidden">
+    <div class="flex h-screen overflow-hidden relative">
         
-        <!-- Neural Sidebar Command Center -->
-        <aside class="w-80 bg-[#080914]/90 backdrop-blur-2xl border-r border-indigo-500/20 hidden md:flex flex-col justify-between p-6 z-30 shadow-2xl">
+        <!-- Mobile Drawer Overlay Backdrop -->
+        <div id="mobileDrawerBackdrop" onclick="QuantumCore.toggleMobileMenu()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-40 hidden md:hidden"></div>
+
+        <!-- Neural Sidebar Command Center (Responsive for Mobile & Desktop) -->
+        <aside id="sidebarDrawer" class="w-80 bg-[#080914]/95 backdrop-blur-2xl border-r border-indigo-500/20 flex flex-col justify-between p-6 z-50 fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 shadow-2xl overflow-y-auto">
             <div class="space-y-6">
                 <!-- Branding Matrix -->
                 <div class="flex items-center justify-between border-b border-indigo-500/20 pb-4">
@@ -55,10 +58,13 @@
                             <p class="text-[10px] font-mono text-cyan-400 tracking-wider">NEET Autonomous OS v4.8</p>
                         </div>
                     </div>
+                    <button onclick="QuantumCore.toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
                 </div>
 
                 <!-- Deep Recursive Tree Navigation (Options under Options) -->
-                <nav class="space-y-3 overflow-y-auto max-h-[calc(100vh-280px)] pr-1" id="neuralNav">
+                <nav class="space-y-3" id="neuralNav">
                     
                     <!-- 1. Neural Study Matrix -->
                     <div class="space-y-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-2 transition-all">
@@ -134,27 +140,29 @@
         <!-- Main Quantum Display Area -->
         <main class="flex-1 flex flex-col overflow-y-auto bg-[#05050a] relative">
             
-            <!-- Telemetry Header -->
-            <header class="bg-[#080914]/80 backdrop-blur-2xl border-b border-indigo-500/20 px-8 py-4 sticky top-0 z-20 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        <h2 class="font-mono text-xs text-indigo-300 tracking-wider uppercase" id="headerBreadcrumb">SYSTEM_KERNEL // STUDY_MATRIX</h2>
+            <!-- Telemetry Header (With Mobile Hamburger Menu Button) -->
+            <header class="bg-[#080914]/80 backdrop-blur-2xl border-b border-indigo-500/20 px-4 md:px-8 py-4 sticky top-0 z-20 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <!-- Mobile Hamburger Toggle -->
+                    <button onclick="QuantumCore.toggleMobileMenu()" class="md:hidden bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 p-2 rounded-xl">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                            <h2 class="font-mono text-[11px] md:text-xs text-indigo-300 tracking-wider uppercase truncate max-w-[200px] md:max-w-none" id="headerBreadcrumb">SYSTEM_KERNEL // STUDY_MATRIX</h2>
+                        </div>
                     </div>
-                    <span class="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/30 px-2.5 py-0.5 rounded-full font-mono">SECURE_TUNNEL_ACTIVE</span>
                 </div>
-                <button id="adminUploadBtn" onclick="QuantumCore.toggleModal('uploadModal')" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/30 items-center gap-2">
-                    <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> Admin Neural Stream
+                <button id="adminUploadBtn" onclick="QuantumCore.toggleModal('uploadModal')" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/30 items-center gap-2">
+                    <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> Admin Upload
                 </button>
             </header>
 
-            <div class="p-6 md:p-10 max-w-6xl mx-auto w-full space-y-8">
+            <div class="p-4 md:p-10 max-w-6xl mx-auto w-full space-y-8">
                 
                 <!-- Admin Override Control Matrix (PIN Secured) -->
                 <div id="adminPanel" class="hidden bg-slate-900/90 border-2 border-indigo-500/60 p-6 rounded-3xl shadow-2xl space-y-6 backdrop-blur-xl relative overflow-hidden">
-                    <div class="absolute top-0 right-0 p-4 opacity-10 pointer-events-none">
-                        <i data-lucide="shield-check" class="w-32 h-32 text-indigo-400"></i>
-                    </div>
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase tracking-widest font-mono">👑 ADMIN_KERNEL_UNLOCKED</span>
@@ -165,11 +173,11 @@
                         <!-- Test Publisher -->
                         <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
                             <label class="block text-xs font-bold text-indigo-400">➕ Publish Timed Exam (9am - 12pm Matrix)</label>
-                            <input type="text" id="adminTestTitle" placeholder="Test Name (e.g. Zoology Minor #3)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                            <input type="text" id="adminTestTitle" placeholder="Test Name..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                             <input type="text" id="adminQuestionText" placeholder="Question statement..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                             <div class="grid grid-cols-2 gap-2">
-                                <input type="text" id="adminOptionA" placeholder="Option A" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                                <input type="text" id="adminOptionB" placeholder="Option B" class="bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                                <input type="text" id="adminOptionA" placeholder="Option A" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                                <input type="text" id="adminOptionB" placeholder="Option B" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                             </div>
                             <button onclick="QuantumCore.publishCustomTest()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Inject Exam into Neural Network</button>
                         </div>
@@ -178,7 +186,7 @@
                         <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
                             <label class="block text-xs font-bold text-amber-400">📢 Classroom Wall Broadcast</label>
                             <input type="text" id="adminEventText" placeholder="Quote or announcement..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                            <input type="text" id="adminEventAuthor" placeholder="Instructor (e.g. Raghuraj Sir)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                            <input type="text" id="adminEventAuthor" placeholder="Instructor name..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
                             <button onclick="QuantumCore.publishClassEvent()" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2.5 rounded-xl text-xs font-black transition">Broadcast to Wall</button>
                         </div>
                     </div>
@@ -194,7 +202,7 @@
 
                 <!-- Section: Study Notes Grid -->
                 <div id="sectionNotes" class="space-y-6">
-                    <div class="bg-gradient-to-r from-indigo-950/50 via-slate-900/60 to-purple-950/50 border border-indigo-500/20 p-6 rounded-3xl shadow-xl flex justify-between items-center backdrop-blur-xl">
+                    <div class="bg-gradient-to-r from-indigo-950/50 via-slate-900/60 to-purple-950/50 border border-indigo-500/20 p-6 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 backdrop-blur-xl">
                         <div>
                             <span id="activeStudyLabel" class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full uppercase tracking-wider">⚡ Botany Modules Matrix</span>
                             <h3 class="text-base font-bold text-white mt-3">Advanced NEET-2027 Curriculum Modules</h3>
@@ -211,12 +219,12 @@
                 <!-- Section: Timed Mock Exams (9am - 12pm Window) -->
                 <div id="sectionExams" class="hidden space-y-6">
                     <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl space-y-6 shadow-2xl backdrop-blur-xl">
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-4 gap-2">
                             <div>
                                 <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full uppercase tracking-wider">Strict Window: 9:00 AM – 12:00 PM</span>
                                 <h3 id="activeTestTitle" class="text-base font-bold text-white mt-2">Mock Test #1: Cell Biology & Biomolecules</h3>
                             </div>
-                            <div class="text-right">
+                            <div class="text-left md:text-right">
                                 <span class="text-[10px] text-slate-400 block font-mono uppercase">Window State</span>
                                 <span id="testWindowBadge" class="font-mono text-emerald-400 font-extrabold text-xs">Checking Telemetry...</span>
                             </div>
@@ -279,7 +287,7 @@
                     <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-2xl backdrop-blur-xl">
                         <h3 class="text-base font-extrabold text-white">🎙️ Token-Protected Media Stream Vault</h3>
                         <p class="text-xs text-slate-400">Enter your signed cryptographic token link to stream protected lectures securely:</p>
-                        <div class="flex gap-2">
+                        <div class="flex flex-col md:flex-row gap-2">
                             <input type="text" id="tokenPlayerInput" placeholder="Paste signed token URL..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-indigo-500">
                             <button onclick="QuantumCore.playSecuredMedia()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition">Verify Token</button>
                         </div>
@@ -403,6 +411,15 @@
                 }
             }
 
+            toggleMobileMenu() {
+                const drawer = document.getElementById('sidebarDrawer');
+                const backdrop = document.getElementById('mobileDrawerBackdrop');
+                if(drawer && backdrop) {
+                    drawer.classList.toggle('-translate-x-full');
+                    backdrop.classList.toggle('hidden');
+                }
+            }
+
             toggleSubMenu(menuId) {
                 const el = document.getElementById(menuId);
                 const icon = document.getElementById(`icon_${menuId}`);
@@ -413,6 +430,11 @@
             }
 
             route(section, sub = '') {
+                // Auto close mobile drawer on selection
+                if(window.innerWidth < 768) {
+                    this.toggleMobileMenu();
+                }
+
                 const sections = ['notes', 'exams', 'doubt', 'vault', 'classroom'];
                 sections.forEach(s => {
                     const el = document.getElementById(`section${s.charAt(0).toUpperCase() + s.slice(1)}`);
@@ -432,7 +454,8 @@
                     if(this.chartInstance) this.chartInstance.update();
                 }
                 if(section === 'doubt' && sub === 'inbox') {
-                    this.fetchStudentChats();
+                    if(this.isAdmin) this.fetchAdminChats();
+                    else this.fetchStudentChats();
                 }
             }
 
@@ -454,6 +477,7 @@
                     document.getElementById('loggedInView').classList.remove('hidden');
                     document.getElementById('userEmailDisplay').innerText = "Admin (Override)";
                     this.fetchAdminChats();
+                    this.checkTestWindow();
                     alert('Admin kernel unlocked successfully!');
                 } else {
                     alert('Invalid secret PIN code.');
@@ -500,7 +524,6 @@
                 const badge = document.getElementById('testWindowBadge');
                 const btn = document.getElementById('submitTestBtn');
                 
-                // 9 AM to 12 PM Window check (Bypassed if Admin PIN is active)
                 if (this.isAdmin || (hours >= 9 && hours < 12)) {
                     if(badge) badge.innerText = this.isAdmin ? "🟢 Admin Override Active" : "🟢 Active (Closes 12:00 PM)";
                     if(btn) btn.disabled = false;
@@ -538,23 +561,23 @@
             }
 
             async sendStudentChat() {
-                if(!this.currentUser && !this.isAdmin) { alert('Authenticate first.'); this.toggleModal('authModal'); return; }
                 const mediaType = document.getElementById('chatMediaType').value;
                 const content = document.getElementById('chatContentInput').value;
-                if(!content) return;
+                if(!content) { alert('Enter query payload.'); return; }
 
-                const email = this.isAdmin ? 'admin@quantum.local' : this.currentUser.email;
+                const email = this.currentUser ? this.currentUser.email : (this.isAdmin ? 'admin@quantum.local' : 'student@quantum.local');
                 const { error } = await this.supabase.from('student_chats').insert([{
                     student_email: email,
                     media_type: mediaType,
                     content: content
                 }]);
 
-                if(error) alert('Error: ' + error.message);
+                if(error) alert('Transmission Error: ' + error.message);
                 else {
-                    alert('Query transmitted to admin inbox.');
+                    alert('Query successfully transmitted to admin inbox!');
                     document.getElementById('chatContentInput').value = '';
-                    this.fetchStudentChats();
+                    if(this.currentUser) this.fetchStudentChats();
+                    if(this.isAdmin) this.fetchAdminChats();
                 }
             }
 
@@ -573,18 +596,23 @@
 
             async fetchAdminChats() {
                 if(!this.isAdmin) return;
-                const { data } = await this.supabase.from('student_chats').select('*').order('created_at', { ascending: false });
-                const container = document.getElementById('adminChatInbox');
-                if(!data || data.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500">Inbox empty.</p>`; return; }
-                container.innerHTML = data.map(c => `
-                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs space-y-1 font-mono">
-                        <div class="flex justify-between text-[10px] text-indigo-400">
-                            <span>${c.student_email}</span>
-                            <span class="uppercase">${c.media_type}</span>
+                try {
+                    const { data, error } = await this.supabase.from('student_chats').select('*').order('created_at', { ascending: false });
+                    const container = document.getElementById('adminChatInbox');
+                    if(error) { container.innerHTML = `<p class="text-xs text-rose-400">Error fetching: ${error.message}</p>`; return; }
+                    if(!data || data.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500">Inbox empty.</p>`; return; }
+                    container.innerHTML = data.map(c => `
+                        <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs space-y-1 font-mono">
+                            <div class="flex justify-between text-[10px] text-indigo-400">
+                                <span>${c.student_email}</span>
+                                <span class="uppercase bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">${c.media_type}</span>
+                            </div>
+                            <p class="text-slate-100">${c.content}</p>
                         </div>
-                        <p class="text-slate-100">${c.content}</p>
-                    </div>
-                `).join('');
+                    `).join('');
+                } catch(e) {
+                    console.error(e);
+                }
             }
 
             async publishCustomTest() {
@@ -593,7 +621,7 @@
                 const qText = document.getElementById('adminQuestionText').value;
                 const optA = document.getElementById('adminOptionA').value;
                 const optB = document.getElementById('adminOptionB').value;
-                if(!title || !qText) return;
+                if(!title || !qText) { alert('Enter title and question.'); return; }
 
                 const { error } = await this.supabase.from('notes').insert([{
                     title: `TEST: ${title}`,
@@ -631,14 +659,14 @@
                 if(!this.isAdmin) return;
                 const text = document.getElementById('adminEventText').value;
                 const author = document.getElementById('adminEventAuthor').value;
-                if(!text || !author) return;
+                if(!text || !author) { alert('Fill all fields.'); return; }
 
                 const { error } = await this.supabase.from('app_settings').insert([{
                     setting_key: `event_${Date.now()}`,
                     setting_value: `${text}___${author}`
                 }]);
-                if(error) alert('Error: ' + error.message);
-                else { alert('Broadcasted!'); this.fetchClassEvents(); }
+                if(error) alert('Broadcast Failed: ' + error.message);
+                else { alert('Broadcasted to wall successfully!'); this.fetchClassEvents(); }
             }
 
             async fetchClassEvents() {

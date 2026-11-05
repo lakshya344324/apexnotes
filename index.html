@@ -33,7 +33,10 @@
                         <i data-lucide="book-open" class="w-4 h-4"></i> Study Notes & Drops
                     </button>
                     <button onclick="ApexCore.switchTab('tests')" id="navTests" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
-                        <i data-lucide="award" class="w-4 h-4"></i> Mock Tests & Reports
+                        <i data-lucide="award" class="w-4 h-4"></i> Timed Mock Tests (9am-12pm)
+                    </button>
+                    <button onclick="ApexCore.switchTab('assistance')" id="navAssistance" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
+                        <i data-lucide="message-square" class="w-4 h-4"></i> Personal Assistance & Chat
                     </button>
                     <button onclick="ApexCore.switchTab('audio')" id="navAudio" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-all">
                         <i data-lucide="headphones" class="w-4 h-4"></i> Encrypted Media Vault
@@ -42,7 +45,7 @@
                         <i data-lucide="smile" class="w-4 h-4"></i> Classroom Wall & Events
                     </button>
                     <button onclick="ApexCore.switchTab('vip')" id="navVip" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 mt-4 transition-all">
-                        <i data-lucide="crown" class="w-4 h-4"></i> VIP Tier Access
+                        <i data-lucide="crown" class="w-4 h-4"></i> VIP Tier Pass
                     </button>
                 </nav>
             </div>
@@ -50,9 +53,12 @@
             <!-- Auth Status Card -->
             <div class="bg-slate-900/90 border border-slate-800/80 p-4 rounded-2xl space-y-3 shadow-lg">
                 <div id="loggedOutView">
-                    <p class="text-[10px] text-slate-400 mb-2 uppercase tracking-wider font-semibold">Zero Local Footprint</p>
-                    <button onclick="ApexCore.toggleModal('authModal')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-bold transition shadow-md shadow-indigo-600/20">
-                        Sign In / Register
+                    <p class="text-[10px] text-slate-400 mb-2 uppercase tracking-wider font-semibold">Student Access</p>
+                    <button onclick="ApexCore.toggleModal('authModal')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-bold transition shadow-md shadow-indigo-600/20 mb-2">
+                        Student Sign In
+                    </button>
+                    <button onclick="ApexCore.toggleModal('pinModal')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-xl text-[10px] font-bold transition border border-slate-700">
+                        🔑 Admin PIN Login
                     </button>
                 </div>
                 <div id="loggedInView" class="hidden space-y-2">
@@ -61,7 +67,7 @@
                         <span id="badgeDisplay" class="text-[9px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-extrabold uppercase">Free</span>
                     </div>
                     <button onclick="ApexCore.handleLogout()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-[10px] font-bold transition">
-                        Sign Out & Wipe Session
+                        Sign Out
                     </button>
                 </div>
             </div>
@@ -77,59 +83,49 @@
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Active
                     </span>
                 </div>
-                <button onclick="ApexCore.toggleModal('uploadModal')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md shadow-indigo-600/20 flex items-center gap-1.5">
-                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Upload Content
+                <!-- Admin-Only Upload Header Button -->
+                <button id="adminUploadBtn" onclick="ApexCore.toggleModal('uploadModal')" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-md shadow-indigo-600/20 items-center gap-1.5">
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i> Admin Upload Content
                 </button>
             </header>
 
             <div class="p-6 md:p-8 max-w-5xl mx-auto w-full space-y-8">
                 
-                <!-- Creator Admin Panel -->
+                <!-- Admin Control Panel (Visible only when unlocked via Secret PIN) -->
                 <div id="adminPanel" class="hidden bg-slate-900/90 border-2 border-indigo-500/50 p-6 rounded-2xl shadow-2xl space-y-6">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10px] font-extrabold bg-indigo-600 text-white px-2.5 py-1 rounded-full uppercase tracking-wider">👑 Creator Admin Panel</span>
-                            <span class="text-xs text-slate-400">Full Control Hub</span>
+                            <span class="text-[10px] font-extrabold bg-indigo-600 text-white px-2.5 py-1 rounded-full uppercase tracking-wider">👑 Creator Admin Panel (PIN Secured)</span>
                         </div>
                     </div>
                     
                     <!-- 1. Custom Test Builder -->
                     <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-3">
-                        <label class="block text-xs font-bold text-indigo-400">➕ Create & Publish Custom Mock Test Question</label>
+                        <label class="block text-xs font-bold text-indigo-400">➕ Publish Timed Mock Test Question</label>
                         <div class="grid gap-2 sm:grid-cols-2">
-                            <input type="text" id="adminTestTitle" placeholder="Test Name (e.g. Zoology Minor #2)" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <input type="text" id="adminTestTitle" placeholder="Test Name (e.g. Botany Minor #1)" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
                             <input type="text" id="adminQuestionText" placeholder="Question statement..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
                             <input type="text" id="adminOptionA" placeholder="Option A" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
                             <input type="text" id="adminOptionB" placeholder="Option B" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
                         </div>
-                        <button onclick="ApexCore.publishCustomTest()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-xs font-bold transition">Publish Custom Test to Cloud</button>
+                        <button onclick="ApexCore.publishCustomTest()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-lg text-xs font-bold transition">Publish Test (Active 9am-12pm)</button>
                     </div>
 
-                    <!-- 2. Classroom Event / Quote Publisher -->
+                    <!-- 2. Classroom Event Publisher -->
                     <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-3">
-                        <label class="block text-xs font-bold text-amber-400">📢 Publish Classroom Event / Quote / Announcement</label>
+                        <label class="block text-xs font-bold text-amber-400">📢 Publish Classroom Wall Quote</label>
                         <div class="grid gap-2 sm:grid-cols-2">
-                            <input type="text" id="adminEventText" placeholder="Quote or Event description..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
-                            <input type="text" id="adminEventAuthor" placeholder="Author / Teacher (e.g. Raghuraj Sir)" class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <input type="text" id="adminEventText" placeholder="Quote description..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                            <input type="text" id="adminEventAuthor" placeholder="Teacher name..." class="bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
                         </div>
                         <button onclick="ApexCore.publishClassEvent()" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2 rounded-lg text-xs font-extrabold transition">Publish to Classroom Wall</button>
                     </div>
 
-                    <!-- 3. Signed Token Generator & Pricing -->
-                    <div class="grid gap-4 sm:grid-cols-2">
-                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-2">
-                            <label class="block text-xs font-bold text-slate-400">Update Monthly Price (₹)</label>
-                            <div class="flex gap-2">
-                                <input type="number" id="priceInput" value="99" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
-                                <button onclick="ApexCore.updatePrice()" class="bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-bold">Save</button>
-                            </div>
-                        </div>
-                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-2">
-                            <label class="block text-xs font-bold text-slate-400">Grant VIP Access (Email)</label>
-                            <div class="flex gap-2">
-                                <input type="email" id="vipEmail" placeholder="student@gmail.com" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
-                                <button onclick="ApexCore.grantVIP()" class="bg-emerald-600 text-white px-3 py-2 rounded-lg text-xs font-bold">Grant VIP</button>
-                            </div>
+                    <!-- 3. Student Chat & Doubt Inbox for Admin -->
+                    <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl space-y-3">
+                        <label class="block text-xs font-bold text-emerald-400">📥 Student Personal Assistance & Doubt Inbox</label>
+                        <div id="adminChatInbox" class="space-y-2 max-h-60 overflow-y-auto">
+                            <p class="text-xs text-slate-500">Loading incoming student queries...</p>
                         </div>
                     </div>
                 </div>
@@ -151,17 +147,17 @@
                     </div>
                 </div>
 
-                <!-- Tab 2: Timed Mock Tests & Reports -->
+                <!-- Tab 2: Timed Mock Tests (9 AM to 12 PM VIP Window) -->
                 <div id="tabTests" class="hidden space-y-6">
                     <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl space-y-6 shadow-xl backdrop-blur-md">
                         <div class="flex justify-between items-center border-b border-slate-800 pb-4">
                             <div>
-                                <span class="text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full uppercase tracking-wider">NEET Minor Exam Pattern</span>
-                                <h3 id="activeTestTitle" class="text-base font-bold text-white mt-1.5">Mock Test #1: Cell Biology & Biomolecules</h3>
+                                <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded-full uppercase tracking-wider">VIP Scheduled Test Window (9:00 AM – 12:00 PM)</span>
+                                <h3 id="activeTestTitle" class="text-base font-bold text-white mt-1.5">Mock Test #1: Cell Biology</h3>
                             </div>
                             <div class="text-right">
-                                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Timer Remaining</span>
-                                <span id="testTimer" class="font-mono text-amber-400 font-extrabold text-sm">45:00</span>
+                                <span class="text-[10px] text-slate-400 block font-semibold uppercase">Window Status</span>
+                                <span id="testWindowBadge" class="font-mono text-emerald-400 font-extrabold text-xs">Checking Time...</span>
                             </div>
                         </div>
 
@@ -169,28 +165,54 @@
                             <div class="p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl space-y-3">
                                 <p class="text-xs font-bold text-white">Q1. Which cell organelle is devoid of membrane?</p>
                                 <div class="space-y-2 text-xs text-slate-300">
-                                    <label class="flex items-center gap-3 p-2.5 bg-slate-900/80 rounded-lg border border-slate-800 cursor-pointer hover:border-indigo-500 transition">
+                                    <label class="flex items-center gap-3 p-2.5 bg-slate-900/80 rounded-lg border border-slate-800 cursor-pointer">
                                         <input type="radio" name="q1" value="A"> A. Ribosome
                                     </label>
-                                    <label class="flex items-center gap-3 p-2.5 bg-slate-900/80 rounded-lg border border-slate-800 cursor-pointer hover:border-indigo-500 transition">
+                                    <label class="flex items-center gap-3 p-2.5 bg-slate-900/80 rounded-lg border border-slate-800 cursor-pointer">
                                         <input type="radio" name="q1" value="B"> B. Lysosome
                                     </label>
                                 </div>
                             </div>
                         </div>
-                        <button onclick="ApexCore.submitTestReport()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 transition">Submit Test & Sync Cloud Report</button>
+                        <button id="submitTestBtn" onclick="ApexCore.submitTestReport()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-indigo-600/20 transition">Submit Test (VIP Only)</button>
                     </div>
 
-                    <!-- Cloud Reports -->
                     <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl space-y-4 shadow-xl backdrop-blur-md">
                         <h3 class="text-sm font-bold text-white">📊 My Cloud Performance Reports</h3>
                         <div id="reportsContainer" class="space-y-2">
-                            <p class="text-xs text-slate-500">Sign in to sync and view encrypted test performance logs.</p>
+                            <p class="text-xs text-slate-500">Sign in and unlock VIP to submit timed tests.</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Tab 3: Encrypted Media Stream Vault -->
+                <!-- Tab 3: Personal Assistance & Media Chat -->
+                <div id="tabAssistance" class="hidden space-y-6">
+                    <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl space-y-4 shadow-xl backdrop-blur-md">
+                        <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full uppercase">VIP Exclusive</span>
+                        <h3 class="text-base font-extrabold text-white">💬 Personal Assistance & Doubt Inbox</h3>
+                        <p class="text-xs text-slate-400">Send text queries, image links, web references, or audio recordings directly to admin.</p>
+                        
+                        <div class="space-y-3 pt-2">
+                            <select id="chatMediaType" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white w-full">
+                                <option value="text">Text Doubt</option>
+                                <option value="image">Image Attachment (URL)</option>
+                                <option value="url">Reference Link / URL</option>
+                                <option value="audio">Audio Voice Note (URL)</option>
+                            </select>
+                            <textarea id="chatContentInput" placeholder="Type your doubt or paste media URL here..." rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-indigo-500"></textarea>
+                            <button onclick="ApexCore.sendStudentChat()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition w-full">Send Query to Admin</button>
+                        </div>
+
+                        <div class="pt-4 border-t border-slate-800">
+                            <h4 class="text-xs font-bold text-white mb-2">My Submitted Queries</h4>
+                            <div id="studentChatHistory" class="space-y-2">
+                                <p class="text-xs text-slate-500">No previous queries found.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Encrypted Media Stream Vault -->
                 <div id="tabAudio" class="hidden space-y-4">
                     <h3 class="text-base font-extrabold text-white">🎙️ Token-Protected Media & Lecture Vault</h3>
                     <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl space-y-4 shadow-xl backdrop-blur-md">
@@ -203,7 +225,7 @@
                     </div>
                 </div>
 
-                <!-- Tab 4: Classroom Wall & Events -->
+                <!-- Tab 5: Classroom Wall & Events -->
                 <div id="tabBloopers" class="hidden space-y-4">
                     <h3 class="text-base font-extrabold text-white">😂 Classroom Wall & Teacher Quotes</h3>
                     <div id="eventsContainer" class="grid gap-4 sm:grid-cols-2">
@@ -214,11 +236,11 @@
                     </div>
                 </div>
 
-                <!-- Tab 5: VIP Plans (PhonePe, Paytm, Razorpay) -->
+                <!-- Tab 6: VIP Plans -->
                 <div id="tabVip" class="hidden space-y-6">
                     <div class="text-center max-w-xl mx-auto space-y-2">
-                        <h3 class="text-2xl font-extrabold text-white">Unlock ApexNotes VIP Membership</h3>
-                        <p class="text-xs text-slate-400">Get automatic access to token-protected video vaults and premium test series.</p>
+                        <h3 class="text-2xl font-extrabold text-white">Unlock ApexNotes VIP Pass</h3>
+                        <p class="text-xs text-slate-400">Unlocks timed mock tests, personal assistance inbox, and secure media vaults.</p>
                     </div>
 
                     <div class="grid gap-6 md:grid-cols-3 pt-2">
@@ -227,7 +249,7 @@
                                 <span class="text-[10px] font-extrabold bg-indigo-500/10 text-indigo-400 px-3 py-1 rounded-full uppercase">Monthly Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹99 <span class="text-xs font-normal text-slate-400">/ mo</span></div>
                             </div>
-                            <button onclick="ApexCore.initiatePayment(99, 'Monthly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20">Pay via PhonePe / Paytm / UPI</button>
+                            <button onclick="ApexCore.initiatePayment(99, 'Monthly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Pay via UPI / PhonePe</button>
                         </div>
 
                         <div class="bg-slate-900/80 border-2 border-indigo-500/80 p-6 rounded-2xl flex flex-col justify-between space-y-6 relative shadow-2xl backdrop-blur-md">
@@ -236,7 +258,7 @@
                                 <span class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full uppercase">Yearly Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹799 <span class="text-xs font-normal text-slate-400">/ yr</span></div>
                             </div>
-                            <button onclick="ApexCore.initiatePayment(799, 'Yearly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/20">Pay via Razorpay / Card</button>
+                            <button onclick="ApexCore.initiatePayment(799, 'Yearly VIP Pass')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Pay via UPI / Card</button>
                         </div>
 
                         <div class="bg-slate-900/80 border border-slate-800/80 p-6 rounded-2xl flex flex-col justify-between space-y-6 shadow-xl backdrop-blur-md">
@@ -244,7 +266,7 @@
                                 <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full uppercase">Lifetime Pass</span>
                                 <div class="text-3xl font-extrabold text-white mt-4">₹1500 <span class="text-xs font-normal text-slate-400">/ lifetime</span></div>
                             </div>
-                            <button onclick="ApexCore.initiatePayment(1500, 'Lifetime VIP Membership')" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2.5 rounded-xl text-xs font-extrabold transition shadow-lg shadow-amber-600/20">Secure Lifetime Access</button>
+                            <button onclick="ApexCore.initiatePayment(1500, 'Lifetime VIP Membership')" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2.5 rounded-xl text-xs font-extrabold transition">Secure Lifetime Access</button>
                         </div>
                     </div>
                 </div>
@@ -253,50 +275,69 @@
         </main>
     </div>
 
-    <!-- Auth Modal (Google & Apple OAuth) -->
+    <!-- Student Auth Modal -->
     <div id="authModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-6 shadow-2xl">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-base text-white">Sign In to ApexNotes</h3>
+                <h3 class="font-bold text-base text-white">Student Sign In</h3>
                 <button onclick="ApexCore.toggleModal('authModal')" class="text-slate-400 hover:text-white">✕</button>
             </div>
             <div class="space-y-3">
+                <input type="email" id="studentEmailInput" placeholder="Enter your email ID or phone..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+                <button onclick="ApexCore.studentEmailLogin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Sign In via Email / Phone OTP</button>
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-4 text-slate-500 text-[10px]">OR</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
                 <button onclick="ApexCore.socialLogin('google')" class="w-full bg-white text-slate-900 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition shadow-md">
                     Continue with Google
                 </button>
-                <button onclick="ApexCore.socialLogin('apple')" class="w-full bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 border border-slate-700 hover:bg-slate-700 transition shadow-md">
-                    Continue with Apple
-                </button>
             </div>
         </div>
     </div>
 
-    <!-- Upload Notes Modal -->
+    <!-- Admin PIN Modal -->
+    <div id="pinModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-sm w-full space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-base text-white">🔑 Admin PIN Code Access</h3>
+                <button onclick="ApexCore.toggleModal('pinModal')" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            <p class="text-xs text-slate-400">Enter your secret admin passcode to unlock creator controls.</p>
+            <input type="password" id="adminPinInput" placeholder="Enter secret PIN..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white">
+            <button onclick="ApexCore.verifyAdminPin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Unlock Admin Panel</button>
+        </div>
+    </div>
+
+    <!-- Admin Upload Notes Modal -->
     <div id="uploadModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-4 shadow-2xl">
             <div class="flex justify-between items-center">
-                <h3 class="font-bold text-base text-white">Upload Content / Notes</h3>
+                <h3 class="font-bold text-base text-white">Admin Upload Notes / Content</h3>
                 <button onclick="ApexCore.toggleModal('uploadModal')" class="text-slate-400 hover:text-white">✕</button>
             </div>
             <div class="space-y-3">
-                <input type="text" id="noteTitle" placeholder="Title (e.g. Zoology Chapter)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                <input type="text" id="noteSubject" placeholder="Subject (Physics / Chemistry / Botany)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                <input type="text" id="noteUrl" placeholder="Cloud File URL" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
-                <button onclick="ApexCore.uploadNote()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Publish to Cloud</button>
+                <input type="text" id="noteTitle" placeholder="Title (e.g. Zoology Chapter)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                <input type="text" id="noteSubject" placeholder="Subject (Physics / Chemistry / Botany)" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                <input type="text" id="noteUrl" placeholder="Cloud File URL" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white">
+                <button onclick="ApexCore.uploadNote()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Publish Note to Cloud</button>
             </div>
         </div>
     </div>
 
-    <!-- Enterprise Modular Controller Script -->
+    <!-- Script Engine -->
     <script>
         const SUPABASE_URL = 'https://glfxzceeoaaprmjlgjyb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
-        const ADMIN_EMAIL = 'lakshya@gmail.com';
+        const ADMIN_PIN = '99508'; // Your secret admin PIN passcode
 
         class ApexCoreEngine {
             constructor() {
                 this.supabase = null;
                 this.currentUser = null;
+                this.isAdmin = false;
+                this.isVip = false;
                 this.initClient();
             }
 
@@ -320,13 +361,14 @@
                     await this.fetchNotes();
                     await this.fetchCustomTests();
                     await this.fetchClassEvents();
+                    this.checkTestWindow();
                 } catch(err) {
-                    console.error("Bootstrap execution error:", err);
+                    console.error("Bootstrap error:", err);
                 }
             }
 
             switchTab(tab) {
-                const tabs = ['Notes', 'Tests', 'Audio', 'Bloopers', 'Vip'];
+                const tabs = ['Notes', 'Tests', 'Assistance', 'Audio', 'Bloopers', 'Vip'];
                 tabs.forEach(t => {
                     const el = document.getElementById(`tab${t}`);
                     const nav = document.getElementById(`nav${t}`);
@@ -348,6 +390,7 @@
                     }
                 }
                 if (tab === 'tests') this.fetchReports();
+                if (tab === 'assistance') this.fetchStudentChats();
             }
 
             toggleModal(modalId) {
@@ -355,8 +398,28 @@
                 if (modal) modal.classList.toggle('hidden');
             }
 
+            verifyAdminPin() {
+                const pin = document.getElementById('adminPinInput').value;
+                if (pin === ADMIN_PIN) {
+                    this.isAdmin = true;
+                    this.toggleModal('pinModal');
+                    document.getElementById('adminPanel').classList.remove('hidden');
+                    document.getElementById('adminUploadBtn').classList.remove('hidden');
+                    document.getElementById('adminUploadBtn').classList.add('flex');
+                    document.getElementById('badgeDisplay').innerText = "Creator Admin";
+                    document.getElementById('badgeDisplay').className = "text-[9px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-extrabold uppercase";
+                    document.getElementById('loggedOutView').classList.add('hidden');
+                    document.getElementById('loggedInView').classList.remove('hidden');
+                    document.getElementById('userEmailDisplay').innerText = "Admin (PIN Access)";
+                    this.fetchAdminChats();
+                    alert('Admin panel unlocked successfully!');
+                } else {
+                    alert('Incorrect secret PIN code.');
+                }
+            }
+
             async checkSession() {
-                if (!this.supabase) return;
+                if (!this.supabase || this.isAdmin) return;
                 try {
                     const { data: { session } } = await this.supabase.auth.getSession();
                     if (session && session.user) {
@@ -364,32 +427,31 @@
                         document.getElementById('loggedOutView').classList.add('hidden');
                         document.getElementById('loggedInView').classList.remove('hidden');
                         document.getElementById('userEmailDisplay').innerText = session.user.email;
-                        
-                        if (session.user.email === ADMIN_EMAIL) {
-                            document.getElementById('adminPanel').classList.remove('hidden');
-                            document.getElementById('badgeDisplay').innerText = "Creator Admin";
-                            document.getElementById('badgeDisplay').className = "text-[9px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-extrabold uppercase";
-                        } else {
-                            this.verifyVip(session.user.email);
-                        }
+                        await this.verifyVipStatus(session.user.email);
                     }
-                } catch(e) {
-                    console.log("Session check warning:", e);
-                }
+                } catch(e) {}
             }
 
-            async verifyVip(email) {
+            async verifyVipStatus(email) {
                 try {
                     const { data } = await this.supabase.from('profiles').select('is_subscribed').eq('email', email).single();
                     if (data && data.is_subscribed) {
+                        this.isVip = true;
                         document.getElementById('badgeDisplay').innerText = "VIP Member";
                         document.getElementById('badgeDisplay').className = "text-[9px] bg-amber-500 text-slate-950 px-2 py-0.5 rounded-full font-extrabold uppercase";
                     }
                 } catch(e) {}
             }
 
+            async studentEmailLogin() {
+                const email = document.getElementById('studentEmailInput').value;
+                if(!email) { alert('Please enter an email or phone.'); return; }
+                const { error } = await this.supabase.auth.signInWithOtp({ email });
+                if(error) alert('Login error: ' + error.message);
+                else alert('Check your email/phone for the magic sign-in link or OTP!');
+            }
+
             async socialLogin(provider) {
-                if (!this.supabase) return;
                 const { error } = await this.supabase.auth.signInWithOAuth({ 
                     provider,
                     options: { redirectTo: window.location.origin }
@@ -398,19 +460,97 @@
             }
 
             async handleLogout() {
-                if (!this.supabase) return;
-                await this.supabase.auth.signOut();
+                if(this.supabase && !this.isAdmin) await this.supabase.auth.signOut();
                 window.location.reload();
             }
 
-            // --- Admin Custom Test Builder ---
+            // --- Timed Test Window (9am to 12pm) ---
+            checkTestWindow() {
+                const now = new Date();
+                const hours = now.getHours();
+                const badge = document.getElementById('testWindowBadge');
+                const btn = document.getElementById('submitTestBtn');
+                
+                // 9 AM to 12 PM (9 to 12)
+                if (hours >= 9 && hours < 12) {
+                    if(badge) badge.innerText = "🟢 Active Now (Closes at 12:00 PM)";
+                    if(badge) badge.className = "font-mono text-emerald-400 font-extrabold text-xs";
+                    if(btn) btn.disabled = false;
+                } else {
+                    if(badge) badge.innerText = "🔴 Closed (Available 9:00 AM - 12:00 PM)";
+                    if(badge) badge.className = "font-mono text-rose-400 font-extrabold text-xs";
+                    if(btn) btn.disabled = true;
+                }
+            }
+
+            // --- Student Assistance Chat / Media Inbox ---
+            async sendStudentChat() {
+                if (!this.currentUser && !this.isAdmin) { alert('Please sign in first.'); this.toggleModal('authModal'); return; }
+                if (!this.isVip && !this.isAdmin) { alert('Personal Assistance & Doubt Inbox is available exclusively for VIP members. Please upgrade in the VIP Tier tab.'); this.switchTab('vip'); return; }
+
+                const mediaType = document.getElementById('chatMediaType').value;
+                const content = document.getElementById('chatContentInput').value;
+                if(!content) { alert('Please enter your query or file URL.'); return; }
+
+                const email = this.isAdmin ? 'admin@apexnotes.local' : this.currentUser.email;
+                const { error } = await this.supabase.from('student_chats').insert([{
+                    student_email: email,
+                    media_type: mediaType,
+                    content: content
+                }]);
+
+                if(error) alert('Error sending query: ' + error.message);
+                else {
+                    alert('Query sent successfully to Admin inbox!');
+                    document.getElementById('chatContentInput').value = '';
+                    this.fetchStudentChats();
+                }
+            }
+
+            async fetchStudentChats() {
+                if (!this.currentUser) return;
+                const { data } = await this.supabase.from('student_chats').select('*').eq('student_email', this.currentUser.email).order('created_at', { ascending: false });
+                const container = document.getElementById('studentChatHistory');
+                if(!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-500">No queries submitted yet.</p>`;
+                    return;
+                }
+                container.innerHTML = data.map(c => `
+                    <div class="bg-slate-950/60 border border-slate-800/80 p-3 rounded-xl text-xs space-y-1">
+                        <span class="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded uppercase font-bold">${c.media_type}</span>
+                        <p class="text-slate-200 mt-1">${c.content}</p>
+                    </div>
+                `).join('');
+            }
+
+            async fetchAdminChats() {
+                if (!this.isAdmin) return;
+                const { data } = await this.supabase.from('student_chats').select('*').order('created_at', { ascending: false });
+                const container = document.getElementById('adminChatInbox');
+                if(!data || data.length === 0) {
+                    container.innerHTML = `<p class="text-xs text-slate-500">No student queries in inbox.</p>`;
+                    return;
+                }
+                container.innerHTML = data.map(c => `
+                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-xs space-y-1">
+                        <div class="flex justify-between text-[10px] text-indigo-400 font-bold">
+                            <span>${c.student_email}</span>
+                            <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300 uppercase">${c.media_type}</span>
+                        </div>
+                        <p class="text-slate-100">${c.content}</p>
+                    </div>
+                `).join('');
+            }
+
+            // --- Admin Publishing ---
             async publishCustomTest() {
+                if (!this.isAdmin) return;
                 const title = document.getElementById('adminTestTitle').value;
                 const qText = document.getElementById('adminQuestionText').value;
                 const optA = document.getElementById('adminOptionA').value;
                 const optB = document.getElementById('adminOptionB').value;
 
-                if(!title || !qText) { alert('Please enter test title and question.'); return; }
+                if(!title || !qText) { alert('Enter test title and question.'); return; }
 
                 const { error } = await this.supabase.from('notes').insert([{
                     title: `TEST: ${title}`,
@@ -418,11 +558,8 @@
                     file_url: '#'
                 }]);
 
-                if(error) alert('Error publishing test: ' + error.message);
-                else {
-                    alert('Custom test published successfully to cloud!');
-                    this.fetchCustomTests();
-                }
+                if(error) alert('Error: ' + error.message);
+                else { alert('Timed test published successfully!'); this.fetchCustomTests(); }
             }
 
             async fetchCustomTests() {
@@ -448,44 +585,29 @@
                 } catch(e) {}
             }
 
-            // --- Admin Classroom Wall & Event Publisher ---
             async publishClassEvent() {
+                if (!this.isAdmin) return;
                 const text = document.getElementById('adminEventText').value;
                 const author = document.getElementById('adminEventAuthor').value;
+                if(!text || !author) return;
 
-                if(!text || !author) { alert('Please enter event text and author.'); return; }
-
-                const { error } = await this.supabase.from('app_settings').insert([{
+                await this.supabase.from('app_settings').insert([{
                     setting_key: `event_${Date.now()}`,
                     setting_value: `${text}___${author}`
                 }]);
-
-                if(error) alert('Error publishing event: ' + error.message);
-                else {
-                    alert('Classroom event published successfully!');
-                    this.fetchClassEvents();
-                }
+                alert('Event published!');
+                this.fetchClassEvents();
             }
 
             async fetchClassEvents() {
                 try {
                     const { data } = await this.supabase.from('app_settings').select('*').ilike('setting_key', 'event_%');
                     const container = document.getElementById('eventsContainer');
-                    let html = `
-                        <div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-md">
-                            <p class="text-xs italic text-slate-200">"Negative marking tumhe khud yaad karne aayegi!"</p>
-                            <span class="text-[11px] text-indigo-400 font-bold block">— Raghuraj Sir (Chemistry)</span>
-                        </div>
-                    `;
+                    let html = `<div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-md"><p class="text-xs italic text-slate-200">"Negative marking tumhe khud yaad karne aayegi!"</p><span class="text-[11px] text-indigo-400 font-bold block">— Raghuraj Sir (Chemistry)</span></div>`;
                     if(data && data.length > 0) {
                         html += data.map(ev => {
                             const parts = ev.setting_value.split('___');
-                            return `
-                                <div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-md">
-                                    <p class="text-xs italic text-slate-200">"${parts[0]}"</p>
-                                    <span class="text-[11px] text-amber-400 font-bold block">— ${parts[1] || 'Instructor'}</span>
-                                </div>
-                            `;
+                            return `<div class="bg-slate-900/80 border border-slate-800/80 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-md"><p class="text-xs italic text-slate-200">"${parts[0]}"</p><span class="text-[11px] text-amber-400 font-bold block">— ${parts[1]}</span></div>`;
                         }).join('');
                     }
                     container.innerHTML = html;
@@ -504,32 +626,34 @@
                     const exp = parseInt(params.get('exp'));
                     const src = decodeURIComponent(params.get('src'));
                     if (Date.now() > exp) {
-                        container.innerHTML = `<p class="text-xs text-rose-400">❌ Token expired (24h limit reached).</p>`;
+                        container.innerHTML = `<p class="text-xs text-rose-400">❌ Token expired.</p>`;
                         return;
                     }
-                    container.innerHTML = `
-                        <div class="space-y-2">
-                            <span class="text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded font-mono">✔ Token Verified & Secured</span>
-                            <video controls class="w-full rounded-xl border border-slate-800 max-h-96">
-                                <source src="${src}" type="video/mp4">
-                                Your browser does not support video streaming.
-                            </video>
-                        </div>`;
+                    container.innerHTML = `<video controls class="w-full rounded-xl border border-slate-800 max-h-96"><source src="${src}" type="video/mp4"></video>`;
                 } catch(e) {
                     container.innerHTML = `<p class="text-xs text-rose-400">❌ Malformed token structure.</p>`;
                 }
             }
 
             async submitTestReport() {
-                if (!this.currentUser) { alert('Please sign in first.'); this.toggleModal('authModal'); return; }
+                if (!this.currentUser && !this.isAdmin) { alert('Please sign in first.'); this.toggleModal('authModal'); return; }
+                if (!this.isVip && !this.isAdmin) { alert('Timed mock tests are exclusive to VIP members.'); this.switchTab('vip'); return; }
+
+                const now = new Date();
+                if (now.getHours() < 9 || now.getHours() >= 12) {
+                    alert('Submission blocked: Timed tests can only be submitted between 9:00 AM and 12:00 PM.');
+                    return;
+                }
+
+                const email = this.isAdmin ? 'admin@apexnotes.local' : this.currentUser.email;
                 const { error } = await this.supabase.from('student_submissions').insert([{
-                    user_email: this.currentUser.email,
+                    user_email: email,
                     test_name: document.getElementById('activeTestTitle').innerText,
                     score: 172,
                     status: 'Evaluated'
                 }]);
                 if (error) alert('Error syncing report: ' + error.message);
-                else { alert('Test submitted successfully to cloud.'); this.fetchReports(); }
+                else { alert('Test submitted successfully during scheduled window!'); this.fetchReports(); }
             }
 
             async fetchReports() {
@@ -537,7 +661,7 @@
                 const { data } = await this.supabase.from('student_submissions').select('*').eq('user_email', this.currentUser.email);
                 const container = document.getElementById('reportsContainer');
                 if (!data || data.length === 0) {
-                    container.innerHTML = `<p class="text-xs text-slate-500">No submission logs found in cloud.</p>`;
+                    container.innerHTML = `<p class="text-xs text-slate-500">No submission logs found.</p>`;
                     return;
                 }
                 container.innerHTML = data.map(r => `
@@ -572,31 +696,21 @@
             }
 
             async uploadNote() {
+                if (!this.isAdmin) return;
                 const title = document.getElementById('noteTitle').value;
                 const subject = document.getElementById('noteSubject').value;
                 const file_url = document.getElementById('noteUrl').value;
-                if (!title || !subject || !file_url) { alert('Please fill in all fields.'); return; }
+                if (!title || !subject || !file_url) return;
+                
                 const { error } = await this.supabase.from('notes').insert([{ title, subject, file_url }]);
                 if (error) { alert('Upload failed: ' + error.message); return; }
-                alert('Published to cloud successfully!');
+                alert('Published note to cloud successfully!');
                 this.toggleModal('uploadModal');
                 this.fetchNotes();
             }
 
-            async updatePrice() {
-                const val = document.getElementById('priceInput').value;
-                await this.supabase.from('app_settings').update({ setting_value: val }).eq('setting_key', 'subscription_price');
-                alert('Subscription price updated successfully!');
-            }
-
-            async grantVIP() {
-                const email = document.getElementById('vipEmail').value;
-                await this.supabase.from('profiles').update({ is_subscribed: true }).eq('email', email);
-                alert(`VIP Access granted successfully to ${email}`);
-            }
-
             initiatePayment(amount, plan) {
-                alert(`Redirecting to Secure Gateway (PhonePe / Paytm / UPI / Razorpay) for ${plan} — Amount: ₹${amount}`);
+                alert(`Redirecting to Secure Gateway (UPI / PhonePe / Paytm) for ${plan} — Amount: ₹${amount}`);
             }
         }
 

@@ -36,7 +36,7 @@
             <div class="absolute inset-0 border-4 border-indigo-500/20 rounded-full animate-ping"></div>
             <div class="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <div class="text-xs font-mono tracking-widest text-indigo-400 uppercase">Initializing Real-Time Neural Matrix...</div>
+        <div class="text-xs font-mono tracking-widest text-indigo-400 uppercase">Initializing Zero-Latency Neural Matrix...</div>
     </div>
 
     <div class="flex h-screen overflow-hidden relative">
@@ -54,7 +54,7 @@
                         </div>
                         <div>
                             <h1 class="font-black text-sm tracking-widest text-white uppercase">ApexNotes <span class="text-indigo-400">Quantum</span></h1>
-                            <p class="text-[10px] font-mono text-cyan-400 tracking-wider">Live Real-Time Sync v4.9</p>
+                            <p class="text-[10px] font-mono text-cyan-400 tracking-wider">Marcel Batch Fast-Ping v5.0</p>
                         </div>
                     </div>
                     <button onclick="QuantumCore.toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white">
@@ -106,11 +106,11 @@
             
             <div class="bg-slate-900/90 border border-indigo-500/20 p-4 rounded-2xl space-y-3 shadow-xl backdrop-blur-md">
                 <div id="loggedOutView">
-                    <p class="text-[9px] text-slate-400 mb-2 uppercase tracking-widest font-mono">Google Auth Required</p>
-                    <button onclick="QuantumCore.socialLogin('google')" class="w-full bg-white text-slate-900 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-100 transition shadow-md">
-                        Sign In with Google
+                    <p class="text-[9px] text-slate-400 mb-2 uppercase tracking-widest font-mono">Fast-Ping Authentication</p>
+                    <button onclick="QuantumCore.toggleModal('authModal')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md mb-2">
+                        Student Sign Up / Auth
                     </button>
-                    <button onclick="QuantumCore.toggleModal('pinModal')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-xl text-[10px] font-bold transition border border-slate-700 flex items-center justify-center gap-1.5 mt-2">
+                    <button onclick="QuantumCore.toggleModal('pinModal')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-xl text-[10px] font-bold transition border border-slate-700 flex items-center justify-center gap-1.5">
                         <i data-lucide="key" class="w-3 h-3 text-indigo-400"></i> Admin PIN Override
                     </button>
                 </div>
@@ -145,7 +145,7 @@
                 <!-- Admin Override Control Matrix (PIN Secured) -->
                 <div id="adminPanel" class="hidden bg-slate-900/90 border-2 border-indigo-500/60 p-6 rounded-3xl shadow-2xl space-y-6 backdrop-blur-xl">
                     <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <span class="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase tracking-widest font-mono">👑 ADMIN_LIVE_REPLY_PANEL</span>
+                        <span class="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase tracking-widest font-mono">👑 ADMIN_FAST_PING_PANEL</span>
                     </div>
                     
                     <div class="grid gap-6 md:grid-cols-2">
@@ -166,7 +166,7 @@
 
                     <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
                         <div class="flex justify-between items-center">
-                            <label class="block text-xs font-bold text-emerald-400">📥 Live Student Doubts & Direct Reply Inbox</label>
+                            <label class="block text-xs font-bold text-emerald-400">📥 Live WebSocket Student Doubts & Direct Reply Inbox</label>
                             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                         </div>
                         <div id="adminChatInbox" class="space-y-3 max-h-72 overflow-y-auto font-mono text-xs">
@@ -181,7 +181,7 @@
                         <div>
                             <span id="activeStudyLabel" class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full uppercase tracking-wider">⚡ Botany Modules Matrix</span>
                             <h3 class="text-base font-bold text-white mt-3">Advanced NEET Curriculum Modules</h3>
-                            <p class="text-xs text-slate-400 mt-1">Live cloud synchronization active.</p>
+                            <p class="text-xs text-slate-400 mt-1">Zero-latency cloud sync active.</p>
                         </div>
                         <button onclick="alert('Sync active.')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg transition">Verify Sync</button>
                     </div>
@@ -222,10 +222,10 @@
                     </div>
                 </div>
 
-                <!-- Section: Personal Assistance & Doubt Hub (Threaded Replies) -->
+                <!-- Section: Personal Assistance & Doubt Hub -->
                 <div id="sectionDoubt" class="hidden space-y-6">
                     <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl space-y-5 shadow-2xl backdrop-blur-xl">
-                        <h3 class="text-base font-extrabold text-white">💬 Live Personal Assistance & Doubt Transmission</h3>
+                        <h3 class="text-base font-extrabold text-white">💬 Live WebSocket Personal Assistance</h3>
                         <div class="space-y-3 pt-2">
                             <select id="chatMediaType" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white w-full font-mono">
                                 <option value="text">Text Doubt</option>
@@ -233,7 +233,7 @@
                                 <option value="url">Reference Link / URL</option>
                             </select>
                             <textarea id="chatContentInput" placeholder="Enter query payload..." rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white font-mono"></textarea>
-                            <button onclick="QuantumCore.sendStudentChat()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl text-xs font-black transition w-full">Transmit Query Live</button>
+                            <button onclick="QuantumCore.sendStudentChat()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl text-xs font-black transition w-full">Transmit Query Fast-Ping</button>
                         </div>
                         <div class="pt-4 border-t border-slate-800 space-y-3">
                             <h4 class="text-xs font-bold text-white">My Transmitted Query Thread & Admin Replies</h4>
@@ -256,6 +256,38 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Student Auth Modal (Marcel Batch Roll Number vs Google OAuth) -->
+    <div id="authModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-2xl z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-indigo-500/30 p-6 rounded-3xl max-w-md w-full space-y-5 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="font-bold text-base text-white">Fast-Ping Student Sign Up</h3>
+                <button onclick="QuantumCore.toggleModal('authModal')" class="text-slate-400 hover:text-white">✕</button>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- Marcel Batch Classmate Option -->
+                <div class="bg-slate-950 border border-indigo-500/40 p-4 rounded-2xl space-y-3">
+                    <label class="block text-xs font-bold text-indigo-400">Marcel Batch Classmate Sign-Up</label>
+                    <p class="text-[10px] text-slate-400">Enter your Marcel batch roll number and Google account email for priority fast-ping assistance.</p>
+                    <input type="text" id="classmateRollInput" placeholder="Marcel Roll Number (e.g. MARC-104)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <input type="email" id="classmateEmailInput" placeholder="Your Google Account Email..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
+                    <button onclick="QuantumCore.registerMarcelClassmate()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-xl text-xs transition">Register Marcel Priority Access</button>
+                </div>
+
+                <div class="relative flex py-1 items-center">
+                    <div class="flex-grow border-t border-slate-800"></div>
+                    <span class="flex-shrink mx-4 text-slate-500 text-[10px]">OR OTHER STUDENTS</span>
+                    <div class="flex-grow border-t border-slate-800"></div>
+                </div>
+
+                <!-- Standard Google OAuth -->
+                <button onclick="QuantumCore.socialLogin('google')" class="w-full bg-white text-slate-900 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition shadow-md">
+                    Sign Up via Google OAuth
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Admin PIN Modal -->
@@ -286,7 +318,7 @@
         </div>
     </div>
 
-    <!-- Real-Time Core Engine Script with Threaded Student Replies -->
+    <!-- Core Engine Script with WhatsApp-Style WebSockets -->
     <script>
         const SUPABASE_URL = 'https://glfxzceeoaaprmjlgjyb.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
@@ -336,14 +368,23 @@
                     await this.fetchClassEvents().catch(e => console.log(e));
                     this.checkTestWindow();
                     
-                    // --- LIVE REAL-TIME AUTO-SYNC BACKGROUND INTERVAL (Every 2 seconds) ---
-                    setInterval(() => {
-                        if(this.isAdmin) {
-                            this.fetchAdminChats();
-                        } else if(this.currentUser) {
-                            this.fetchStudentChats();
-                        }
-                    }, 2000);
+                    // --- WHATSAPP-STYLE INSTANT WEBSOCKET REAL-TIME LISTENER ---
+                    if (this.supabase) {
+                        this.supabase
+                            .channel('realtime-quantum-sync')
+                            .on(
+                                'postgres_changes',
+                                { event: '*', schema: 'public', table: 'student_chats' },
+                                (payload) => {
+                                    if (this.isAdmin) {
+                                        this.fetchAdminChats();
+                                    } else if (this.currentUser) {
+                                        this.fetchStudentChats();
+                                    }
+                                }
+                            )
+                            .subscribe();
+                    }
 
                 } catch(err) {
                     console.error(err);
@@ -393,13 +434,26 @@
                     document.getElementById('userEmailDisplay').innerText = "Admin (Override)";
                     document.getElementById('studentGoogleIdentityBadge').innerText = "Google Account: Admin Override";
                     this.fetchAdminChats();
-                    alert('Admin live-sync & reply panel unlocked!');
+                    alert('Admin fast-ping WebSocket panel unlocked!');
                 } else { alert('Invalid PIN'); }
             }
 
             async checkSession() {
                 if(!this.supabase || this.isAdmin) return;
                 try {
+                    const localMarcel = localStorage.getItem('marcel_classmate_session');
+                    if (localMarcel) {
+                        const parsed = JSON.parse(localMarcel);
+                        this.currentUser = { email: parsed.email };
+                        document.getElementById('loggedOutView').classList.add('hidden');
+                        document.getElementById('loggedInView').classList.remove('hidden');
+                        document.getElementById('userEmailDisplay').innerText = parsed.email;
+                        document.getElementById('studentGoogleIdentityBadge').innerText = `Marcel Classmate [Roll: ${parsed.roll}] (${parsed.email})`;
+                        document.getElementById('badgeDisplay').innerText = "Marcel Batch";
+                        this.fetchStudentChats();
+                        return;
+                    }
+
                     const { data: { session } } = await this.supabase.auth.getSession();
                     if(session && session.user) {
                         this.currentUser = session.user;
@@ -412,11 +466,31 @@
                 } catch(e) {}
             }
 
+            registerMarcelClassmate() {
+                const roll = document.getElementById('classmateRollInput').value;
+                const email = document.getElementById('classmateEmailInput').value;
+                if(!roll || !email) { alert('Enter both Roll Number and Google Email.'); return; }
+
+                const sessionData = { roll: roll.toUpperCase(), email: email };
+                localStorage.setItem('marcel_classmate_session', JSON.stringify(sessionData));
+                this.currentUser = { email: email };
+                
+                this.toggleModal('authModal');
+                document.getElementById('loggedOutView').classList.add('hidden');
+                document.getElementById('loggedInView').classList.remove('hidden');
+                document.getElementById('userEmailDisplay').innerText = email;
+                document.getElementById('studentGoogleIdentityBadge').innerText = `Marcel Classmate [Roll: ${roll.toUpperCase()}] (${email})`;
+                document.getElementById('badgeDisplay').innerText = "Marcel Batch";
+                this.fetchStudentChats();
+                alert('Marcel priority fast-ping registration successful!');
+            }
+
             async socialLogin(provider) {
                 await this.supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } });
             }
 
             async handleLogout() {
+                localStorage.removeItem('marcel_classmate_session');
                 if(this.supabase && !this.isAdmin) await this.supabase.auth.signOut();
                 window.location.reload();
             }
@@ -446,7 +520,6 @@
 
                 if(error) alert('Error: ' + error.message);
                 else {
-                    alert('Query transmitted live!');
                     document.getElementById('chatContentInput').value = '';
                     if(this.currentUser) this.fetchStudentChats();
                 }
@@ -465,13 +538,11 @@
                 if(error) {
                     alert('Failed to send reply: ' + error.message);
                 } else {
-                    alert(`Reply successfully sent live to ${studentEmail}!`);
                     document.getElementById(`adminReplyInput_${chatId}`).value = '';
                     this.fetchAdminChats();
                 }
             }
 
-            // --- STUDENT THREADED VIEW (Doubts + Admin Replies Nested) ---
             async fetchStudentChats() {
                 if(!this.currentUser) return;
                 try {
@@ -479,7 +550,6 @@
                     const container = document.getElementById('studentChatHistory');
                     if(!data || data.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500">No transmissions.</p>`; return; }
                     
-                    // Separate student doubts and admin replies
                     const doubts = data.filter(c => c.media_type !== 'admin_reply');
                     const replies = data.filter(c => c.media_type === 'admin_reply');
 
@@ -492,8 +562,6 @@
                                     <span class="text-[9px] text-slate-500">${new Date(doubt.created_at).toLocaleTimeString()}</span>
                                 </div>
                                 <p class="text-slate-200 text-xs">${doubt.content}</p>
-                                
-                                <!-- Threaded Admin Replies Below Doubt -->
                                 <div class="space-y-2 pt-2">
                                     ${matchedReplies.length > 0 ? matchedReplies.map(r => `
                                         <div class="bg-indigo-950/40 border border-indigo-500/40 p-3 rounded-lg text-xs space-y-1 ml-4">
@@ -620,8 +688,8 @@
 
             async submitFinalExam() {
                 if(!this.currentUser && !this.isAdmin) {
-                    alert('Please sign in with your Google account first to submit.');
-                    this.socialLogin('google');
+                    alert('Please sign in first to submit.');
+                    this.toggleModal('authModal');
                     return;
                 }
 
@@ -640,7 +708,7 @@
                 }]);
 
                 if(error) alert('Submission failed: ' + error.message);
-                else alert(`Exam successfully submitted live! Your Score: ${calculatedScore} (Tracked under Google Account: ${email})`);
+                else alert(`Exam successfully submitted live! Your Score: ${calculatedScore} (Tracked under: ${email})`);
             }
 
             async publishClassEvent() {

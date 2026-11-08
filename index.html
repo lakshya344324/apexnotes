@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- iPadOS Standalone PWA Architecture -->
+    <!-- iPadOS Standalone PWA Engine (No Safari URL Bar) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ApexNotes">
@@ -32,11 +32,9 @@
                     colors: {
                         quantum: {
                             50: '#eef2ff',
-                            100: '#e0e7ff',
                             400: '#818cf8',
                             500: '#6366f1',
                             600: '#4f46e5',
-                            700: '#4338ca',
                             800: '#312e81',
                             900: '#0c0e1e',
                             950: '#030408'
@@ -54,22 +52,18 @@
     
     <!-- Lucide Vector Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase Core Realtime Database Client -->
+    <!-- Supabase Core Realtime SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- Chart.js Telemetry Engine -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <style>
-        /* Smooth Hardware Scroll & Custom Scrollbar */
-        * {
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 4px; height: 4px; }
         ::-webkit-scrollbar-track { background: #030408; }
         ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 9999px; }
         ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
         
-        /* Glassmorphism Structural Classes */
         .glass-panel {
             background: rgba(12, 14, 30, 0.75);
             backdrop-filter: blur(20px);
@@ -83,7 +77,7 @@
             border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        /* Keyboard Responder Fixes for iPadOS WebKit */
+        /* Instant Keyboard Focus on iPadOS */
         input, textarea {
             -webkit-user-select: text !important;
             user-select: text !important;
@@ -117,11 +111,10 @@
     <!-- Global Toast Pipeline -->
     <div id="toastContainer"></div>
 
-    <!-- Master Screen Matrix (Switchable Roots) -->
     <div id="appContainer" class="h-full w-full relative overflow-hidden flex flex-col">
 
         <!-- ========================================== -->
-        <!-- 1. ZERO-LATENCY AUTHENTICATION GATEWAY -->
+        <!-- 1. MANDATORY GOOGLE AUTH GATEWAY -->
         <!-- ========================================== -->
         <section id="portalGateway" class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-quantum-900 via-quantum-950 to-[#010204]">
             <div class="glass-panel w-full max-w-md p-8 rounded-3xl shadow-2xl relative overflow-hidden border border-indigo-500/30">
@@ -133,30 +126,33 @@
                         <i data-lucide="atom" class="w-8 h-8"></i>
                     </div>
                     <h1 class="text-xl font-black tracking-wider uppercase text-white font-mono">ApexNotes <span class="text-indigo-400">Quantum</span></h1>
-                    <p class="text-[11px] font-mono tracking-widest text-cyan-400 uppercase">Class 11 & 12 NEET Unified Matrix</p>
+                    <p class="text-[11px] font-mono tracking-widest text-cyan-400 uppercase">Unified NEET Workspace</p>
                 </div>
 
-                <!-- Tab Segmented Controller -->
+                <!-- Mode Switcher -->
                 <div class="flex p-1 bg-quantum-900/90 rounded-xl mb-6 border border-white/5 relative z-10 font-mono text-xs">
                     <button onclick="Gateway.setMode('student')" id="tabBtnStudent" class="flex-1 py-2 font-bold rounded-lg bg-indigo-600 text-white shadow-md transition">Student Portal</button>
                     <button onclick="Gateway.setMode('admin')" id="tabBtnAdmin" class="flex-1 py-2 font-bold rounded-lg text-slate-400 hover:text-white transition">Admin Deck</button>
                 </div>
 
-                <!-- Student Login Form -->
+                <!-- Student Sign In (Mandatory Google OAuth) -->
                 <div id="studentAuthBlock" class="space-y-4 relative z-10">
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-[10px] font-black tracking-widest text-indigo-400 uppercase font-mono mb-1.5">Marcel Roll / Identity</label>
-                            <input type="text" id="inputRollNumber" placeholder="e.g. MARC-104" class="w-full bg-quantum-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono transition">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-black tracking-widest text-indigo-400 uppercase font-mono mb-1.5">Google Email Account</label>
-                            <input type="email" id="inputStudentEmail" placeholder="yourname@gmail.com" class="w-full bg-quantum-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono transition">
-                        </div>
+                    <div class="p-4 bg-quantum-900/80 border border-indigo-500/30 rounded-2xl space-y-3 font-mono">
+                        <label class="block text-[10px] font-black tracking-widest text-indigo-400 uppercase">Marcel Batch Priority (Optional)</label>
+                        <input type="text" id="inputRollNumber" placeholder="Marcel Roll (e.g. MARC-104)" class="w-full bg-quantum-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono transition">
                     </div>
-                    <button onclick="Gateway.loginStudent()" class="w-full bg-gradient-to-r from-indigo-600 to-quantum-600 hover:from-indigo-500 hover:to-quantum-500 text-white font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/30 transition flex items-center justify-center gap-2">
-                        <i data-lucide="zap" class="w-4 h-4"></i> Establish Fast-Ping Sync
+
+                    <!-- Genuine Google Sign-In Button -->
+                    <button onclick="Gateway.loginWithGoogle()" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-3 transition transform active:scale-95">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span>Continue with Google Account</span>
                     </button>
+                    <p class="text-[10px] text-center text-slate-500 font-mono">Requires verified Google identity to prevent spoofing.</p>
                 </div>
 
                 <!-- Admin PIN Form -->
@@ -181,12 +177,10 @@
                 <div class="space-y-6">
                     <!-- Session Identity Header -->
                     <div class="flex items-center gap-3 p-3 bg-quantum-900/60 rounded-2xl border border-white/5">
-                        <div class="p-2.5 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/30">
-                            <i data-lucide="dna" class="w-5 h-5"></i>
-                        </div>
+                        <img id="imgStudentAvatar" src="https://api.iconify.design/lucide:user.svg?color=%236366f1" class="w-9 h-9 rounded-full bg-indigo-600/20 border border-indigo-500/30 object-cover" alt="User">
                         <div class="overflow-hidden">
                             <h2 id="lblStudentRoll" class="text-xs font-black tracking-wider text-white uppercase font-mono truncate">MARC-104</h2>
-                            <p id="lblStudentEmail" class="text-[10px] font-mono text-slate-400 truncate">student@quantum.local</p>
+                            <p id="lblStudentEmail" class="text-[10px] font-mono text-slate-400 truncate">student@gmail.com</p>
                         </div>
                     </div>
 
@@ -202,7 +196,6 @@
                                 <span class="flex items-center gap-3"><i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i> Study Matrix</span>
                                 <i data-lucide="chevron-down" id="iconStudyTree" class="w-3.5 h-3.5 transition-transform duration-200"></i>
                             </button>
-                            <!-- Nested Level 1 -->
                             <div id="nestedStudyTree" class="pl-4 space-y-1 pt-1 border-l border-indigo-500/20 ml-5 hidden">
                                 <button onclick="StudentRouter.selectSubject('botany')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-indigo-600/10 transition">🌱 Botany Modules</button>
                                 <button onclick="StudentRouter.selectSubject('zoology')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-indigo-600/10 transition">🧬 Zoology Modules</button>
@@ -218,22 +211,20 @@
 
                         <button onclick="StudentRouter.navigate('doubt')" id="navStudentDoubt" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5 transition">
                             <span class="flex items-center gap-3"><i data-lucide="message-square-code" class="w-4 h-4 text-emerald-400"></i> Doubt Room</span>
-                            <span id="badgeDoubtPending" class="hidden text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">LIVE</span>
+                            <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">LIVE</span>
                         </button>
                     </nav>
                 </div>
 
-                <!-- Footer Sign Out -->
                 <div class="pt-4 border-t border-white/5">
                     <button onclick="Gateway.logout()" class="w-full py-2.5 px-3 rounded-xl text-xs font-bold font-mono text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 transition flex items-center justify-center gap-2">
-                        <i data-lucide="log-out" class="w-4 h-4"></i> Disconnect Matrix
+                        <i data-lucide="log-out" class="w-4 h-4"></i> Sign Out
                     </button>
                 </div>
             </aside>
 
             <!-- Main Workspace Canvas -->
             <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#04060d] relative">
-                <!-- Top Navigation Bar -->
                 <header class="glass-panel px-6 py-4 flex justify-between items-center border-b border-indigo-500/10 z-20">
                     <div class="flex items-center gap-2 font-mono text-xs">
                         <span class="text-indigo-400 font-bold">KERNEL</span>
@@ -242,33 +233,31 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 font-bold">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> WebSocket: Active
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Google Connected
                         </div>
                     </div>
                 </header>
 
-                <!-- Section: Student Analytics & Radar -->
+                <!-- Section: Analytics -->
                 <div id="secStudentAnalytics" class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Stat Boxes -->
-                        <div class="glass-card p-6 rounded-2xl border border-indigo-500/20 relative overflow-hidden">
-                            <div class="text-[10px] font-mono text-indigo-400 font-black uppercase tracking-wider">Projected All-India NEET Standing</div>
+                        <div class="glass-card p-6 rounded-2xl border border-indigo-500/20">
+                            <div class="text-[10px] font-mono text-indigo-400 font-black uppercase">Projected All-India NEET Standing</div>
                             <div class="text-3xl font-black font-mono text-white mt-2">675 <span class="text-sm font-normal text-slate-400">/ 720</span></div>
-                            <div class="text-xs font-mono text-emerald-400 mt-2 font-semibold">↑ Top 1.5% in Marcel Test Series</div>
+                            <div class="text-xs font-mono text-emerald-400 mt-2 font-semibold">↑ Top 1.5% in Minor Test Series</div>
                         </div>
-                        <div class="glass-card p-6 rounded-2xl border border-cyan-500/20 relative overflow-hidden">
-                            <div class="text-[10px] font-mono text-cyan-400 font-black uppercase tracking-wider">Zoology Retention Accuracy</div>
+                        <div class="glass-card p-6 rounded-2xl border border-cyan-500/20">
+                            <div class="text-[10px] font-mono text-cyan-400 font-black uppercase">Zoology Retention Accuracy</div>
                             <div class="text-3xl font-black font-mono text-white mt-2">175 <span class="text-sm font-normal text-slate-400">/ 180</span></div>
                             <div class="text-xs font-mono text-cyan-400 mt-2 font-semibold">Flawless NCERT Line Recognition</div>
                         </div>
-                        <div class="glass-card p-6 rounded-2xl border border-emerald-500/20 relative overflow-hidden">
-                            <div class="text-[10px] font-mono text-emerald-400 font-black uppercase tracking-wider">Chemistry Vector Standing</div>
+                        <div class="glass-card p-6 rounded-2xl border border-emerald-500/20">
+                            <div class="text-[10px] font-mono text-emerald-400 font-black uppercase">Chemistry Standing</div>
                             <div class="text-3xl font-black font-mono text-white mt-2">180 <span class="text-sm font-normal text-slate-400">/ 180</span></div>
-                            <div class="text-xs font-mono text-emerald-400 mt-2 font-semibold">Minor Test Rank #3 Overall</div>
+                            <div class="text-xs font-mono text-emerald-400 mt-2 font-semibold">Rank #3 Overall</div>
                         </div>
                     </div>
 
-                    <!-- Telemetry Chart and Classroom Feed -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="lg:col-span-2 glass-card p-6 rounded-2xl space-y-4">
                             <div class="flex justify-between items-center">
@@ -290,13 +279,13 @@
                                 </div>
                             </div>
                             <div class="p-3 bg-indigo-950/40 border border-indigo-500/20 rounded-xl text-[11px] font-mono text-indigo-300">
-                                💡 Strategy Tip: Attempt physics vector geometrical shortcuts directly after biology completion.
+                                💡 Strategy: Question-first revision prevents syllabus burnout.
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Section: Curriculum Drill-Down (Study Matrix) -->
+                <!-- Section: Study Matrix -->
                 <div id="secStudentStudy" class="hidden flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
                     <div class="flex justify-between items-center pb-4 border-b border-white/5">
                         <div>
@@ -305,21 +294,17 @@
                         </div>
                         <span class="text-[11px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full">NCERT Aligned</span>
                     </div>
-
-                    <div id="curriculumModulesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <!-- Populated by JavaScript -->
-                    </div>
+                    <div id="curriculumModulesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                 </div>
 
-                <!-- Section: Timed Test Terminal (OMR Engine) -->
+                <!-- Section: Exam Terminal -->
                 <div id="secStudentExam" class="hidden flex-1 flex flex-row overflow-hidden">
-                    <!-- Left: Question Player -->
                     <div class="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col justify-between space-y-6">
                         <div class="space-y-6">
                             <div class="flex justify-between items-center pb-4 border-b border-white/5">
                                 <div>
                                     <span class="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-widest">Active Test Environment</span>
-                                    <h3 id="lblExamTitle" class="text-base font-black text-white font-mono mt-0.5">NEET Grand Revision Minor Test</h3>
+                                    <h3 class="text-base font-black text-white font-mono mt-0.5">NEET Grand Revision Minor Test</h3>
                                 </div>
                                 <div class="text-right font-mono">
                                     <div class="text-[10px] text-slate-500 uppercase">Window Timer</div>
@@ -335,14 +320,10 @@
                                     </button>
                                 </div>
                                 <p id="lblQuestionText" class="text-sm font-semibold text-white leading-relaxed pt-2">Loading question...</p>
-                                
-                                <div id="optionsContainer" class="space-y-2 pt-2">
-                                    <!-- Options injected dynamically -->
-                                </div>
+                                <div id="optionsContainer" class="space-y-2 pt-2"></div>
                             </div>
                         </div>
 
-                        <!-- Footer Nav Controller -->
                         <div class="flex justify-between items-center pt-4 border-t border-white/5 font-mono text-xs">
                             <button onclick="ExamTerminal.previousQuestion()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition">Previous</button>
                             <div class="flex gap-3">
@@ -352,13 +333,10 @@
                         </div>
                     </div>
 
-                    <!-- Right: Floating OMR Palette -->
                     <div class="w-64 glass-panel border-l border-white/5 p-5 flex flex-col justify-between hidden md:flex font-mono">
                         <div class="space-y-4">
                             <div class="text-xs font-bold uppercase text-slate-300 tracking-wider">Question Matrix</div>
-                            <div id="omrPaletteGrid" class="grid grid-cols-4 gap-2 max-h-[60vh] overflow-y-auto pr-1">
-                                <!-- OMR Number bubbles -->
-                            </div>
+                            <div id="omrPaletteGrid" class="grid grid-cols-4 gap-2 max-h-[60vh] overflow-y-auto pr-1"></div>
                         </div>
                         <div class="space-y-2 pt-4 border-t border-white/5 text-[10px]">
                             <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-emerald-500"></span> Answered</div>
@@ -368,31 +346,26 @@
                     </div>
                 </div>
 
-                <!-- Section: Live WhatsApp-Style Doubt Sync -->
+                <!-- Section: Live Doubt Room (WhatsApp-Style) -->
                 <div id="secStudentDoubt" class="hidden flex-1 flex flex-col h-full overflow-hidden bg-[#020306]">
-                    <!-- Faculty Room Header -->
                     <div class="p-4 bg-quantum-900/90 border-b border-indigo-500/10 flex items-center justify-between z-10">
                         <div class="flex items-center gap-3">
                             <div class="w-9 h-9 rounded-full bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
                                 <i data-lucide="graduation-cap" class="w-5 h-5"></i>
                             </div>
                             <div>
-                                <h3 class="text-xs font-bold text-white font-mono">Gurukripa & Marcel Faculty Desk</h3>
+                                <h3 class="text-xs font-bold text-white font-mono">Faculty Direct Connect</h3>
                                 <p class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Instant Two-Way Sync Active
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Zero-Latency Sync Active
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Chat Bubble Feed -->
-                    <div id="studentChatFeed" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
-                        <!-- Populated by Realtime Client -->
-                    </div>
+                    <div id="studentChatFeed" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4"></div>
 
-                    <!-- Message Typing Input Dock -->
                     <div class="p-3 bg-quantum-900/95 border-t border-white/5 flex gap-2 items-center">
-                        <input type="text" id="inputStudentChat" placeholder="Type doubt or formula question... (Sub-second sync)" class="flex-1 bg-quantum-950 border border-slate-700/80 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono transition">
+                        <input type="text" id="inputStudentChat" placeholder="Type doubt or formula question... (Instant sync)" class="flex-1 bg-quantum-950 border border-slate-700/80 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono transition">
                         <button onclick="RealtimeDoubtSync.sendDoubt('student')" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 p-3 rounded-xl font-black transition transform active:scale-95 shadow-lg shadow-emerald-600/30">
                             <i data-lucide="send" class="w-4 h-4"></i>
                         </button>
@@ -405,7 +378,6 @@
         <!-- 3. ADMIN COMMAND DECK INTERFACE -->
         <!-- ========================================== -->
         <section id="portalAdmin" class="hidden h-full w-full flex flex-row overflow-hidden bg-[#020205]">
-            <!-- Admin Sidebar -->
             <aside class="w-64 bg-slate-950 border-r border-amber-500/20 flex flex-col justify-between p-4 z-30 select-none">
                 <div class="space-y-6">
                     <div class="flex items-center gap-3 p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
@@ -437,36 +409,27 @@
                 </button>
             </aside>
 
-            <!-- Admin Display Main -->
             <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#030407]">
-                <!-- Admin Topbar -->
                 <header class="px-6 py-4 border-b border-amber-500/10 flex justify-between items-center bg-slate-950/80">
                     <div class="font-mono text-xs text-amber-400 font-bold uppercase tracking-wider" id="lblAdminBreadcrumb">
                         ADMIN_OVERSEER // LIVE_DOUBT_INBOX
                     </div>
-                    <span class="text-[10px] font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded">Postgres CDC Replication Online</span>
+                    <span class="text-[10px] font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded">Postgres CDC Online</span>
                 </header>
 
-                <!-- Admin View: Doubt Triage Inbox -->
                 <div id="secAdminInbox" class="flex-1 flex flex-row overflow-hidden">
-                    <!-- Left: Student List -->
                     <div class="w-80 border-r border-slate-800 bg-slate-950/60 overflow-y-auto p-3 space-y-1.5 font-mono">
                         <div class="text-[10px] font-black text-slate-500 uppercase px-2 py-1">Active Doubt Queues</div>
-                        <div id="adminStudentDoubtList" class="space-y-1">
-                            <!-- Injected by Realtime Client -->
-                        </div>
+                        <div id="adminStudentDoubtList" class="space-y-1"></div>
                     </div>
 
-                    <!-- Right: Active Chat Terminal -->
                     <div class="flex-1 flex flex-col h-full bg-[#04050a] justify-between">
                         <div class="p-3 bg-slate-900/60 border-b border-slate-800 flex justify-between items-center px-6">
                             <span id="lblAdminActiveStudent" class="text-xs font-mono font-bold text-white">Select a student thread</span>
                             <span class="text-[10px] font-mono text-cyan-400">Direct Faculty Pipe</span>
                         </div>
                         
-                        <div id="adminChatFeed" class="flex-1 overflow-y-auto p-6 space-y-4">
-                            <!-- Selected thread messages -->
-                        </div>
+                        <div id="adminChatFeed" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
 
                         <div class="p-4 bg-slate-950 border-t border-slate-800 flex gap-2">
                             <input type="text" id="inputAdminReply" placeholder="Type verified faculty explanation..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
@@ -477,22 +440,19 @@
                     </div>
                 </div>
 
-                <!-- Admin View: Bulk Question Injector -->
                 <div id="secAdminInjector" class="hidden flex-1 overflow-y-auto p-8 space-y-6">
                     <div class="glass-card p-6 rounded-2xl max-w-2xl border border-indigo-500/20 space-y-4 font-mono">
                         <h3 class="text-sm font-bold text-indigo-400 uppercase">Mass Test Question Injector (JSON)</h3>
-                        <p class="text-xs text-slate-400">Inject full 180-question NEET minor tests directly into the live cloud database.</p>
-                        <input type="text" id="inputAdminTestName" placeholder="Test Name (e.g. Minor Test 03 - Mechanics & C4)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white font-mono">
+                        <input type="text" id="inputAdminTestName" placeholder="Test Name" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white font-mono">
                         <textarea id="inputAdminBulkJson" rows="8" placeholder='[{"q":1, "text":"In C4 plants, primary CO2 acceptor is?", "a":"RuBP", "b":"PEP", "c":"PGA", "d":"OAA", "ans":"B"}]' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-emerald-400 font-mono"></textarea>
                         <button onclick="AdminCommand.injectQuestions()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl text-xs font-bold transition">Inject Questions Live</button>
                     </div>
                 </div>
 
-                <!-- Admin View: Classroom Wall Push -->
                 <div id="secAdminBroadcast" class="hidden flex-1 overflow-y-auto p-8 space-y-6">
                     <div class="glass-card p-6 rounded-2xl max-w-xl border border-cyan-500/20 space-y-4 font-mono">
                         <h3 class="text-sm font-bold text-cyan-400 uppercase">Push Classroom Wall Notice</h3>
-                        <input type="text" id="inputAdminNoticeAuthor" placeholder="Instructor Name (e.g. Raghuraj Sir)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white">
+                        <input type="text" id="inputAdminNoticeAuthor" placeholder="Instructor Name" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white">
                         <textarea id="inputAdminNoticeContent" rows="4" placeholder="Enter broadcast statement..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-white"></textarea>
                         <button onclick="AdminCommand.pushBroadcast()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 py-3 rounded-xl text-xs font-bold transition">Broadcast Globally</button>
                     </div>
@@ -506,14 +466,11 @@
     <!-- 4. CORE ENGINE JAVASCRIPT ARCHITECTURE -->
     <!-- ========================================== -->
     <script>
-        // Supabase Database & Realtime Config
         const SUPABASE_URL = 'https://glfxzceeoaaprmjlgjyb.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
         const ADMIN_PIN = '99508';
 
-        // ------------------------------------
-        // A. Global Toast Notification Pipeline
-        // ------------------------------------
+        // Toast Pipeline
         const Toast = {
             show(msg, type = 'info') {
                 const c = document.getElementById('toastContainer');
@@ -534,22 +491,40 @@
             }
         };
 
-        // ------------------------------------
-        // B. Authentication & Gateway Controller
-        // ------------------------------------
         const Gateway = {
             currentMode: 'student',
 
-            init() {
+            async init() {
+                if (!window.supabase) return;
+                AppState.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+                // 1. Check for active Supabase Google session
+                const { data: { session } } = await AppState.supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    const savedRoll = localStorage.getItem('quantum_marcel_roll') || 'STUDENT';
+                    const avatar = session.user.user_metadata?.avatar_url || 'https://api.iconify.design/lucide:user.svg?color=%236366f1';
+                    this.bootStudent(savedRoll, session.user.email, avatar);
+                    return;
+                }
+
+                // 2. Check for saved Admin session
                 const saved = localStorage.getItem('quantum_session');
                 if (saved) {
                     const parsed = JSON.parse(saved);
                     if (parsed.isAdmin) {
                         this.bootAdmin();
-                    } else {
-                        this.bootStudent(parsed.roll, parsed.email);
+                        return;
                     }
                 }
+
+                // 3. Listen for OAuth Redirect Callback Event
+                AppState.supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (session && session.user) {
+                        const savedRoll = localStorage.getItem('quantum_marcel_roll') || 'STUDENT';
+                        const avatar = session.user.user_metadata?.avatar_url || 'https://api.iconify.design/lucide:user.svg?color=%236366f1';
+                        this.bootStudent(savedRoll, session.user.email, avatar);
+                    }
+                });
             },
 
             setMode(mode) {
@@ -572,17 +547,23 @@
                 }
             },
 
-            loginStudent() {
-                const roll = document.getElementById('inputRollNumber').value.trim();
-                const email = document.getElementById('inputStudentEmail').value.trim();
-                if (!roll || !email) {
-                    Toast.show('Please provide both Roll Number and Google Account.', 'error');
-                    return;
+            // MANDATORY REAL GOOGLE OAUTH TRIGGER
+            async loginWithGoogle() {
+                const rollInput = document.getElementById('inputRollNumber').value.trim();
+                if (rollInput) {
+                    localStorage.setItem('quantum_marcel_roll', rollInput.toUpperCase());
                 }
-                const session = { roll: roll.toUpperCase(), email: email.toLowerCase(), isAdmin: false };
-                localStorage.setItem('quantum_session', JSON.stringify(session));
-                this.bootStudent(session.roll, session.email);
-                Toast.show(`Matrix Connected: ${session.roll}`, 'success');
+
+                const { error } = await AppState.supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+
+                if (error) {
+                    Toast.show('Google Auth Error: ' + error.message, 'error');
+                }
             },
 
             loginAdmin() {
@@ -597,10 +578,13 @@
                 }
             },
 
-            bootStudent(roll, email) {
-                AppState.currentUser = { roll, email, isAdmin: false };
+            bootStudent(roll, email, avatarUrl) {
+                AppState.currentUser = { roll, email, avatarUrl, isAdmin: false };
                 document.getElementById('lblStudentRoll').innerText = roll;
                 document.getElementById('lblStudentEmail').innerText = email;
+                if (avatarUrl) {
+                    document.getElementById('imgStudentAvatar').src = avatarUrl;
+                }
                 
                 document.getElementById('portalGateway').classList.add('hidden');
                 document.getElementById('portalAdmin').classList.add('hidden');
@@ -608,6 +592,7 @@
                 
                 StudentRouter.init();
                 RealtimeDoubtSync.init();
+                Toast.show(`Authenticated: ${email}`, 'success');
             },
 
             bootAdmin() {
@@ -620,15 +605,16 @@
                 RealtimeDoubtSync.init();
             },
 
-            logout() {
+            async logout() {
                 localStorage.removeItem('quantum_session');
+                localStorage.removeItem('quantum_marcel_roll');
+                if (AppState.supabaseClient) {
+                    await AppState.supabaseClient.auth.signOut();
+                }
                 location.reload();
             }
         };
 
-        // ------------------------------------
-        // C. Central Data Store & State
-        // ------------------------------------
         const AppState = {
             currentUser: null,
             supabaseClient: null,
@@ -636,7 +622,6 @@
             allChats: [],
             activeAdminPeerEmail: null,
             
-            // Exam Terminal State
             examQuestions: [
                 { id: 1, text: "In C4 plants, the primary atmospheric CO2 acceptor is localized in which cell type?", a: "Bundle sheath cell via RuBisCO", b: "Mesophyll cell via Phosphoenolpyruvate carboxylase", c: "Mesophyll cell via RuBP carboxylase", d: "Epidermal guard cell via malic dehydrogenase", ans: "B" },
                 { id: 2, text: "Which among the following autoimmune conditions is characterized by antibodies blocking acetylcholine receptors at neuromuscular junctions?", a: "Gouty arthritis", b: "Rheumatoid arthritis", c: "Myasthenia gravis", d: "Systemic lupus erythematosus", ans: "C" },
@@ -648,20 +633,15 @@
             reviewMarkedSet: new Set()
         };
 
-        // ------------------------------------
-        // D. WhatsApp-Style Realtime WebSocket Engine
-        // ------------------------------------
+        // WhatsApp-Grade Realtime Engine
         const RealtimeDoubtSync = {
             channel: null,
 
             init() {
-                if (!window.supabase) return;
-                AppState.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+                if (!AppState.supabaseClient) return;
 
-                // Initial fetch
                 this.pullChatHistory();
 
-                // Connect WebSocket Channel
                 this.channel = AppState.supabaseClient
                     .channel('realtime_quantum_sync')
                     .on(
@@ -671,11 +651,7 @@
                             this.handleIncoming(payload.new);
                         }
                     )
-                    .subscribe((status) => {
-                        if (status === 'SUBSCRIBED') {
-                            console.log('⚡ WebSocket Pipe Connected.');
-                        }
-                    });
+                    .subscribe();
             },
 
             async pullChatHistory() {
@@ -698,7 +674,6 @@
             },
 
             handleIncoming(msg) {
-                // Deduplicate optimistic inserts
                 if (!AppState.allChats.some(c => c.id === msg.id)) {
                     AppState.allChats.push(msg);
                 }
@@ -708,12 +683,12 @@
                     if (AppState.activeAdminPeerEmail === msg.student_email) {
                         AdminRouter.renderChatWindow(msg.student_email);
                     }
-                    Toast.show(`New Doubt Transmission: ${msg.student_email}`, 'info');
+                    Toast.show(`New Doubt: ${msg.student_email}`, 'info');
                 } else {
                     if (msg.student_email === AppState.currentUser.email) {
                         StudentRouter.renderChats();
                         if (msg.media_type === 'admin_reply') {
-                            Toast.show('Verified Faculty Explanation Received', 'success');
+                            Toast.show('Faculty Explanation Arrived', 'success');
                         }
                     }
                 }
@@ -739,7 +714,6 @@
                     created_at: new Date().toISOString()
                 };
 
-                // 0ms Perceived Latency Push
                 AppState.allChats.push(optimisticPayload);
                 input.value = '';
 
@@ -749,22 +723,14 @@
                     AdminRouter.renderChatWindow(targetEmail);
                 }
 
-                // Push to Supabase PostgreSQL Database
-                const { error } = await AppState.supabaseClient.from('student_chats').insert([{
+                await AppState.supabaseClient.from('student_chats').insert([{
                     student_email: targetEmail,
                     media_type: optimisticPayload.media_type,
                     content: text
                 }]);
-
-                if (error) {
-                    Toast.show('Transmission failed to sync with cloud', 'error');
-                }
             }
         };
 
-        // ------------------------------------
-        // E. Student Workspace Navigation & Logic
-        // ------------------------------------
         const StudentRouter = {
             init() {
                 lucide.createIcons();
@@ -905,9 +871,6 @@
             }
         };
 
-        // ------------------------------------
-        // F. PW-Grade OMR Exam Terminal Engine
-        // ------------------------------------
         const ExamTerminal = {
             init() {
                 this.renderQuestion();
@@ -916,7 +879,7 @@
 
             renderQuestion() {
                 const q = AppState.examQuestions[AppState.currentQIdx];
-                document.getElementById('lblQuestionCounter').innerText = `Question ${AppState.currentQIdx + 1} of ${AppState.examQuestions.count || AppState.examQuestions.length}`;
+                document.getElementById('lblQuestionCounter').innerText = `Question ${AppState.currentQIdx + 1} of ${AppState.examQuestions.length}`;
                 document.getElementById('lblQuestionText').innerText = `Q${q.id}. ${q.text}`;
                 
                 const savedAns = AppState.userExamResponses[AppState.currentQIdx];
@@ -937,7 +900,6 @@
                     `;
                 }).join('');
 
-                // Update Next / Submit Button Text
                 const btn = document.getElementById('btnExamNextOrSubmit');
                 if (AppState.currentQIdx === AppState.examQuestions.length - 1) {
                     btn.innerText = 'Submit Test';
@@ -1012,31 +974,20 @@
             },
 
             submitExam() {
-                let score = 0;
-                let correctCount = 0;
-                let wrongCount = 0;
-
+                let score = 0, correct = 0, wrong = 0;
                 AppState.examQuestions.forEach((q, idx) => {
                     const res = AppState.userExamResponses[idx];
                     if (res) {
-                        if (res === q.ans) {
-                            score += 4;
-                            correctCount++;
-                        } else {
-                            score -= 1;
-                            wrongCount++;
-                        }
+                        if (res === q.ans) { score += 4; correct++; }
+                        else { score -= 1; wrong++; }
                     }
                 });
 
-                Toast.show(`Test Submitted. Raw NEET Score: ${score} (+${correctCount * 4} / -${wrongCount})`, 'success');
+                Toast.show(`Test Submitted: ${score} Score (+${correct * 4} / -${wrong})`, 'success');
                 StudentRouter.navigate('analytics');
             }
         };
 
-        // ------------------------------------
-        // G. Admin Overseer Router & Operations
-        // ------------------------------------
         const AdminRouter = {
             init() {
                 lucide.createIcons();
@@ -1122,7 +1073,7 @@
                 try {
                     const parsed = JSON.parse(raw);
                     AppState.examQuestions = parsed;
-                    Toast.show(`Successfully injected ${parsed.length} questions into live test pool`, 'success');
+                    Toast.show(`Injected ${parsed.length} questions into live test pool`, 'success');
                     document.getElementById('inputAdminBulkJson').value = '';
                 } catch(e) {
                     Toast.show('Malformed JSON syntax: ' + e.message, 'error');
@@ -1140,12 +1091,11 @@
                 item.innerHTML = `"${content}" <span class="block text-[10px] font-mono font-bold text-amber-400 not-italic mt-1">— ${author}</span>`;
                 container.prepend(item);
 
-                Toast.show('Classroom wall broadcast pushed globally', 'success');
+                Toast.show('Classroom wall broadcast pushed', 'success');
                 document.getElementById('inputAdminNoticeContent').value = '';
             }
         };
 
-        // Window Bootstrap
         window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             Gateway.init();

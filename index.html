@@ -51,7 +51,7 @@
         }
     </script>
     
-    <!-- Core External Libraries -->
+    <!-- External Libraries -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -519,7 +519,6 @@
         </section>
 
     </div>
-
     <!-- 4. CORE ENGINE JAVASCRIPT SYSTEM ARCHITECTURE -->
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -528,8 +527,8 @@
         const SUPABASE_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
         const ADMIN_PIN = '99508';
 
-        // Agora RTC Parameters - Place your App ID here
-        const AGORA_APP_ID = "YOUR_AGORA_APP_ID"; 
+        // Your Agora WebRTC Cloud Credentials Integrated Directly
+        const AGORA_APP_ID = "fb1e0cc01be24071a7d8874a85fe3bc4"; 
         const AGORA_CHANNEL_NAME = "apex_quantum_channel";
 
         const AppState = {
@@ -1001,11 +1000,6 @@
 
             async joinCall(enableVideo) {
                 await this.initEngine();
-
-                if (!AGORA_APP_ID || AGORA_APP_ID === "YOUR_AGORA_APP_ID") {
-                    Toast.show("Please configure your Agora App ID on line 427 of the script.", "error");
-                    return;
-                }
 
                 try {
                     await this.rtcClient.join(AGORA_APP_ID, AGORA_CHANNEL_NAME, null, null);

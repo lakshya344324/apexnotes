@@ -4,579 +4,1383 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
+    <!-- iPadOS Standalone PWA Engine -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="ApexNotes">
+    <meta name="apple-mobile-web-app-title" content="ApexNotes Quantum">
     <meta name="theme-color" content="#030408">
+    <link rel="apple-touch-icon" href="https://api.iconify.design/lucide:atom.svg?color=%236366f1">
     
-    <title>ApexNotes Quantum | Dynamic NEET & Agora Call Matrix</title>
+    <title>ApexNotes Quantum | Autonomous Enterprise Neural NEET Suite</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
-                fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'], mono: ['"JetBrains Mono"', 'monospace'] }
+                fontFamily: {
+                    sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    mono: ['"JetBrains Mono"', 'monospace']
+                },
+                extend: {
+                    colors: {
+                        quantum: {
+                            50: '#eef2ff', 100: '#e0e7ff', 200: '#c7d2fe', 300: '#a5b4fc',
+                            400: '#818cf8', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca',
+                            800: '#3730a3', 900: '#0c0e1e', 950: '#030408'
+                        }
+                    },
+                    boxShadow: {
+                        'neon-indigo': '0 0 25px -5px rgba(99, 102, 241, 0.4)',
+                        'neon-emerald': '0 0 25px -5px rgba(16, 185, 129, 0.4)',
+                        'neon-amber': '0 0 25px -5px rgba(245, 158, 11, 0.4)',
+                        'neon-rose': '0 0 25px -5px rgba(244, 63, 94, 0.4)'
+                    },
+                    animation: {
+                        'pulse-glow': 'pulse 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'radar-sweep': 'spin 8s linear infinite'
+                    }
+                }
             }
         }
     </script>
     
-    <!-- Lucide Vector Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase Core Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Mozilla PDF.js Parser Engine -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <!-- Agora Official WebRTC Cloud Calling SDK (v4) -->
     <script src="https://download.agora.io/sdk/release/AgoraRTC_N-4.20.0.js"></script>
 
     <style>
-        * { -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #312e81; border-radius: 9999px; }
-        .glass-panel { background: rgba(12, 14, 30, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(99, 102, 241, 0.2); }
-        .glass-card { background: rgba(8, 10, 22, 0.7); backdrop-filter: blur(14px); border: 1px solid rgba(255, 255, 255, 0.06); }
-        input, textarea { -webkit-user-select: text !important; user-select: text !important; }
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: #030408; }
+        ::-webkit-scrollbar-thumb { background: #1e1b4b; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
         
-        #toast {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 9999;
+        .glass-panel {
+            background: rgba(12, 14, 30, 0.78);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(99, 102, 241, 0.16);
+        }
+        .glass-card {
+            background: rgba(8, 10, 22, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        input, textarea, select {
+            -webkit-user-select: text !important;
+            user-select: text !important;
+        }
+        #toastContainer {
+            position: fixed; bottom: 24px; right: 24px; z-index: 99999;
+            display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+        }
+        .toast-item {
+            pointer-events: auto; transform: translateY(20px); opacity: 0;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .toast-item.show { transform: translateY(0); opacity: 1; }
     </style>
 </head>
 <body class="bg-[#030408] text-slate-100 h-full w-full overflow-hidden antialiased font-sans flex flex-col">
 
-    <!-- Toast Notification Anchor -->
-    <div id="toast" class="transform translate-y-20 opacity-0 pointer-events-none glass-panel px-4 py-3 rounded-xl border border-indigo-500/40 text-xs font-mono shadow-2xl flex items-center gap-2"></div>
+    <div id="toastContainer"></div>
 
     <div id="appContainer" class="h-full w-full relative overflow-hidden flex flex-col">
 
-        <!-- ================= 1. AUTH GATEWAY ================= -->
-        <section id="portalGateway" class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-[#030408]">
-            <div class="glass-panel w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6">
-                <div class="text-center space-y-2">
-                    <div class="inline-flex p-3 rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
+        <!-- 1. MANDATORY GOOGLE OAUTH GATEWAY -->
+        <section id="portalGateway" class="absolute inset-0 z-50 flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-quantum-900 via-quantum-950 to-[#010204]">
+            <div class="glass-panel w-full max-w-md p-8 rounded-3xl shadow-2xl relative overflow-hidden border border-indigo-500/30">
+                <div class="text-center space-y-2 mb-8 relative z-10">
+                    <div class="inline-flex p-3 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 text-white shadow-lg shadow-indigo-600/30 mb-2 animate-pulse-glow">
                         <i data-lucide="atom" class="w-8 h-8"></i>
                     </div>
-                    <h1 class="text-xl font-black uppercase text-white font-mono tracking-wider">ApexNotes <span class="text-indigo-400">Quantum</span></h1>
-                    <p class="text-[10px] font-mono text-cyan-400 uppercase tracking-widest">No Pre-Loaded Data • Pure Cloud Sync</p>
+                    <h1 class="text-xl font-black tracking-wider uppercase text-white font-mono">ApexNotes <span class="text-indigo-400">Quantum</span></h1>
+                    <p class="text-[10px] font-mono tracking-widest text-cyan-400 uppercase">Enterprise Autonomous NEET Suite</p>
                 </div>
 
-                <div class="flex p-1 bg-slate-900 rounded-xl font-mono text-xs">
-                    <button onclick="Gateway.setMode('student')" id="tabBtnStudent" class="flex-1 py-2 font-bold rounded-lg bg-indigo-600 text-white transition">Student Portal</button>
+                <div class="flex p-1 bg-quantum-900/90 rounded-xl mb-6 border border-white/5 relative z-10 font-mono text-xs">
+                    <button onclick="Gateway.setMode('student')" id="tabBtnStudent" class="flex-1 py-2 font-bold rounded-lg bg-indigo-600 text-white shadow-md transition">Student Portal</button>
                     <button onclick="Gateway.setMode('admin')" id="tabBtnAdmin" class="flex-1 py-2 font-bold rounded-lg text-slate-400 hover:text-white transition">Admin Deck</button>
                 </div>
 
-                <div id="studentAuthBlock" class="space-y-4">
-                    <input type="text" id="inputRollNumber" placeholder="Marcel Roll (e.g. MARC-104)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white font-mono focus:border-indigo-500 outline-none">
-                    <button onclick="Gateway.loginWithGoogle()" class="w-full bg-white hover:bg-slate-100 text-slate-950 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition">
-                        <i data-lucide="chrome" class="w-4 h-4"></i> Sign In with Google
+                <div id="studentAuthBlock" class="space-y-4 relative z-10">
+                    <div class="p-4 bg-quantum-900/80 border border-indigo-500/30 rounded-2xl space-y-3 font-mono">
+                        <label class="block text-[10px] font-black tracking-widest text-indigo-400 uppercase">Marcel Batch Student Identifier</label>
+                        <input type="text" id="inputRollNumber" placeholder="Roll Number (e.g. MARC-104)" class="w-full bg-quantum-950 border border-slate-700/80 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono transition">
+                    </div>
+
+                    <button onclick="Gateway.loginWithGoogle()" class="w-full bg-white hover:bg-slate-100 text-slate-900 font-bold py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-lg flex items-center justify-center gap-3 transition transform active:scale-95">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                        </svg>
+                        <span>Continue with Google Account</span>
                     </button>
+                    <p class="text-[10px] text-center text-slate-500 font-mono">Enforces Google authentication. Zero dummy/spoofed users allowed.</p>
                 </div>
 
-                <div id="adminAuthBlock" class="hidden space-y-4 font-mono">
-                    <input type="password" id="inputAdminPin" placeholder="Admin PIN Code" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white text-center tracking-widest focus:border-amber-500 outline-none">
-                    <button onclick="Gateway.loginAdmin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl text-xs uppercase tracking-wider transition">Unlock Controller</button>
+                <div id="adminAuthBlock" class="hidden space-y-4 relative z-10 font-mono">
+                    <div>
+                        <label class="block text-[10px] font-black tracking-widest text-amber-400 uppercase mb-1.5">Overseer Security Override PIN</label>
+                        <input type="password" id="inputAdminPin" placeholder="•••••" class="w-full bg-quantum-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-base text-white text-center tracking-widest placeholder-slate-600 focus:outline-none focus:border-amber-500 transition">
+                    </div>
+                    <button onclick="Gateway.loginAdmin()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-amber-500/30 transition flex items-center justify-center gap-2">
+                        <i data-lucide="shield-check" class="w-4 h-4"></i> Authorize Kernel Access
+                    </button>
                 </div>
             </div>
         </section>
 
-        <!-- ================= 2. STUDENT WORKSPACE ================= -->
-        <section id="portalStudent" class="hidden h-full w-full flex flex-row overflow-hidden bg-[#030408]">
-            <aside class="w-64 glass-panel border-r border-indigo-500/10 flex flex-col justify-between p-4 z-30 select-none">
+        <!-- 2. STUDENT WORKSPACE INTERFACE -->
+        <section id="portalStudent" class="hidden h-full w-full flex flex-row overflow-hidden bg-quantum-950">
+            <aside class="w-72 glass-panel border-r border-indigo-500/10 flex flex-col justify-between p-4 z-30 select-none">
                 <div class="space-y-6">
-                    <div class="p-3 bg-slate-900/60 rounded-2xl border border-white/5 font-mono">
-                        <h2 id="lblStudentRoll" class="text-xs font-black text-white uppercase truncate">MARC-104</h2>
-                        <p id="lblStudentEmail" class="text-[10px] text-slate-400 truncate">student@gmail.com</p>
+                    <div class="flex items-center gap-3 p-3 bg-quantum-900/60 rounded-2xl border border-white/5">
+                        <img id="imgStudentAvatar" src="https://api.iconify.design/lucide:user.svg?color=%236366f1" class="w-10 h-10 rounded-full bg-indigo-600/20 border border-indigo-500/30 object-cover" alt="Student">
+                        <div class="overflow-hidden">
+                            <h2 id="lblStudentRoll" class="text-xs font-black tracking-wider text-white uppercase font-mono truncate">MARC-104</h2>
+                            <p id="lblStudentEmail" class="text-[10px] font-mono text-slate-400 truncate">student@gmail.com</p>
+                        </div>
                     </div>
 
                     <nav class="space-y-1.5 font-mono text-xs">
-                        <button onclick="AppRouter.show('exam')" id="navExamBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30">
-                            <i data-lucide="file-text" class="w-4 h-4 text-amber-400"></i> Active Exam Terminal
+                        <button onclick="StudentRouter.navigate('analytics')" id="navStudentAnalytics" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30 transition">
+                            <i data-lucide="activity" class="w-4 h-4 text-cyan-400"></i> Analytics Matrix
                         </button>
-                        <button onclick="AppRouter.show('call')" id="navCallBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5">
-                            <i data-lucide="video" class="w-4 h-4 text-emerald-400"></i> Agora Cloud Calling
+
+                        <div class="space-y-1 pt-1">
+                            <button onclick="StudentRouter.toggleStudyTree()" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5 transition">
+                                <span class="flex items-center gap-3"><i data-lucide="layers" class="w-4 h-4 text-indigo-400"></i> Study Matrix</span>
+                                <i data-lucide="chevron-down" id="iconStudyTree" class="w-3.5 h-3.5 transition-transform duration-200"></i>
+                            </button>
+                            <div id="nestedStudyTree" class="pl-4 space-y-1 pt-1 border-l border-indigo-500/20 ml-5 hidden">
+                                <button onclick="StudentRouter.selectSubject('botany')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-indigo-600/10 transition">🌱 Botany Modules</button>
+                                <button onclick="StudentRouter.selectSubject('zoology')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-indigo-600/10 transition">🧬 Zoology Modules</button>
+                                <button onclick="StudentRouter.selectSubject('physics')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-indigo-600/10 transition">⚛️ Physics Vectors</button>
+                                <button onclick="StudentRouter.selectSubject('chemistry')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hover:text-white hover:bg-indigo-600/10 transition">⚗️ Chemistry Reactions</button>
+                            </div>
+                        </div>
+
+                        <button onclick="StudentRouter.navigate('exam')" id="navStudentExam" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5 transition">
+                            <span class="flex items-center gap-3"><i data-lucide="timer" class="w-4 h-4 text-amber-400"></i> Timed Test Terminal</span>
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                         </button>
-                        <button onclick="AppRouter.show('doubt')" id="navDoubtBtn" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5">
-                            <i data-lucide="message-square" class="w-4 h-4 text-cyan-400"></i> Doubt Room
+
+                        <button onclick="StudentRouter.navigate('call')" id="navStudentCall" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5 transition">
+                            <span class="flex items-center gap-3"><i data-lucide="video" class="w-4 h-4 text-emerald-400"></i> Agora Cloud Call</span>
+                            <span class="text-[9px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded font-mono">HD</span>
+                        </button>
+
+                        <button onclick="StudentRouter.navigate('doubt')" id="navStudentDoubt" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5 transition">
+                            <span class="flex items-center gap-3"><i data-lucide="message-square-code" class="w-4 h-4 text-cyan-400"></i> Doubt Room</span>
+                            <span id="badgeDoubtPending" class="text-[9px] bg-cyan-500/20 text-cyan-400 px-1.5 py-0.5 rounded font-mono">SYNC</span>
                         </button>
                     </nav>
                 </div>
-                <button onclick="Gateway.logout()" class="w-full py-2 text-xs font-mono font-bold text-rose-400 bg-rose-500/10 rounded-xl">Sign Out</button>
+
+                <div class="pt-4 border-t border-white/5">
+                    <button onclick="Gateway.logout()" class="w-full py-2.5 px-3 rounded-xl text-xs font-bold font-mono text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 transition flex items-center justify-center gap-2">
+                        <i data-lucide="log-out" class="w-4 h-4"></i> Disconnect Matrix
+                    </button>
+                </div>
             </aside>
 
-            <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#05060d]">
-                <!-- EXAM SECTION -->
-                <div id="secExam" class="flex-1 flex flex-row overflow-hidden">
-                    <div class="flex-1 p-6 md:p-8 overflow-y-auto space-y-6 flex flex-col justify-between">
-                        <div id="examActiveBox" class="space-y-6 hidden">
-                            <div class="flex justify-between items-center border-b border-white/5 pb-3 font-mono">
-                                <span id="lblQNumber" class="text-xs font-bold text-indigo-400">Question 1</span>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-slate-500 text-xs">TIME LEFT:</span>
-                                    <span id="lblTimer" class="text-sm font-black text-amber-400 font-mono">00:00:00</span>
+            <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#04060d] relative">
+                <header class="glass-panel px-6 py-4 flex justify-between items-center border-b border-indigo-500/10 z-20">
+                    <div class="flex items-center gap-2 font-mono text-xs">
+                        <span class="text-indigo-400 font-bold">KERNEL</span>
+                        <span class="text-slate-600">/</span>
+                        <span id="studentBreadcrumb" class="text-slate-300 uppercase tracking-wider font-semibold">ANALYTICS_MATRIX</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400 font-bold">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Cloud Stream Active
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Section: Analytics -->
+                <div id="secStudentAnalytics" class="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="glass-card p-6 rounded-2xl border border-indigo-500/20 relative overflow-hidden">
+                            <div class="text-[10px] font-mono text-indigo-400 font-black uppercase tracking-wider">Projected All-India NEET Standing</div>
+                            <div class="text-3xl font-black font-mono text-white mt-2" id="lblStatOverallScore">675 <span class="text-sm font-normal text-slate-400">/ 720</span></div>
+                            <div class="text-xs font-mono text-emerald-400 mt-2 font-semibold">↑ Top 1.5% in Marcel Test Series</div>
+                        </div>
+                        <div class="glass-card p-6 rounded-2xl border border-cyan-500/20 relative overflow-hidden">
+                            <div class="text-[10px] font-mono text-cyan-400 font-black uppercase tracking-wider">Zoology Retention Accuracy</div>
+                            <div class="text-3xl font-black font-mono text-white mt-2" id="lblStatZoologyScore">175 <span class="text-sm font-normal text-slate-400">/ 180</span></div>
+                            <div class="text-xs font-mono text-cyan-400 mt-2 font-semibold">Flawless NCERT Line Recognition</div>
+                        </div>
+                        <div class="glass-card p-6 rounded-2xl border border-emerald-500/20 relative overflow-hidden">
+                            <div class="text-[10px] font-mono text-emerald-400 font-black uppercase tracking-wider">Chemistry Vector Standing</div>
+                            <div class="text-3xl font-black font-mono text-white mt-2" id="lblStatChemistryScore">180 <span class="text-sm font-normal text-slate-400">/ 180</span></div>
+                            <div class="text-xs font-mono text-emerald-400 mt-2 font-semibold">Minor Test Rank #3 Overall</div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2 glass-card p-6 rounded-2xl space-y-4">
+                            <div class="flex justify-between items-center">
+                                <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">Subject-Wise Proficiency Balance</h3>
+                                <span class="text-[10px] font-mono text-slate-500">Live Telemetry Plot</span>
+                            </div>
+                            <div class="h-64 flex items-center justify-center">
+                                <canvas id="chartStudentRadar"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card p-6 rounded-2xl space-y-4 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-xs font-mono font-bold uppercase tracking-wider text-amber-400">Classroom Wall Feed</h3>
+                                <div id="wallBroadcastContainer" class="space-y-3 mt-4">
+                                    <div class="p-3 bg-white/5 rounded-xl border border-white/5 text-xs text-slate-300 font-serif italic">
+                                        "Negative marking tumhe khud yaad karne aayegi!"
+                                        <span class="block text-[10px] font-mono font-bold text-amber-400 not-italic mt-1">— Raghuraj Sir (Chemistry)</span>
+                                    </div>
+                                    <div class="p-3 bg-white/5 rounded-xl border border-white/5 text-xs text-slate-300 font-serif italic">
+                                        "Do not read theory again and again. Attack questions directly, then locate your missing concepts in notes."
+                                        <span class="block text-[10px] font-mono font-bold text-amber-400 not-italic mt-1">— Aman Sharma Sir (Physics)</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="glass-card p-6 rounded-2xl space-y-4 font-mono">
-                                <p id="lblQText" class="text-sm font-semibold text-white leading-relaxed"></p>
-                                <div id="optsBox" class="space-y-2 pt-2"></div>
+                            <div class="p-3 bg-indigo-950/40 border border-indigo-500/20 rounded-xl text-[11px] font-mono text-indigo-300">
+                                💡 Strategy Tip: Use question-first practice. Never spend more than 50 seconds on Biology NCERT line questions.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Curriculum Drill-Down -->
+                <div id="secStudentStudy" class="hidden flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
+                    <div class="flex justify-between items-center pb-4 border-b border-white/5">
+                        <div>
+                            <h3 id="lblCurriculumSubjectTitle" class="text-lg font-black text-white font-mono uppercase">Botany Core Curriculum</h3>
+                            <p class="text-xs font-mono text-slate-400">High-Yield Theory Modules & Practice Directives</p>
+                        </div>
+                        <span class="text-[11px] font-mono text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-3 py-1 rounded-full">NCERT Aligned</span>
+                    </div>
+                    <div id="curriculumModulesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <!-- Section: Timed Test Terminal -->
+                <div id="secStudentExam" class="hidden flex-1 flex flex-row overflow-hidden relative">
+                    <div class="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col justify-between space-y-6">
+                        <div id="examActiveBox" class="space-y-6 hidden">
+                            <div class="flex justify-between items-center pb-4 border-b border-white/5">
+                                <div>
+                                    <span class="text-[10px] font-mono font-bold text-amber-400 uppercase tracking-widest flex items-center gap-2">
+                                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Live Examination Kernel
+                                    </span>
+                                    <h3 id="lblExamTitle" class="text-base font-black text-white font-mono mt-0.5">NEET Grand Full Mock Test</h3>
+                                </div>
+                                <div class="text-right font-mono">
+                                    <div class="text-[10px] text-slate-500 uppercase">Window Timer</div>
+                                    <div id="lblExamCountdown" class="text-xl font-black text-amber-400 font-mono">03:20:00</div>
+                                </div>
+                            </div>
+
+                            <div class="glass-card p-6 rounded-2xl space-y-4">
+                                <div class="flex justify-between items-center text-xs font-mono">
+                                    <span id="lblQuestionCounter" class="font-bold text-indigo-400">Question 1 of 180</span>
+                                    <button onclick="ExamTerminal.toggleReviewMark()" id="btnMarkReview" class="text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1.5 transition">
+                                        <i data-lucide="bookmark" class="w-3.5 h-3.5"></i> Mark for Review
+                                    </button>
+                                </div>
+                                <p id="lblQuestionText" class="text-sm font-semibold text-white leading-relaxed pt-2"></p>
+                                <div id="optionsContainer" class="space-y-2.5 pt-2 font-mono"></div>
                             </div>
                         </div>
 
-                        <div id="examEmptyState" class="h-full flex flex-col items-center justify-center space-y-3 font-mono text-center">
-                            <i data-lucide="file-question" class="w-12 h-12 text-slate-600"></i>
-                            <h3 class="text-sm font-bold text-slate-400">No Exam Published Yet</h3>
-                            <p class="text-xs text-slate-600 max-w-sm">Awaiting question paper upload by administrator. The test terminal will load immediately upon upload.</p>
+                        <div id="examEmptyState" class="h-full flex flex-col items-center justify-center space-y-4 font-mono text-center my-auto">
+                            <div class="p-4 bg-slate-900 rounded-3xl border border-slate-800 text-slate-500">
+                                <i data-lucide="file-question" class="w-12 h-12"></i>
+                            </div>
+                            <h3 class="text-base font-bold text-slate-300">No Exam Published Yet</h3>
+                            <p class="text-xs text-slate-500 max-w-md leading-relaxed">
+                                Zero pre-loaded questions exist in the cloud matrix. When the instructor ingests a 90 or 180-question PDF through the Overseer deck, this terminal will automatically mount the OMR engine.
+                            </p>
                         </div>
 
                         <div id="examNavControls" class="flex justify-between items-center pt-4 border-t border-white/5 font-mono text-xs hidden">
-                            <button onclick="ExamTerminal.prev()" class="px-5 py-2.5 rounded-xl bg-slate-800 text-white font-bold">Previous</button>
-                            <button onclick="ExamTerminal.next()" id="btnNextQ" class="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-black">Next Question</button>
+                            <button onclick="ExamTerminal.previousQuestion()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold transition">Previous</button>
+                            <div class="flex gap-3">
+                                <button onclick="ExamTerminal.clearSelection()" class="px-4 py-2.5 rounded-xl bg-transparent border border-slate-700 hover:bg-white/5 text-slate-400 transition">Clear Response</button>
+                                <button onclick="ExamTerminal.nextQuestion()" id="btnExamNextOrSubmit" class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black shadow-lg shadow-indigo-600/30 transition">Next Question</button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Right OMR Grid -->
-                    <div id="omrPaletteContainer" class="w-64 glass-panel border-l border-white/5 p-4 flex flex-col justify-between font-mono hidden md:flex">
-                        <div class="space-y-3">
-                            <div class="text-xs font-bold uppercase text-slate-400">OMR Matrix</div>
-                            <div id="omrGrid" class="grid grid-cols-4 gap-2 max-h-[75vh] overflow-y-auto pr-1"></div>
+                    <div id="omrPaletteWrapper" class="w-64 glass-panel border-l border-white/5 p-5 flex flex-col justify-between hidden md:flex font-mono">
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center text-xs font-bold uppercase text-slate-300 tracking-wider">
+                                <span>OMR Matrix</span>
+                                <span id="lblPaletteAnsweredCount" class="text-emerald-400">0/0</span>
+                            </div>
+                            <div id="omrPaletteGrid" class="grid grid-cols-4 gap-2 max-h-[62vh] overflow-y-auto pr-1"></div>
+                        </div>
+                        <div class="space-y-2 pt-4 border-t border-white/5 text-[10px]">
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-emerald-500"></span> Answered (+4)</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-purple-500"></span> Marked Review</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-slate-800 border border-slate-700"></span> Unvisited</div>
+                            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded bg-rose-500"></span> Negative (-1)</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- AGORA CALL SECTION (AUDIO & VIDEO) -->
-                <div id="secCall" class="hidden flex-1 flex flex-col p-6 space-y-4">
-                    <div class="flex justify-between items-center font-mono">
+                <!-- Section: Agora Cloud Calling -->
+                <div id="secStudentCall" class="hidden flex-1 flex flex-col p-6 space-y-4 font-mono">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
                         <div>
-                            <h2 class="text-base font-bold text-white">Agora Real-Time Calling Matrix</h2>
-                            <p class="text-xs text-slate-400">Direct WebRTC Cloud Audio & Video Transmission</p>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i data-lucide="radio" class="w-4 h-4 text-emerald-400 animate-pulse"></i> Agora Cloud Mentorship Matrix
+                            </h2>
+                            <p class="text-xs text-slate-400">Direct WebRTC Multi-Device Audio & Video Transmission</p>
                         </div>
                         <div class="flex gap-2">
-                            <button onclick="AgoraCloudCall.joinCall(false)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold font-mono flex items-center gap-2">
-                                <i data-lucide="phone" class="w-4 h-4"></i> Voice Only
+                            <button onclick="AgoraCloudCall.joinCall(false)" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition shadow-lg">
+                                <i data-lucide="phone" class="w-4 h-4"></i> Voice Call
                             </button>
-                            <button onclick="AgoraCloudCall.joinCall(true)" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold font-mono flex items-center gap-2">
+                            <button onclick="AgoraCloudCall.joinCall(true)" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-4 py-2.5 rounded-xl text-xs font-black flex items-center gap-2 transition shadow-lg">
                                 <i data-lucide="video" class="w-4 h-4"></i> Video Call
                             </button>
-                            <button onclick="AgoraCloudCall.leaveCall()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-bold font-mono flex items-center gap-2">
-                                <i data-lucide="phone-off" class="w-4 h-4"></i> Disconnect
+                            <button onclick="AgoraCloudCall.leaveCall()" class="bg-rose-600 hover:bg-rose-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition">
+                                <i data-lucide="phone-off" class="w-4 h-4"></i> End Call
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="glass-card rounded-2xl flex items-center justify-center relative overflow-hidden bg-slate-950">
-                            <div id="localAgoraView" class="w-full h-full"></div>
-                            <span class="absolute bottom-4 left-4 font-mono text-[10px] bg-slate-900/90 px-2 py-1 rounded text-white border border-white/10">Local Camera (You)</span>
+                        <div class="glass-card rounded-2xl flex items-center justify-center relative overflow-hidden bg-slate-950 border border-white/5">
+                            <div id="localAgoraView" class="w-full h-full object-cover"></div>
+                            <span class="absolute bottom-4 left-4 font-mono text-[10px] bg-slate-900/90 px-2 py-1 rounded text-white border border-white/10 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Local Node (You)
+                            </span>
                         </div>
-                        <div class="glass-card rounded-2xl flex items-center justify-center relative overflow-hidden bg-slate-950">
-                            <div id="remoteAgoraView" class="w-full h-full flex items-center justify-center text-slate-600 font-mono text-xs">Awaiting remote participant...</div>
-                            <span class="absolute bottom-4 left-4 font-mono text-[10px] bg-slate-900/90 px-2 py-1 rounded text-white border border-white/10">Remote Participant</span>
+                        <div class="glass-card rounded-2xl flex items-center justify-center relative overflow-hidden bg-slate-950 border border-white/5">
+                            <div id="remoteAgoraView" class="w-full h-full flex flex-col items-center justify-center text-slate-600 text-xs font-mono">
+                                <i data-lucide="user-plus" class="w-8 h-8 mb-2 text-slate-700"></i>
+                                Awaiting remote peer connection...
+                            </div>
+                            <span class="absolute bottom-4 left-4 font-mono text-[10px] bg-slate-900/90 px-2 py-1 rounded text-white border border-white/10 flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-indigo-400"></span> Faculty Peer
+                            </span>
                         </div>
                     </div>
                 </div>
 
-                <!-- DOUBT ROOM -->
-                <div id="secDoubt" class="hidden flex-1 flex flex-col h-full bg-[#030408]">
-                    <div id="doubtFeed" class="flex-1 overflow-y-auto p-6 space-y-3 font-mono text-xs"></div>
-                    <div class="p-3 bg-slate-950 border-t border-white/5 flex gap-2">
-                        <input type="text" id="doubtInput" placeholder="Ask faculty directly..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-xs text-white font-mono focus:border-indigo-500 outline-none">
-                        <button onclick="DoubtEngine.send()" class="bg-emerald-600 text-slate-950 px-5 rounded-xl font-bold font-mono text-xs">Send</button>
+                <!-- Section: WhatsApp-Style Doubt Sync -->
+                <div id="secStudentDoubt" class="hidden flex-1 flex flex-col h-full overflow-hidden bg-[#020306]">
+                    <div class="p-4 bg-quantum-900/90 border-b border-indigo-500/10 flex items-center justify-between z-10">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-full bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+                                <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xs font-bold text-white font-mono">Faculty Direct Connect Priority Pipe</h3>
+                                <p id="lblTypingIndicator" class="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Instant Sub-Second Sync Active
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="studentChatFeed" class="flex-1 overflow-y-auto p-4 md:p-6 space-y-4"></div>
+
+                    <div class="p-3 bg-quantum-900/95 border-t border-white/5 flex gap-2 items-center">
+                        <input type="text" id="inputStudentChat" placeholder="Type doubt or formula query... (Sub-second sync)" class="flex-1 bg-quantum-950 border border-slate-700/80 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono transition">
+                        <button onclick="RealtimeDoubtSync.sendDoubt('student')" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 p-3 rounded-xl font-black transition transform active:scale-95 shadow-lg shadow-emerald-600/30">
+                            <i data-lucide="send" class="w-4 h-4"></i>
+                        </button>
                     </div>
                 </div>
             </main>
         </section>
 
-        <!-- ================= 3. ADMIN OVERSEER (PDF PARSER & TIMER) ================= -->
+        <!-- 3. ADMIN OVERSEER COMMAND DECK -->
         <section id="portalAdmin" class="hidden h-full w-full flex flex-row overflow-hidden bg-[#020205]">
-            <aside class="w-64 bg-slate-950 border-r border-amber-500/20 p-4 flex flex-col justify-between font-mono">
+            <aside class="w-64 bg-slate-950 border-r border-amber-500/20 flex flex-col justify-between p-4 z-30 select-none">
                 <div class="space-y-6">
-                    <div class="p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
-                        <h2 class="text-xs font-black text-amber-400 uppercase">OVERSEER CONTROL</h2>
-                        <p class="text-[9px] text-slate-400">PDF Question Ingestion</p>
-                    </div>
-                </div>
-                <button onclick="Gateway.logout()" class="w-full py-2 text-xs font-bold text-rose-400 bg-rose-500/10 rounded-xl">Exit Admin</button>
-            </aside>
-
-            <main class="flex-1 p-8 overflow-y-auto space-y-6 font-mono">
-                <div class="glass-card p-6 rounded-2xl max-w-2xl border border-amber-500/20 space-y-5">
-                    <h3 class="text-sm font-bold text-amber-400 uppercase">📄 Upload Official Question Paper PDF (90 or 180 Questions)</h3>
-                    
-                    <!-- Timer Duration Setting -->
-                    <div class="space-y-2">
-                        <label class="block text-xs text-slate-300 font-bold">1. Live Exam Duration (Minutes)</label>
-                        <div class="flex gap-2">
-                            <button onclick="PDFParser.setTimerDuration(200)" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-white hover:bg-slate-700">200 Min (NEET Full)</button>
-                            <button onclick="PDFParser.setTimerDuration(180)" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-white hover:bg-slate-700">180 Min (Standard)</button>
-                            <input type="number" id="customTimerMinutes" placeholder="Custom Mins" value="200" class="w-32 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white">
+                    <div class="flex items-center gap-3 p-3 bg-amber-500/10 rounded-2xl border border-amber-500/20">
+                        <div class="p-2 rounded-xl bg-amber-500 text-slate-950 font-black">
+                            <i data-lucide="shield-alert" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xs font-black tracking-widest text-amber-400 uppercase font-mono">OVERSEER</h2>
+                            <p class="text-[9px] font-mono text-slate-400">Master Control Kernel</p>
                         </div>
                     </div>
 
-                    <!-- PDF Upload -->
-                    <div class="space-y-2">
-                        <label class="block text-xs text-slate-300 font-bold">2. Select Question Paper PDF</label>
-                        <input type="file" id="pdfFileInput" accept="application/pdf" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
+                    <nav class="space-y-1.5 font-mono text-xs">
+                        <button onclick="AdminRouter.navigate('inbox')" id="navAdminInbox" class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 transition">
+                            <span class="flex items-center gap-2.5"><i data-lucide="inbox" class="w-4 h-4"></i> Doubt Triage Inbox</span>
+                            <span id="badgeAdminTotalDoubt" class="text-[9px] bg-amber-500 text-slate-950 px-1.5 py-0.5 rounded font-black">0</span>
+                        </button>
+                        <button onclick="AdminRouter.navigate('pdfparser')" id="navAdminPdfParser" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5 transition">
+                            <i data-lucide="file-up" class="w-4 h-4 text-amber-400"></i> PDF Question Parser
+                        </button>
+                        <button onclick="AdminRouter.navigate('broadcast')" id="navAdminBroadcast" class="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5 transition">
+                            <i data-lucide="megaphone" class="w-4 h-4 text-cyan-400"></i> Classroom Push
+                        </button>
+                    </nav>
+                </div>
+
+                <button onclick="Gateway.logout()" class="w-full py-2.5 px-3 rounded-xl text-xs font-bold font-mono text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 transition flex items-center justify-center gap-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Exit Overseer
+                </button>
+            </aside>
+
+            <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#030407]">
+                <header class="px-6 py-4 border-b border-amber-500/10 flex justify-between items-center bg-slate-950/80 font-mono text-xs">
+                    <div class="text-amber-400 font-bold uppercase tracking-wider" id="lblAdminBreadcrumb">
+                        ADMIN_OVERSEER // LIVE_DOUBT_INBOX
+                    </div>
+                    <span class="text-[10px] bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded">Postgres CDC Replication Online</span>
+                </header>
+
+                <div id="secAdminInbox" class="flex-1 flex flex-row overflow-hidden">
+                    <div class="w-80 border-r border-slate-800 bg-slate-950/60 overflow-y-auto p-3 space-y-1.5 font-mono">
+                        <div class="text-[10px] font-black text-slate-500 uppercase px-2 py-1">Active Doubt Queues</div>
+                        <div id="adminStudentDoubtList" class="space-y-1"></div>
                     </div>
 
-                    <button onclick="PDFParser.processUploadedFile()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl text-xs uppercase tracking-wider transition">
-                        Parse PDF & Publish Test Live
-                    </button>
+                    <div class="flex-1 flex flex-col h-full bg-[#04050a] justify-between">
+                        <div class="p-3 bg-slate-900/60 border-b border-slate-800 flex justify-between items-center px-6 font-mono">
+                            <span id="lblAdminActiveStudent" class="text-xs font-bold text-white">Select a student thread from queue</span>
+                            <span class="text-[10px] text-cyan-400">Direct Faculty Pipe</span>
+                        </div>
+                        
+                        <div id="adminChatFeed" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
+
+                        <div class="p-4 bg-slate-950 border-t border-slate-800 flex gap-2">
+                            <input type="text" id="inputAdminReply" placeholder="Type verified faculty response..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white font-mono focus:outline-none focus:border-amber-500">
+                            <button onclick="RealtimeDoubtSync.sendDoubt('admin')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-6 py-2.5 rounded-xl font-bold font-mono text-xs transition">
+                                Transmit Reply
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="secAdminPdfParser" class="hidden flex-1 overflow-y-auto p-8 space-y-6 font-mono">
+                    <div class="glass-card p-6 rounded-2xl max-w-2xl border border-amber-500/20 space-y-5">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-sm font-bold text-amber-400 uppercase">📄 Ingest Complete Question Paper PDF (90 / 180 Questions)</h3>
+                            <span class="text-[10px] bg-amber-500/10 text-amber-300 px-2.5 py-1 rounded">No Pre-Loaded Dummy Data</span>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-xs text-slate-300 font-bold">1. Configurable Live Exam Duration</label>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="PDFParser.setTimerDuration(200)" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-white hover:bg-slate-700 transition">200 Min (NEET Major 200 Qs)</button>
+                                <button onclick="PDFParser.setTimerDuration(180)" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-white hover:bg-slate-700 transition">180 Min (Standard)</button>
+                                <button onclick="PDFParser.setTimerDuration(45)" class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-white hover:bg-slate-700 transition">45 Min (Physics Sprint)</button>
+                                <input type="number" id="customTimerMinutes" value="200" class="w-28 bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-mono">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-xs text-slate-300 font-bold">2. Answer Key Ingestion (Optional Text / CSV Sequence)</label>
+                            <input type="text" id="inputAdminAnswerKey" placeholder="e.g. 1:B, 2:C, 3:A, 4:D... or BACDBACD" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-xs text-white font-mono">
+                            <p class="text-[10px] text-slate-500">If blank, defaults to standard verification checks on submission.</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-xs text-slate-300 font-bold">3. Select Official Question Paper PDF</label>
+                            <input type="file" id="pdfFileInput" accept="application/pdf" class="block w-full text-xs text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-amber-500 file:text-slate-950 hover:file:bg-amber-400 cursor-pointer">
+                        </div>
+
+                        <button onclick="PDFParser.processUploadedFile()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-xl text-xs uppercase tracking-wider transition shadow-lg shadow-amber-500/20">
+                            Parse Complete PDF & Mount Exam Matrix Live
+                        </button>
+                    </div>
+                </div>
+
+                <div id="secAdminBroadcast" class="hidden flex-1 overflow-y-auto p-8 space-y-6 font-mono">
+                    <div class="glass-card p-6 rounded-2xl max-w-xl border border-cyan-500/20 space-y-4">
+                        <h3 class="text-sm font-bold text-cyan-400 uppercase">Push Classroom Notice Broadcast</h3>
+                        <input type="text" id="inputAdminNoticeAuthor" placeholder="Instructor / Author (e.g. Raghuraj Sir)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white font-mono">
+                        <textarea id="inputAdminNoticeContent" rows="4" placeholder="Enter broadcast statement..." class="w-full bg-slate-900 border border-slate-800 rounded-xl p-4 text-xs text-white font-mono"></textarea>
+                        <button onclick="AdminCommand.pushBroadcast()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-slate-950 py-3 rounded-xl text-xs font-bold transition">Broadcast Globally</button>
+                    </div>
                 </div>
             </main>
         </section>
 
     </div>
-
-    <!-- ================= 4. JAVASCRIPT LOGIC ================= -->
+    <!-- 4. CORE ENGINE JAVASCRIPT SYSTEM ARCHITECTURE -->
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         const SUPABASE_URL = 'https://glfxzceeoaaprmjlgjyb.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
         const ADMIN_PIN = '99508';
-        
-        // AGORA CLOUD CALLING CREDENTIALS
-        const AGORA_APP_ID = "YOUR_AGORA_APP_ID"; // Replace with your Agora App ID from console.agora.io
-        const AGORA_CHANNEL = "apex_exam_room";
+
+        // Agora RTC Parameters - Place your App ID here
+        const AGORA_APP_ID = "YOUR_AGORA_APP_ID"; 
+        const AGORA_CHANNEL_NAME = "apex_quantum_channel";
 
         const AppState = {
-            user: null,
-            supabase: null,
-            questions: [], // Zero dummy questions - loaded ONLY via PDF
-            currentIdx: 0,
-            answers: {},
+            currentUser: null,
+            supabaseClient: null,
+            activeStudentSubject: 'botany',
+            allChats: [],
+            activeAdminPeerEmail: null,
+            
+            examQuestions: [],
+            currentQIdx: 0,
+            userExamResponses: {},
+            reviewMarkedSet: new Set(),
             examDurationSeconds: 200 * 60,
-            timerInterval: null
+            examTimerInterval: null,
+            examAntiCheatInfractions: 0
         };
 
         const Toast = {
-            show(msg) {
-                const el = document.getElementById('toast');
-                el.innerText = msg;
-                el.classList.remove('translate-y-20', 'opacity-0');
-                setTimeout(() => el.classList.add('translate-y-20', 'opacity-0'), 3000);
+            show(msg, type = 'info') {
+                const container = document.getElementById('toastContainer');
+                const bubble = document.createElement('div');
+                const borderClass = type === 'success' ? 'border-emerald-500/50 bg-emerald-950/85 text-emerald-200' :
+                                    type === 'error' ? 'border-rose-500/50 bg-rose-950/85 text-rose-200' :
+                                    'border-indigo-500/50 bg-indigo-950/85 text-indigo-200';
+
+                bubble.className = `toast-item glass-panel px-4 py-3 rounded-xl border ${borderClass} text-xs font-mono shadow-2xl flex items-center gap-2.5 backdrop-blur-xl`;
+                bubble.innerHTML = `<span class="w-2 h-2 rounded-full ${type==='success'?'bg-emerald-400':type==='error'?'bg-rose-400':'bg-indigo-400'}"></span> <span>${msg}</span>`;
+
+                container.appendChild(bubble);
+                setTimeout(() => bubble.classList.add('show'), 15);
+                setTimeout(() => {
+                    bubble.classList.remove('show');
+                    setTimeout(() => bubble.remove(), 350);
+                }, 3800);
             }
         };
 
         const Gateway = {
-            setMode(m) {
-                document.getElementById('studentAuthBlock').classList.toggle('hidden', m !== 'student');
-                document.getElementById('adminAuthBlock').classList.toggle('hidden', m !== 'admin');
-                document.getElementById('tabBtnStudent').className = m === 'student' ? 'flex-1 py-2 font-bold rounded-lg bg-indigo-600 text-white transition' : 'flex-1 py-2 font-bold rounded-lg text-slate-400 hover:text-white transition';
-                document.getElementById('tabBtnAdmin').className = m === 'admin' ? 'flex-1 py-2 font-bold rounded-lg bg-amber-500 text-slate-950 transition' : 'flex-1 py-2 font-bold rounded-lg text-slate-400 hover:text-white transition';
-            },
+            currentMode: 'student',
 
-            async loginWithGoogle() {
-                const roll = document.getElementById('inputRollNumber').value.trim() || 'MARC-100';
-                localStorage.setItem('user_roll', roll.toUpperCase());
-                await AppState.supabase.auth.signInWithOAuth({
-                    provider: 'google',
-                    options: { redirectTo: window.location.origin + window.location.pathname }
+            async init() {
+                if (!window.supabase) return;
+                AppState.supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+                const { data: { session } } = await AppState.supabaseClient.auth.getSession();
+                if (session && session.user) {
+                    const savedRoll = localStorage.getItem('quantum_marcel_roll') || 'STUDENT';
+                    const avatar = session.user.user_metadata?.avatar_url || 'https://api.iconify.design/lucide:user.svg?color=%236366f1';
+                    this.bootStudent(savedRoll, session.user.email, avatar);
+                    return;
+                }
+
+                const saved = localStorage.getItem('quantum_session');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (parsed.isAdmin) {
+                        this.bootAdmin();
+                        return;
+                    }
+                }
+
+                AppState.supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (session && session.user) {
+                        const savedRoll = localStorage.getItem('quantum_marcel_roll') || 'STUDENT';
+                        const avatar = session.user.user_metadata?.avatar_url || 'https://api.iconify.design/lucide:user.svg?color=%236366f1';
+                        this.bootStudent(savedRoll, session.user.email, avatar);
+                    }
                 });
             },
 
-            loginAdmin() {
-                if (document.getElementById('inputAdminPin').value === ADMIN_PIN) {
-                    AppState.user = { role: 'admin' };
-                    document.getElementById('portalGateway').classList.add('hidden');
-                    document.getElementById('portalAdmin').classList.remove('hidden');
-                    Toast.show("Admin Deck Unlocked");
+            setMode(mode) {
+                this.currentMode = mode;
+                const btnS = document.getElementById('tabBtnStudent');
+                const btnA = document.getElementById('tabBtnAdmin');
+                const blkS = document.getElementById('studentAuthBlock');
+                const blkA = document.getElementById('adminAuthBlock');
+
+                if (mode === 'student') {
+                    btnS.className = 'flex-1 py-2 font-bold rounded-lg bg-indigo-600 text-white shadow-md transition';
+                    btnA.className = 'flex-1 py-2 font-bold rounded-lg text-slate-400 hover:text-white transition';
+                    blkS.classList.remove('hidden');
+                    blkA.classList.add('hidden');
                 } else {
-                    Toast.show("Invalid PIN");
+                    btnA.className = 'flex-1 py-2 font-bold rounded-lg bg-amber-500 text-slate-950 shadow-md transition';
+                    btnS.className = 'flex-1 py-2 font-bold rounded-lg text-slate-400 hover:text-white transition';
+                    blkA.classList.remove('hidden');
+                    blkS.classList.add('hidden');
                 }
             },
 
-            logout() {
-                localStorage.clear();
-                if (AppState.supabase) AppState.supabase.auth.signOut();
+            async loginWithGoogle() {
+                const rollInput = document.getElementById('inputRollNumber').value.trim();
+                if (rollInput) {
+                    localStorage.setItem('quantum_marcel_roll', rollInput.toUpperCase());
+                }
+
+                const { error } = await AppState.supabaseClient.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+
+                if (error) {
+                    Toast.show('Google Auth Error: ' + error.message, 'error');
+                }
+            },
+
+            loginAdmin() {
+                const pin = document.getElementById('inputAdminPin').value.trim();
+                if (pin === ADMIN_PIN) {
+                    const session = { roll: 'OVERSEER', email: 'admin@quantum.local', isAdmin: true };
+                    localStorage.setItem('quantum_session', JSON.stringify(session));
+                    this.bootAdmin();
+                    Toast.show('Kernel Authorization Granted', 'success');
+                } else {
+                    Toast.show('Access Denied: Invalid Security PIN', 'error');
+                }
+            },
+
+            bootStudent(roll, email, avatarUrl) {
+                AppState.currentUser = { roll, email, avatarUrl, isAdmin: false };
+                document.getElementById('lblStudentRoll').innerText = roll;
+                document.getElementById('lblStudentEmail').innerText = email;
+                if (avatarUrl) {
+                    document.getElementById('imgStudentAvatar').src = avatarUrl;
+                }
+                
+                document.getElementById('portalGateway').classList.add('hidden');
+                document.getElementById('portalAdmin').classList.add('hidden');
+                document.getElementById('portalStudent').classList.remove('hidden');
+                
+                StudentRouter.init();
+                RealtimeDoubtSync.init();
+                ExamTerminal.restoreExisting();
+                Toast.show(`Authenticated: ${email}`, 'success');
+            },
+
+            bootAdmin() {
+                AppState.currentUser = { roll: 'OVERSEER', email: 'admin@quantum.local', isAdmin: true };
+                document.getElementById('portalGateway').classList.add('hidden');
+                document.getElementById('portalAdmin').classList.add('hidden');
+                document.getElementById('portalAdmin').classList.remove('hidden');
+                
+                AdminRouter.init();
+                RealtimeDoubtSync.init();
+                Toast.show('Overseer Command Center Mounted', 'success');
+            },
+
+            async logout() {
+                localStorage.removeItem('quantum_session');
+                localStorage.removeItem('quantum_marcel_roll');
+                if (AppState.supabaseClient) {
+                    await AppState.supabaseClient.auth.signOut();
+                }
                 location.reload();
             }
         };
 
-        // ADVANCED PDF QUESTION EXTRACTION ENGINE
         const PDFParser = {
             setTimerDuration(mins) {
                 document.getElementById('customTimerMinutes').value = mins;
+                Toast.show(`Configured Duration: ${mins} Minutes`);
             },
 
             async processUploadedFile() {
                 const fileInput = document.getElementById('pdfFileInput');
                 const mins = parseInt(document.getElementById('customTimerMinutes').value, 10) || 200;
-                
+                const answerKeySequence = document.getElementById('inputAdminAnswerKey').value.trim().toUpperCase();
+
                 if (!fileInput.files[0]) {
-                    Toast.show("Select a question paper PDF first.");
+                    Toast.show("Please select a PDF file first.", "error");
                     return;
                 }
-                
-                Toast.show("Parsing questions with custom regex...");
+
+                Toast.show("Extracting text and tokenizing questions...");
                 const file = fileInput.files[0];
                 const arrayBuffer = await file.arrayBuffer();
                 const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                
-                let extractedText = "";
+
+                let completeDocumentText = "";
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const content = await page.getTextContent();
-                    extractedText += content.items.map(item => item.str).join(" ") + "\n";
+                    const pageText = content.items.map(item => item.str).join(" ");
+                    completeDocumentText += pageText + "\n";
                 }
 
-                // Multi-Format Regex Parser: Catches Q.1, Q1), Question 1, or bare "1. Text"
-                const questionRegex = /(?:(?:Q(?:uestion)?\.?\s*(\d+)[\.\)]?)|(?:^|\n)\s*(\d+)[\.\)])\s*([\s\S]*?)(?=(?:(?:Q(?:uestion)?\.?\s*\d+[\.\)]?)|(?:^|\n)\s*\d+[\.\)])|$)/gi;
-                // Option Regex: Matches (1)/(2)/(3)/(4), (A)/(B)/(C)/(D), or A./B./C./D.
-                const optionRegex = /(?:\(([1-4A-Da-d])\)|(?:\b([A-Da-d1-4])[\.\)]))\s*([\s\S]*?)(?=(?:\([1-4A-Da-d]\)|(?:\b[A-Da-d1-4][\.\)]))|$)/gi;
-                
+                const qRegex = /(?:(?:Q(?:uestion)?\.?\s*(\d+)[\.\)]?)|(?:^|\n)\s*(\d+)[\.\)])\s*([\s\S]*?)(?=(?:(?:Q(?:uestion)?\.?\s*\d+[\.\)]?)|(?:^|\n)\s*\d+[\.\)])|$)/gi;
+                const optRegex = /(?:\(([1-4A-Da-d])\)|(?:\b([A-Da-d1-4])[\.\)]))\s*([\s\S]*?)(?=(?:\([1-4A-Da-d]\)|(?:\b[A-Da-d1-4][\.\)]))|$)/gi;
+
                 let matches;
                 const parsedList = [];
-                let qCounter = 1;
+                let counter = 1;
 
-                while ((matches = questionRegex.exec(extractedText)) !== null) {
-                    const qRaw = matches[3];
-                    const qBody = qRaw.split(/(?:\([1-4A-Da-d]\)|(?:\b[A-Da-d1-4][\.\)]))/)[0].trim();
-                    
+                while ((matches = qRegex.exec(completeDocumentText)) !== null) {
+                    const rawSection = matches[3];
+                    const questionBody = rawSection.split(/(?:\([1-4A-Da-d]\)|(?:\b[A-Da-d1-4][\.\)]))/)[0].trim();
+
                     let optMatches;
-                    const opts = {};
-                    while ((optMatches = optionRegex.exec(qRaw)) !== null) {
-                        const key = (optMatches[1] || optMatches[2]).toUpperCase();
-                        const normalizedKey = key === '1' ? 'A' : key === '2' ? 'B' : key === '3' ? 'C' : key === '4' ? 'D' : key;
-                        opts[normalizedKey] = optMatches[3].trim();
+                    const optionsMap = {};
+                    while ((optMatches = optRegex.exec(rawSection)) !== null) {
+                        const rawKey = (optMatches[1] || optMatches[2]).toUpperCase();
+                        const normalizedKey = rawKey === '1' ? 'A' : rawKey === '2' ? 'B' : rawKey === '3' ? 'C' : rawKey === '4' ? 'D' : rawKey;
+                        optionsMap[normalizedKey] = optMatches[3].trim();
+                    }
+
+                    let assignedAns = "B";
+                    if (answerKeySequence) {
+                        if (answerKeySequence.includes(':')) {
+                            const found = answerKeySequence.split(',').find(s => s.trim().startsWith(`${counter}:`));
+                            if (found) assignedAns = found.split(':')[1].trim();
+                        } else if (answerKeySequence.length >= counter) {
+                            assignedAns = answerKeySequence[counter - 1];
+                        }
                     }
 
                     parsedList.push({
-                        id: qCounter,
-                        text: qBody || `Question ${qCounter}`,
-                        a: opts['A'] || "Option A",
-                        b: opts['B'] || "Option B",
-                        c: opts['C'] || "Option C",
-                        d: opts['D'] || "Option D"
+                        id: counter,
+                        text: questionBody || `Question ${counter}`,
+                        a: optionsMap['A'] || "Option A",
+                        b: optionsMap['B'] || "Option B",
+                        c: optionsMap['C'] || "Option C",
+                        d: optionsMap['D'] || "Option D",
+                        ans: assignedAns
                     });
-                    qCounter++;
+                    counter++;
                 }
 
-                // Fallback guarantee: if layout is purely graphical, create numbered slots for the 90 or 180 questions
                 if (parsedList.length === 0) {
-                    const totalSlots = 180;
-                    for (let i = 1; i <= totalSlots; i++) {
-                        parsedList.push({ id: i, text: `Refer to Question ${i} in physical PDF paper.`, a: "Option 1 / A", b: "Option 2 / B", c: "Option 3 / C", d: "Option 4 / D" });
+                    const fallbackCount = 180;
+                    for (let i = 1; i <= fallbackCount; i++) {
+                        let assignedAns = "B";
+                        if (answerKeySequence && answerKeySequence.length >= i) assignedAns = answerKeySequence[i - 1];
+                        parsedList.push({
+                            id: i,
+                            text: `Refer to Question ${i} on your official test paper.`,
+                            a: "Option 1 / A",
+                            b: "Option 2 / B",
+                            c: "Option 3 / C",
+                            d: "Option 4 / D",
+                            ans: assignedAns
+                        });
                     }
                 }
 
-                AppState.questions = parsedList;
+                AppState.examQuestions = parsedList;
                 AppState.examDurationSeconds = mins * 60;
                 
                 localStorage.setItem('synced_exam_questions', JSON.stringify(parsedList));
                 localStorage.setItem('synced_exam_duration', (mins * 60).toString());
-                
-                Toast.show(`Parsed & Published ${parsedList.length} Questions for ${mins} Mins!`);
+
+                Toast.show(`Successfully ingested and published ${parsedList.length} questions for ${mins} minutes!`, 'success');
             }
         };
 
-        // EXAM TERMINAL CONTROLLER
         const ExamTerminal = {
-            init() {
-                const savedQuestions = localStorage.getItem('synced_exam_questions');
+            restoreExisting() {
+                const saved = localStorage.getItem('synced_exam_questions');
                 const savedDuration = localStorage.getItem('synced_exam_duration');
-                
-                if (savedQuestions) {
-                    AppState.questions = JSON.parse(savedQuestions);
+                if (saved) {
+                    AppState.examQuestions = JSON.parse(saved);
                     if (savedDuration) AppState.examDurationSeconds = parseInt(savedDuration, 10);
                     
                     document.getElementById('examEmptyState').classList.add('hidden');
                     document.getElementById('examActiveBox').classList.remove('hidden');
                     document.getElementById('examNavControls').classList.remove('hidden');
                     
+                    this.initAntiCheat();
                     this.startLiveTimer();
-                    this.render();
+                    this.renderQuestion();
                     this.renderPalette();
                 }
             },
 
-            startLiveTimer() {
-                clearInterval(AppState.timerInterval);
-                const timerDisplay = document.getElementById('lblTimer');
+            initAntiCheat() {
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden && AppState.examQuestions.length > 0) {
+                        AppState.examAntiCheatInfractions++;
+                        Toast.show(`SECURITY WARNING: Tab switch detected! (Violation #${AppState.examAntiCheatInfractions})`, 'error');
+                        if (AppState.examAntiCheatInfractions >= 3) {
+                            Toast.show("Multiple security violations. Auto-submitting exam.", "error");
+                            this.submitExam();
+                        }
+                    }
+                });
 
-                AppState.timerInterval = setInterval(() => {
+                window.addEventListener('blur', () => {
+                    if (AppState.examQuestions.length > 0) {
+                        Toast.show("ANTI-CHEAT: Window focus lost. Please keep focus on test terminal.", "error");
+                    }
+                });
+            },
+
+            startLiveTimer() {
+                clearInterval(AppState.examTimerInterval);
+                const display = document.getElementById('lblExamCountdown');
+
+                AppState.examTimerInterval = setInterval(() => {
                     if (AppState.examDurationSeconds <= 0) {
-                        clearInterval(AppState.timerInterval);
-                        Toast.show("Exam duration completed. Auto-submitting...");
+                        clearInterval(AppState.examTimerInterval);
+                        Toast.show("Exam duration concluded. Finalizing score...", "error");
+                        this.submitExam();
                         return;
                     }
+
                     AppState.examDurationSeconds--;
-                    const h = String(Math.floor(AppState.examDurationSeconds / 3600)).padStart(2, '0');
-                    const m = String(Math.floor((AppState.examDurationSeconds % 3600) / 60)).padStart(2, '0');
-                    const s = String(AppState.examDurationSeconds % 60).padStart(2, '0');
-                    timerDisplay.innerText = `${h}:${m}:${s}`;
+                    const hours = String(Math.floor(AppState.examDurationSeconds / 3600)).padStart(2, '0');
+                    const minutes = String(Math.floor((AppState.examDurationSeconds % 3600) / 60)).padStart(2, '0');
+                    const seconds = String(AppState.examDurationSeconds % 60).padStart(2, '0');
+                    display.innerText = `${hours}:${minutes}:${seconds}`;
                 }, 1000);
             },
 
-            render() {
-                const q = AppState.questions[AppState.currentIdx];
+            renderQuestion() {
+                const q = AppState.examQuestions[AppState.currentQIdx];
                 if (!q) return;
 
-                document.getElementById('lblQNumber').innerText = `Question ${AppState.currentIdx + 1} of ${AppState.questions.length}`;
-                document.getElementById('lblQText').innerText = `Q${q.id}. ${q.text}`;
-                
-                const picked = AppState.answers[AppState.currentIdx];
-                document.getElementById('optsBox').innerHTML = ['A', 'B', 'C', 'D'].map(k => `
-                    <label onclick="ExamTerminal.pick('${k}')" class="flex items-center gap-3 p-3.5 rounded-xl border cursor-pointer font-mono text-xs transition ${
-                        picked === k ? 'bg-indigo-600/30 border-indigo-500 text-white' : 'bg-white/5 border-white/5 text-slate-300'
+                document.getElementById('lblQuestionCounter').innerText = `Question ${AppState.currentQIdx + 1} of ${AppState.examQuestions.length}`;
+                document.getElementById('lblQuestionText').innerText = `Q${q.id}. ${q.text}`;
+
+                const picked = AppState.userExamResponses[AppState.currentQIdx];
+                const container = document.getElementById('optionsContainer');
+
+                container.innerHTML = ['A', 'B', 'C', 'D'].map(k => `
+                    <label onclick="ExamTerminal.selectOption('${k}')" class="flex items-center gap-3.5 p-3.5 rounded-xl border cursor-pointer font-mono text-xs transition ${
+                        picked === k ? 'bg-indigo-600/30 border-indigo-500 text-white shadow-neon-indigo' : 'bg-white/5 border-white/5 text-slate-300 hover:border-slate-700'
                     }">
-                        <span class="w-6 h-6 rounded-full flex items-center justify-center font-bold ${picked === k ? 'bg-indigo-500 text-white' : 'bg-white/10'}">${k}</span>
+                        <span class="w-6 h-6 rounded-full flex items-center justify-center font-bold text-[11px] ${
+                            picked === k ? 'bg-indigo-500 text-white' : 'bg-white/10 text-slate-400'
+                        }">${k}</span>
                         <span>${q[k.toLowerCase()]}</span>
                     </label>
                 `).join('');
+
+                const btn = document.getElementById('btnExamNextOrSubmit');
+                if (AppState.currentQIdx === AppState.examQuestions.length - 1) {
+                    btn.innerText = 'Submit Final Test';
+                    btn.className = 'px-6 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black shadow-neon-emerald transition';
+                } else {
+                    btn.innerText = 'Next Question';
+                    btn.className = 'px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black shadow-lg shadow-indigo-600/30 transition';
+                }
             },
 
-            pick(opt) {
-                AppState.answers[AppState.currentIdx] = opt;
-                this.render();
+            selectOption(opt) {
+                AppState.userExamResponses[AppState.currentQIdx] = opt;
+                this.renderQuestion();
                 this.renderPalette();
             },
 
-            next() {
-                if (AppState.currentIdx < AppState.questions.length - 1) {
-                    AppState.currentIdx++;
-                    this.render();
+            clearSelection() {
+                delete AppState.userExamResponses[AppState.currentQIdx];
+                this.renderQuestion();
+                this.renderPalette();
+            },
+
+            toggleReviewMark() {
+                if (AppState.reviewMarkedSet.has(AppState.currentQIdx)) {
+                    AppState.reviewMarkedSet.delete(AppState.currentQIdx);
                 } else {
-                    Toast.show("Test submitted successfully!");
+                    AppState.reviewMarkedSet.add(AppState.currentQIdx);
+                }
+                this.renderPalette();
+            },
+
+            nextQuestion() {
+                if (AppState.currentQIdx < AppState.examQuestions.length - 1) {
+                    AppState.currentQIdx++;
+                    this.renderQuestion();
+                } else {
+                    this.submitExam();
                 }
             },
 
-            prev() {
-                if (AppState.currentIdx > 0) {
-                    AppState.currentIdx--;
-                    this.render();
+            previousQuestion() {
+                if (AppState.currentQIdx > 0) {
+                    AppState.currentQIdx--;
+                    this.renderQuestion();
                 }
+            },
+
+            jumpToQuestion(idx) {
+                AppState.currentQIdx = idx;
+                this.renderQuestion();
             },
 
             renderPalette() {
-                const grid = document.getElementById('omrGrid');
-                grid.innerHTML = AppState.questions.map((q, idx) => `
-                    <button onclick="AppState.currentIdx = ${idx}; ExamTerminal.render();" class="w-10 h-10 rounded-xl border flex items-center justify-center text-xs font-mono transition ${
-                        AppState.answers[idx] ? 'bg-emerald-600 border-emerald-500 text-slate-950 font-bold' : 'bg-slate-900 border-slate-800 text-slate-400'
-                    }">${idx + 1}</button>
-                `).join('');
+                const grid = document.getElementById('omrPaletteGrid');
+                let answeredCount = 0;
+
+                grid.innerHTML = AppState.examQuestions.map((q, idx) => {
+                    const isAnswered = AppState.userExamResponses[idx] !== undefined;
+                    const isReview = AppState.reviewMarkedSet.has(idx);
+                    const isCurrent = AppState.currentQIdx === idx;
+
+                    if (isAnswered) answeredCount++;
+
+                    let style = 'bg-slate-800/80 border-slate-700 text-slate-400';
+                    if (isReview) style = 'bg-purple-600 border-purple-500 text-white font-bold';
+                    else if (isAnswered) style = 'bg-emerald-600 border-emerald-500 text-slate-950 font-black';
+
+                    if (isCurrent) style += ' ring-2 ring-white';
+
+                    return `
+                        <button onclick="ExamTerminal.jumpToQuestion(${idx})" class="w-10 h-10 rounded-xl border flex items-center justify-center text-xs font-mono transition ${style}">
+                            ${idx + 1}
+                        </button>
+                    `;
+                }).join('');
+
+                document.getElementById('lblPaletteAnsweredCount').innerText = `${answeredCount}/${AppState.examQuestions.length}`;
+            },
+
+            submitExam() {
+                clearInterval(AppState.examTimerInterval);
+
+                let score = 0;
+                let correctCount = 0;
+                let wrongCount = 0;
+
+                AppState.examQuestions.forEach((q, idx) => {
+                    const response = AppState.userExamResponses[idx];
+                    if (response) {
+                        if (response === q.ans) {
+                            score += 4;
+                            correctCount++;
+                        } else {
+                            score -= 1;
+                            wrongCount++;
+                        }
+                    }
+                });
+
+                Toast.show(`Test Submitted. Raw NEET Score: ${score} (+${correctCount * 4} / -${wrongCount})`, 'success');
+                document.getElementById('lblStatOverallScore').innerHTML = `${score} <span class="text-sm font-normal text-slate-400">/ 720</span>`;
+                StudentRouter.navigate('analytics');
             }
         };
 
-        // AGORA REAL-TIME CLOUD CALLING ENGINE
         const AgoraCloudCall = {
-            client: null,
-            localAudioTrack: null,
-            localVideoTrack: null,
+            rtcClient: null,
+            localMicrophoneTrack: null,
+            localCameraTrack: null,
 
-            async initClient() {
-                if (!this.client && window.AgoraRTC) {
-                    this.client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
-                    
-                    // Listen for remote peer audio/video publication
-                    this.client.on("user-published", async (user, mediaType) => {
-                        await this.client.subscribe(user, mediaType);
+            async initEngine() {
+                if (!this.rtcClient && window.AgoraRTC) {
+                    this.rtcClient = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
+
+                    this.rtcClient.on("user-published", async (remoteUser, mediaType) => {
+                        await this.rtcClient.subscribe(remoteUser, mediaType);
                         if (mediaType === "video") {
-                            const remoteContainer = document.getElementById("remoteAgoraView");
-                            remoteContainer.innerHTML = "";
-                            user.videoTrack.play("remoteAgoraView");
+                            const container = document.getElementById("remoteAgoraView");
+                            container.innerHTML = "";
+                            remoteUser.videoTrack.play("remoteAgoraView");
                         }
                         if (mediaType === "audio") {
-                            user.audioTrack.play();
+                            remoteUser.audioTrack.play();
                         }
-                        Toast.show("Connected to remote participant!");
+                        Toast.show("Connected to remote participant via Agora Cloud!", "success");
+                    });
+
+                    this.rtcClient.on("user-unpublished", (user) => {
+                        document.getElementById("remoteAgoraView").innerHTML = "Remote participant disconnected.";
                     });
                 }
             },
 
-            async joinCall(videoEnabled) {
-                await this.initClient();
-                if (AGORA_APP_ID === "YOUR_AGORA_APP_ID") {
-                    Toast.show("Please configure your Agora App ID on line 215");
+            async joinCall(enableVideo) {
+                await this.initEngine();
+
+                if (!AGORA_APP_ID || AGORA_APP_ID === "YOUR_AGORA_APP_ID") {
+                    Toast.show("Please configure your Agora App ID on line 427 of the script.", "error");
                     return;
                 }
 
                 try {
-                    await this.client.join(AGORA_APP_ID, AGORA_CHANNEL, null, null);
-                    this.localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
-                    
-                    const tracks = [this.localAudioTrack];
+                    await this.rtcClient.join(AGORA_APP_ID, AGORA_CHANNEL_NAME, null, null);
+                    this.localMicrophoneTrack = await AgoraRTC.createMicrophoneAudioTrack();
 
-                    if (videoEnabled) {
-                        this.localVideoTrack = await AgoraRTC.createCameraVideoTrack();
+                    const tracksToPublish = [this.localMicrophoneTrack];
+
+                    if (enableVideo) {
+                        this.localCameraTrack = await AgoraRTC.createCameraVideoTrack();
                         document.getElementById("localAgoraView").innerHTML = "";
-                        this.localVideoTrack.play("localAgoraView");
-                        tracks.push(this.localVideoTrack);
+                        this.localCameraTrack.play("localAgoraView");
+                        tracksToPublish.push(this.localCameraTrack);
                     }
 
-                    await this.client.publish(tracks);
-                    Toast.show(videoEnabled ? "Agora Video Call Live" : "Agora Voice Call Live");
-                } catch (e) {
-                    Toast.show("Agora Connection Error: " + e.message);
+                    await this.rtcClient.publish(tracksToPublish);
+                    Toast.show(enableVideo ? "Agora HD Video Live" : "Agora Voice Stream Live", "success");
+                } catch (err) {
+                    Toast.show("Call connection failed: " + err.message, "error");
                 }
             },
 
             async leaveCall() {
-                if (this.localAudioTrack) this.localAudioTrack.close();
-                if (this.localVideoTrack) this.localVideoTrack.close();
-                if (this.client) await this.client.leave();
-                
+                if (this.localMicrophoneTrack) {
+                    this.localMicrophoneTrack.close();
+                }
+                if (this.localCameraTrack) {
+                    this.localCameraTrack.close();
+                }
+                if (this.rtcClient) {
+                    await this.rtcClient.leave();
+                }
+
                 document.getElementById("localAgoraView").innerHTML = "";
                 document.getElementById("remoteAgoraView").innerHTML = "Call ended.";
                 Toast.show("Call disconnected.");
             }
         };
 
-        // NAVIGATION ROUTER
-        const AppRouter = {
-            show(screen) {
-                ['secExam', 'secCall', 'secDoubt'].forEach(s => document.getElementById(s).classList.add('hidden'));
-                ['navExamBtn', 'navCallBtn', 'navDoubtBtn'].forEach(b => {
-                    const el = document.getElementById(b);
-                    el.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold text-slate-400 hover:text-white hover:bg-white/5";
+        const RealtimeDoubtSync = {
+            channel: null,
+
+            init() {
+                if (!AppState.supabaseClient) return;
+
+                this.pullChatHistory();
+
+                this.channel = AppState.supabaseClient
+                    .channel('realtime_quantum_sync')
+                    .on(
+                        'postgres_changes',
+                        { event: 'INSERT', schema: 'public', table: 'student_chats' },
+                        (payload) => {
+                            this.handleIncoming(payload.new);
+                        }
+                    )
+                    .subscribe((status) => {
+                        if (status === 'SUBSCRIBED') {
+                            console.log('⚡ WhatsApp-Grade WebSocket Channel active.');
+                        }
+                    });
+            },
+
+            async pullChatHistory() {
+                const { data, error } = await AppState.supabaseClient
+                    .from('student_chats')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (!error && data) {
+                    AppState.allChats = data;
+                    if (AppState.currentUser.isAdmin) {
+                        AdminRouter.renderInboxList();
+                        if (AppState.activeAdminPeerEmail) {
+                            AdminRouter.renderChatWindow(AppState.activeAdminPeerEmail);
+                        }
+                    } else {
+                        StudentRouter.renderChats();
+                    }
+                }
+            },
+
+            handleIncoming(msg) {
+                if (!AppState.allChats.some(c => c.id === msg.id)) {
+                    AppState.allChats.push(msg);
+                }
+
+                if (AppState.currentUser.isAdmin) {
+                    AdminRouter.renderInboxList();
+                    if (AppState.activeAdminPeerEmail === msg.student_email) {
+                        AdminRouter.renderChatWindow(msg.student_email);
+                    }
+                    Toast.show(`New Transmission: ${msg.student_email}`, 'info');
+                } else {
+                    if (msg.student_email === AppState.currentUser.email) {
+                        StudentRouter.renderChats();
+                        if (msg.media_type === 'admin_reply') {
+                            Toast.show('Verified Faculty Explanation Received', 'success');
+                        }
+                    }
+                }
+            },
+
+            async sendDoubt(senderRole) {
+                const isStudent = senderRole === 'student';
+                const input = isStudent ? document.getElementById('inputStudentChat') : document.getElementById('inputAdminReply');
+                const text = input.value.trim();
+                if (!text) return;
+
+                const targetEmail = isStudent ? AppState.currentUser.email : AppState.activeAdminPeerEmail;
+                if (!targetEmail) {
+                    Toast.show('Select a student queue first', 'error');
+                    return;
+                }
+
+                const optimisticPayload = {
+                    id: 'temp_' + Date.now(),
+                    student_email: targetEmail,
+                    media_type: isStudent ? 'text' : 'admin_reply',
+                    content: text,
+                    created_at: new Date().toISOString()
+                };
+
+                AppState.allChats.push(optimisticPayload);
+                input.value = '';
+
+                if (isStudent) {
+                    StudentRouter.renderChats();
+                } else {
+                    AdminRouter.renderChatWindow(targetEmail);
+                }
+
+                const { error } = await AppState.supabaseClient.from('student_chats').insert([{
+                    student_email: targetEmail,
+                    media_type: optimisticPayload.media_type,
+                    content: text
+                }]);
+
+                if (error) {
+                    Toast.show('Transmission failed to reach cloud', 'error');
+                }
+            }
+        };
+
+        const StudentRouter = {
+            init() {
+                lucide.createIcons();
+                this.navigate('analytics');
+                this.initRadarChart();
+            },
+
+            navigate(route) {
+                ['analytics', 'study', 'exam', 'call', 'doubt'].forEach(sec => {
+                    const el = document.getElementById(`secStudent${sec.charAt(0).toUpperCase() + sec.slice(1)}`);
+                    if (el) el.classList.add('hidden');
                 });
 
-                if (screen === 'exam') {
-                    document.getElementById('secExam').classList.remove('hidden');
-                    document.getElementById('navExamBtn').className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30";
+                const target = document.getElementById(`secStudent${route.charAt(0).toUpperCase() + route.slice(1)}`);
+                if (target) target.classList.remove('hidden');
+
+                document.getElementById('studentBreadcrumb').innerText = route.toUpperCase() + '_MATRIX';
+
+                if (route === 'study') this.renderCurriculum();
+                if (route === 'doubt') this.renderChats();
+            },
+
+            toggleStudyTree() {
+                const tree = document.getElementById('nestedStudyTree');
+                const icon = document.getElementById('iconStudyTree');
+                tree.classList.toggle('hidden');
+                icon.style.transform = tree.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+            },
+
+            selectSubject(subject) {
+                AppState.activeStudentSubject = subject;
+                this.navigate('study');
+            },
+
+            renderCurriculum() {
+                const sub = AppState.activeStudentSubject;
+                document.getElementById('lblCurriculumSubjectTitle').innerText = `${sub.toUpperCase()} MASTER CURRICULUM`;
+
+                const grid = document.getElementById('curriculumModulesGrid');
+                const curriculumData = {
+                    botany: [
+                        { title: "Photosynthesis in Higher Plants (C3, C4, CAM Cycles)", unit: "Plant Physiology", code: "BOT-11-04" },
+                        { title: "Morphology & Anatomy of Angiosperms", unit: "Structural Organization", code: "BOT-11-02" },
+                        { title: "Cell Division: Mitosis & Meiotic Recombination", unit: "Cellular Matrix", code: "BOT-11-03" }
+                    ],
+                    zoology: [
+                        { title: "Human Neural Control & Conduction Kinetics", unit: "Physiology Matrix", code: "ZOO-11-05" },
+                        { title: "Chemical Coordination & Hypothalamic Axes", unit: "Endocrine Vector", code: "ZOO-11-06" },
+                        { title: "Biomolecules, Enzyme Kinetics & Ingestion", unit: "Biochemistry", code: "ZOO-11-01" }
+                    ],
+                    physics: [
+                        { title: "Kinematics & Vector Dot/Cross Geometry", unit: "Mechanics I", code: "PHY-11-01" },
+                        { title: "Work, Energy, Conservative Power & Springs", unit: "Mechanics II", code: "PHY-11-04" },
+                        { title: "Rotational Dynamics & Moment of Inertia Envelopes", unit: "Mechanics III", code: "PHY-11-05" }
+                    ],
+                    chemistry: [
+                        { title: "Chemical Bonding & VSEPR Molecular Geometry", unit: "Inorganic Core", code: "CHM-11-04" },
+                        { title: "Thermodynamics & Enthalpy Equilibrium State", unit: "Physical Core", code: "CHM-11-06" },
+                        { title: "Organic Chemistry Nomenclature & Isomerism", unit: "Organic Vector", code: "CHM-11-12" }
+                    ]
+                };
+
+                const list = curriculumData[sub] || curriculumData.botany;
+                grid.innerHTML = list.map(item => `
+                    <div class="glass-card p-5 rounded-2xl border border-white/5 space-y-3">
+                        <div class="flex justify-between items-center text-[10px] font-mono">
+                            <span class="text-cyan-400 font-bold bg-cyan-500/10 px-2 py-0.5 rounded">${item.unit}</span>
+                            <span class="text-slate-500">${item.code}</span>
+                        </div>
+                        <h4 class="text-sm font-bold text-white">${item.title}</h4>
+                        <div class="flex gap-2 pt-2">
+                            <button onclick="Toast.show('Syncing High-Yield NCERT PDF...', 'info')" class="flex-1 py-2 bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-300 rounded-xl text-xs font-mono font-bold transition">Theory PDF</button>
+                            <button onclick="StudentRouter.navigate('exam')" class="flex-1 py-2 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl text-xs font-mono font-bold transition">Practice Terminal</button>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            renderChats() {
+                const feed = document.getElementById('studentChatFeed');
+                const myChats = AppState.allChats.filter(c => c.student_email === AppState.currentUser.email);
+
+                if (myChats.length === 0) {
+                    feed.innerHTML = `<div class="text-center py-20 text-xs font-mono text-slate-600">No active doubt transmissions. Type below to query faculty directly.</div>`;
+                    return;
                 }
-                if (screen === 'call') {
-                    document.getElementById('secCall').classList.remove('hidden');
-                    document.getElementById('navCallBtn').className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30";
-                }
-                if (screen === 'doubt') {
-                    document.getElementById('secDoubt').classList.remove('hidden');
-                    document.getElementById('navDoubtBtn').className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-bold bg-indigo-600/20 text-indigo-300 border border-indigo-500/30";
-                }
+
+                feed.innerHTML = myChats.map(c => {
+                    const isFaculty = c.media_type === 'admin_reply';
+                    return `
+                        <div class="flex flex-col ${isFaculty ? 'items-start' : 'items-end'}">
+                            <div class="max-w-[75%] p-3.5 rounded-2xl text-xs font-mono shadow-md ${
+                                isFaculty ? 'bg-indigo-950/80 border border-indigo-500/30 text-indigo-100 rounded-tl-none' : 'bg-emerald-600 text-slate-950 font-semibold rounded-tr-none'
+                            }">
+                                ${isFaculty ? '<div class="text-[9px] font-bold text-indigo-400 mb-1 flex items-center gap-1"><i data-lucide="shield-check" class="w-3 h-3"></i> Verified Faculty Explanation</div>' : ''}
+                                ${c.content}
+                            </div>
+                            <span class="text-[9px] font-mono text-slate-500 mt-1 mx-1">${new Date(c.created_at || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                feed.scrollTop = feed.scrollHeight;
+                lucide.createIcons();
+            },
+
+            initRadarChart() {
+                const ctx = document.getElementById('chartStudentRadar');
+                if (!ctx) return;
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Botany', 'Zoology', 'Physics', 'Inorganic', 'Organic', 'Physical Chem'],
+                        datasets: [{
+                            label: 'Aptitude Metric',
+                            data: [96, 98, 82, 94, 91, 88],
+                            backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                            borderColor: 'rgba(99, 102, 241, 1)',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#06b6d4',
+                            pointBorderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                angleLines: { color: 'rgba(255, 255, 255, 0.05)' },
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                pointLabels: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } },
+                                ticks: { display: false, min: 0, max: 100 }
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
             }
         };
 
-        const DoubtEngine = {
-            send() {
-                const txt = document.getElementById('doubtInput').value.trim();
-                if (!txt) return;
-                const feed = document.getElementById('doubtFeed');
-                const bubble = document.createElement('div');
-                bubble.className = "p-3 bg-emerald-600/20 border border-emerald-500/30 text-emerald-200 rounded-xl ml-auto max-w-sm";
-                bubble.innerText = txt;
-                feed.appendChild(bubble);
-                document.getElementById('doubtInput').value = "";
-                Toast.show("Doubt sent to faculty.");
+        const AdminRouter = {
+            init() {
+                lucide.createIcons();
+                this.navigate('inbox');
+                this.renderInboxList();
+            },
+
+            navigate(route) {
+                ['inbox', 'pdfparser', 'broadcast'].forEach(sec => {
+                    document.getElementById(`secAdmin${sec.charAt(0).toUpperCase() + sec.slice(1)}`).classList.add('hidden');
+                });
+
+                const target = document.getElementById(`secAdmin${route.charAt(0).toUpperCase() + route.slice(1)}`);
+                if (target) target.classList.remove('hidden');
+
+                document.getElementById('lblAdminBreadcrumb').innerText = `ADMIN_OVERSEER // ${route.toUpperCase()}`;
+            },
+
+            renderInboxList() {
+                const list = document.getElementById('adminStudentDoubtList');
+                const students = [...new Set(AppState.allChats.map(c => c.student_email))];
+                document.getElementById('badgeAdminTotalDoubt').innerText = students.length;
+
+                if (students.length === 0) {
+                    list.innerHTML = `<div class="p-3 text-xs text-slate-600">No active student queues.</div>`;
+                    return;
+                }
+
+                list.innerHTML = students.map(email => {
+                    const studentMsgs = AppState.allChats.filter(c => c.student_email === email);
+                    const last = studentMsgs[studentMsgs.length - 1];
+                    const isSelected = AppState.activeAdminPeerEmail === email;
+
+                    return `
+                        <div onclick="AdminRouter.selectStudent('${email}')" class="p-3 rounded-xl border cursor-pointer transition ${
+                            isSelected ? 'bg-amber-500/20 border-amber-500/50' : 'bg-slate-900 border-slate-800 hover:border-slate-700'
+                        }">
+                            <div class="flex justify-between items-center text-[10px] text-amber-400 font-bold">
+                                <span>${email}</span>
+                                <span class="text-slate-500">${studentMsgs.length} msgs</span>
+                            </div>
+                            <p class="text-xs text-slate-300 truncate mt-1">${last ? last.content : ''}</p>
+                        </div>
+                    `;
+                }).join('');
+            },
+
+            selectStudent(email) {
+                AppState.activeAdminPeerEmail = email;
+                document.getElementById('lblAdminActiveStudent').innerText = `Thread: ${email}`;
+                this.renderInboxList();
+                this.renderChatWindow(email);
+            },
+
+            renderChatWindow(email) {
+                const feed = document.getElementById('adminChatFeed');
+                const msgs = AppState.allChats.filter(c => c.student_email === email);
+
+                feed.innerHTML = msgs.map(m => {
+                    const isMe = m.media_type === 'admin_reply';
+                    return `
+                        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'} font-mono">
+                            <div class="max-w-[75%] p-3.5 rounded-2xl text-xs ${
+                                isMe ? 'bg-amber-500 text-slate-950 font-bold rounded-tr-none' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-none'
+                            }">
+                                ${m.content}
+                            </div>
+                            <span class="text-[9px] text-slate-500 mt-1">${new Date(m.created_at || Date.now()).toLocaleTimeString()}</span>
+                        </div>
+                    `;
+                }).join('');
+
+                feed.scrollTop = feed.scrollHeight;
             }
         };
 
-        window.addEventListener('DOMContentLoaded', async () => {
+        const AdminCommand = {
+            pushBroadcast() {
+                const author = document.getElementById('inputAdminNoticeAuthor').value.trim();
+                const content = document.getElementById('inputAdminNoticeContent').value.trim();
+                if (!author || !content) return Toast.show('Missing author or notice content', 'error');
+
+                const container = document.getElementById('wallBroadcastContainer');
+                const item = document.createElement('div');
+                item.className = 'p-3 bg-white/5 rounded-xl border border-white/5 text-xs text-slate-300 font-serif italic';
+                item.innerHTML = `"${content}" <span class="block text-[10px] font-mono font-bold text-amber-400 not-italic mt-1">— ${author}</span>`;
+                container.prepend(item);
+
+                Toast.show('Classroom wall notice pushed globally', 'success');
+                document.getElementById('inputAdminNoticeContent').value = '';
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
-            AppState.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-            const { data: { session } } = await AppState.supabase.auth.getSession();
-            if (session && session.user) {
-                document.getElementById('lblStudentRoll').innerText = localStorage.getItem('user_roll') || 'STUDENT';
-                document.getElementById('lblStudentEmail').innerText = session.user.email;
-                document.getElementById('portalGateway').classList.add('hidden');
-                document.getElementById('portalStudent').classList.remove('hidden');
-                ExamTerminal.init();
-            }
+            Gateway.init();
         });
     </script>
 </body>

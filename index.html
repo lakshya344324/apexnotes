@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
-    <!-- iPadOS Standalone PWA Engine -->
+    <!-- iPadOS Standalone PWA Engine (No Safari URL Bar) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ApexNotes Quantum">
@@ -13,10 +13,12 @@
     
     <title>ApexNotes Quantum | Autonomous Enterprise Neural NEET Suite</title>
     
+    <!-- Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,700;0,800;1,400&display=swap" rel="stylesheet">
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -49,6 +51,7 @@
         }
     </script>
     
+    <!-- Core External Libraries -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -126,7 +129,7 @@
                         </svg>
                         <span>Continue with Google Account</span>
                     </button>
-                    <p class="text-[10px] text-center text-slate-500 font-mono">Enforces Google authentication. Zero dummy/spoofed users allowed.</p>
+                    <p class="text-[10px] text-center text-slate-500 font-mono">Verified Google Auth protects test records.</p>
                 </div>
 
                 <div id="adminAuthBlock" class="hidden space-y-4 relative z-10 font-mono">
@@ -516,6 +519,7 @@
         </section>
 
     </div>
+
     <!-- 4. CORE ENGINE JAVASCRIPT SYSTEM ARCHITECTURE -->
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';

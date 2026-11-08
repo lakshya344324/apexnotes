@@ -3,748 +3,626 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ApexNotes Quantum | Autonomous Enterprise Neural NEET Suite</title>
-    <!-- Tailwind CSS Engine -->
+    <title>ApexNotes Quantum | Enterprise EdTech Suite</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
+                fontFamily: { sans: ['Inter', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
                 extend: {
                     colors: {
-                        quantum: { 50: '#eef2ff', 500: '#6366f1', 900: '#312e81', 950: '#090a16' }
+                        quantum: { 900: '#0a0b16', 800: '#12142b', primary: '#4f46e5', accent: '#06b6d4' }
                     },
                     animation: {
-                        'neural-pulse': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'slide-in': 'slideIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        slideIn: { '0%': { transform: 'translateY(10px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } }
                     }
                 }
             }
         }
     </script>
-    <!-- Lucide Icons -->
+    
+    <!-- External Libs -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Supabase Core SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Chart.js for Telemetry Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body class="bg-[#05050a] text-slate-100 h-full font-mono antialiased selection:bg-indigo-500 selection:text-white overflow-hidden">
 
-    <!-- Quantum HUD Loading Grid Overlay -->
-    <div id="quantumLoader" class="fixed inset-0 z-50 bg-[#05050a] flex flex-col items-center justify-center space-y-4 transition-opacity duration-700">
-        <div class="relative w-20 h-20">
-            <div class="absolute inset-0 border-4 border-indigo-500/20 rounded-full animate-ping"></div>
-            <div class="absolute inset-0 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+    <style>
+        /* Advanced Custom Scrollbar & Glassmorphism */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0b16; }
+        ::-webkit-scrollbar-thumb { background: #312e81; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4f46e5; }
+        
+        .glass-panel { background: rgba(18, 20, 43, 0.65); backdrop-filter: blur(16px); border: 1px solid rgba(79, 70, 229, 0.2); }
+        .glass-card { background: rgba(10, 11, 22, 0.8); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        
+        /* Toast Notifications */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 12px 20px; border-radius: 8px; font-size: 12px; font-weight: 600; color: white; display: flex; align-items: center; gap: 10px; animation: slideIn 0.3s ease-out forwards; backdrop-filter: blur(10px); }
+        .toast.success { background: rgba(16, 185, 129, 0.9); border: 1px solid #059669; }
+        .toast.info { background: rgba(79, 70, 229, 0.9); border: 1px solid #4338ca; }
+        .toast.error { background: rgba(239, 68, 68, 0.9); border: 1px solid #b91c1c; }
+    </style>
+</head>
+<body class="bg-quantum-900 text-slate-200 h-full overflow-hidden antialiased selection:bg-indigo-500 selection:text-white">
+
+    <!-- Toast Notification Anchor -->
+    <div id="toast-container"></div>
+
+    <!-- 1. AUTHENTICATION GATEWAY -->
+    <div id="view-gateway" class="absolute inset-0 z-50 flex items-center justify-center bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] bg-quantum-900">
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/20 to-quantum-900/95 z-0"></div>
+        
+        <div class="relative z-10 glass-panel p-10 rounded-3xl max-w-lg w-full shadow-[0_0_50px_rgba(79,70,229,0.15)]">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center p-4 bg-indigo-600/20 rounded-2xl border border-indigo-500/30 mb-4 animate-glow">
+                    <i data-lucide="atom" class="w-10 h-10 text-indigo-400"></i>
+                </div>
+                <h1 class="text-2xl font-black tracking-tight text-white">ApexNotes <span class="text-indigo-400">Quantum</span></h1>
+                <p class="text-xs text-slate-400 mt-2 font-mono uppercase tracking-widest">Enterprise Neural Engine v6.0</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex bg-quantum-800 p-1 rounded-xl mb-6">
+                <button onclick="UI.switchAuthTab('student')" id="tab-student" class="flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition">Student Portal</button>
+                <button onclick="UI.switchAuthTab('admin')" id="tab-admin" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">Admin Portal</button>
+            </div>
+
+            <!-- Student Login -->
+            <div id="login-student" class="space-y-4">
+                <div class="space-y-3 glass-card p-5 rounded-2xl">
+                    <label class="block text-xs font-bold text-indigo-400 uppercase">Marcel Batch Priority</label>
+                    <input type="text" id="authRoll" placeholder="Roll No (e.g. MARC-104)" class="w-full bg-quantum-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-indigo-500 outline-none transition">
+                    <input type="email" id="authEmail" placeholder="Google Email" class="w-full bg-quantum-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-indigo-500 outline-none transition">
+                    <button onclick="App.loginStudent()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl text-sm font-bold shadow-lg shadow-indigo-600/30 transition">Access Workspace</button>
+                </div>
+                <button onclick="App.loginGoogle()" class="w-full bg-white hover:bg-slate-100 text-slate-900 py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition">
+                    <i data-lucide="chrome" class="w-4 h-4"></i> Continue with Google OAuth
+                </button>
+            </div>
+
+            <!-- Admin Login -->
+            <div id="login-admin" class="hidden space-y-4 glass-card p-5 rounded-2xl">
+                <label class="block text-xs font-bold text-amber-400 uppercase">Command Center Override</label>
+                <input type="password" id="authAdminPin" placeholder="Enter Secure PIN" class="w-full bg-quantum-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:border-amber-500 outline-none transition tracking-widest text-center font-mono">
+                <button onclick="App.loginAdmin()" class="w-full bg-amber-600 hover:bg-amber-500 text-quantum-900 py-3 rounded-xl text-sm font-black shadow-lg shadow-amber-600/30 transition">Unlock Command Center</button>
+            </div>
         </div>
-        <div class="text-xs font-mono tracking-widest text-indigo-400 uppercase">Initializing Zero-Latency Neural Matrix...</div>
     </div>
 
-    <div class="flex h-screen overflow-hidden relative">
-        
-        <!-- Mobile Drawer Overlay Backdrop -->
-        <div id="mobileDrawerBackdrop" onclick="QuantumCore.toggleMobileMenu()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-40 hidden md:hidden"></div>
-
-        <!-- Neural Sidebar Command Center -->
-        <aside id="sidebarDrawer" class="w-80 bg-[#080914]/95 backdrop-blur-2xl border-r border-indigo-500/20 flex flex-col justify-between p-6 z-50 fixed inset-y-0 left-0 transform -translate-x-full md:translate-x-0 md:static transition-transform duration-300 shadow-2xl overflow-y-auto">
-            <div class="space-y-6">
-                <div class="flex items-center justify-between border-b border-indigo-500/20 pb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="bg-gradient-to-tr from-indigo-600 via-violet-600 to-cyan-500 p-2.5 rounded-2xl text-white shadow-lg shadow-indigo-600/30 animate-neural-pulse">
-                            <i data-lucide="cpu" class="w-6 h-6"></i>
-                        </div>
-                        <div>
-                            <h1 class="font-black text-sm tracking-widest text-white uppercase">ApexNotes <span class="text-indigo-400">Quantum</span></h1>
-                            <p class="text-[10px] font-mono text-cyan-400 tracking-wider">Marcel Batch Fast-Ping v5.0</p>
-                        </div>
-                    </div>
-                    <button onclick="QuantumCore.toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white">
-                        <i data-lucide="x" class="w-6 h-6"></i>
-                    </button>
+    <!-- 2. STUDENT PORTAL -->
+    <div id="view-student" class="hidden h-full flex flex-col md:flex-row relative">
+        <!-- Student Sidebar -->
+        <aside class="w-full md:w-72 glass-panel border-r border-indigo-500/10 flex flex-col z-40 hidden md:flex h-full">
+            <div class="p-5 border-b border-white/5 flex items-center gap-3">
+                <div class="p-2 bg-indigo-500/20 rounded-lg"><i data-lucide="cpu" class="w-5 h-5 text-indigo-400"></i></div>
+                <div>
+                    <h2 class="text-sm font-bold text-white leading-tight">Student Workspace</h2>
+                    <p id="student-identity" class="text-[10px] text-indigo-400 font-mono truncate"></p>
                 </div>
-
-                <!-- Navigation Tree -->
-                <nav class="space-y-3" id="neuralNav">
-                    <div class="space-y-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-2 transition-all">
-                        <button onclick="QuantumCore.toggleSubMenu('menuStudy')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-indigo-600/15 transition">
-                            <span class="flex items-center gap-2.5"><i data-lucide="book-open" class="w-4 h-4 text-indigo-400"></i> Study Matrix</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500" id="icon_menuStudy"></i>
-                        </button>
-                        <div id="menuStudy" class="pl-4 space-y-1 pt-1.5 border-t border-slate-800/50 hidden">
-                            <button onclick="QuantumCore.route('notes', 'botany')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-indigo-600/20 transition">🌱 Botany Core</button>
-                            <button onclick="QuantumCore.route('notes', 'zoology')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-indigo-600/20 transition">🧬 Zoology Core</button>
-                            <button onclick="QuantumCore.route('notes', 'physics')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-indigo-600/20 transition">⚛️ Physics Vector</button>
-                            <button onclick="QuantumCore.route('notes', 'chemistry')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-indigo-600/20 transition">⚗️ Chemistry Reactions</button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-2 transition-all">
-                        <button onclick="QuantumCore.toggleSubMenu('menuExams')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-indigo-600/15 transition">
-                            <span class="flex items-center gap-2.5"><i data-lucide="shield-alert" class="w-4 h-4 text-amber-400"></i> Timed Test Matrix</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500" id="icon_menuExams"></i>
-                        </button>
-                        <div id="menuExams" class="pl-4 space-y-1 pt-1.5 border-t border-slate-800/50 hidden">
-                            <button onclick="QuantumCore.route('exams', 'live')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-amber-600/20 transition flex items-center justify-between">⏱️ Sequential Test (9am-12am) <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span></button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1 bg-slate-900/40 border border-slate-800/80 rounded-2xl p-2 transition-all">
-                        <button onclick="QuantumCore.toggleSubMenu('menuDoubt')" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white hover:bg-indigo-600/15 transition">
-                            <span class="flex items-center gap-2.5"><i data-lucide="git-pull-request" class="w-4 h-4 text-emerald-400"></i> Assistance & Media</span>
-                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-slate-500" id="icon_menuDoubt"></i>
-                        </button>
-                        <div id="menuDoubt" class="pl-4 space-y-1 pt-1.5 border-t border-slate-800/50 hidden">
-                            <button onclick="QuantumCore.route('doubt', 'submit')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-emerald-600/20 transition">✍️ Transmit Query</button>
-                            <button onclick="QuantumCore.route('doubt', 'inbox')" class="w-full text-left px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-400 hover:text-white hover:bg-emerald-600/20 transition">📬 Query History</button>
-                        </div>
-                    </div>
-
-                    <button onclick="QuantumCore.route('classroom')" class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-300 hover:bg-slate-800/60 transition">
-                        <i data-lucide="radio" class="w-4 h-4 text-cyan-400"></i> Classroom Wall Feed
-                    </button>
-                </nav>
             </div>
             
-            <div class="bg-slate-900/90 border border-indigo-500/20 p-4 rounded-2xl space-y-3 shadow-xl backdrop-blur-md">
-                <div id="loggedOutView">
-                    <p class="text-[9px] text-slate-400 mb-2 uppercase tracking-widest font-mono">Fast-Ping Authentication</p>
-                    <button onclick="QuantumCore.toggleModal('authModal')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition shadow-md mb-2">
-                        Student Sign Up / Auth
+            <!-- Deep Nested Navigation Menu -->
+            <nav class="flex-1 overflow-y-auto p-4 space-y-2 font-mono text-xs">
+                
+                <!-- Dashboard -->
+                <button onclick="UI.navStudent('dashboard')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 transition">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4 text-cyan-400"></i> Analytics Hub
+                </button>
+
+                <!-- Deep Nested Option: Study Matrix -->
+                <div class="space-y-1">
+                    <button onclick="UI.toggleNest('nav-study')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 transition">
+                        <span class="flex items-center gap-3"><i data-lucide="library" class="w-4 h-4 text-indigo-400"></i> Study Matrix</span>
+                        <i data-lucide="chevron-down" class="w-3 h-3 transition-transform" id="icon-nav-study"></i>
                     </button>
-                    <button onclick="QuantumCore.toggleModal('pinModal')" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-xl text-[10px] font-bold transition border border-slate-700 flex items-center justify-center gap-1.5">
-                        <i data-lucide="key" class="w-3 h-3 text-indigo-400"></i> Admin PIN Override
-                    </button>
-                </div>
-                <div id="loggedInView" class="hidden space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span id="userEmailDisplay" class="text-[11px] font-bold text-slate-200 truncate max-w-[120px]">user@gmail.com</span>
-                        <span id="badgeDisplay" class="text-[9px] bg-indigo-950 text-indigo-300 border border-indigo-500/30 px-2 py-0.5 rounded-full font-mono uppercase">Student</span>
+                    <!-- Deep Level 1 -->
+                    <div id="nav-study" class="hidden pl-6 space-y-1 border-l border-white/10 ml-5 py-1">
+                        <!-- Biology Nested -->
+                        <div class="space-y-1">
+                            <button onclick="UI.toggleNest('nav-bio')" class="w-full flex justify-between items-center px-3 py-2 text-slate-400 hover:text-white transition">
+                                <span>🌿 Biology</span> <i data-lucide="plus" class="w-3 h-3"></i>
+                            </button>
+                            <!-- Deep Level 2 -->
+                            <div id="nav-bio" class="hidden pl-4 space-y-1">
+                                <button onclick="UI.navStudent('notes', 'botany')" class="w-full text-left px-3 py-1.5 text-slate-500 hover:text-indigo-300 transition">↳ Botany</button>
+                                <button onclick="UI.navStudent('notes', 'zoology')" class="w-full text-left px-3 py-1.5 text-slate-500 hover:text-indigo-300 transition">↳ Zoology</button>
+                            </div>
+                        </div>
+                        <button onclick="UI.navStudent('notes', 'physics')" class="w-full text-left px-3 py-2 text-slate-400 hover:text-white transition">⚛️ Physics</button>
+                        <button onclick="UI.navStudent('notes', 'chemistry')" class="w-full text-left px-3 py-2 text-slate-400 hover:text-white transition">⚗️ Chemistry</button>
                     </div>
-                    <button onclick="QuantumCore.handleLogout()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-lg text-[10px] font-bold transition">
-                        Sign Out
-                    </button>
                 </div>
+
+                <!-- Live Exams -->
+                <button onclick="UI.navStudent('exam')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 transition group">
+                    <span class="flex items-center gap-3"><i data-lucide="timer" class="w-4 h-4 text-rose-400"></i> Live Exam Center</span>
+                    <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse group-hover:bg-rose-400"></span>
+                </button>
+
+                <!-- WhatsApp Style Doubt Engine -->
+                <button onclick="UI.navStudent('doubt')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-white/5 text-slate-300 transition">
+                    <i data-lucide="message-square-dashed" class="w-4 h-4 text-emerald-400"></i> WhatsApp Doubt Sync
+                </button>
+
+            </nav>
+            
+            <div class="p-4 border-t border-white/5">
+                <button onclick="App.logout()" class="w-full py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2">
+                    <i data-lucide="log-out" class="w-4 h-4"></i> Terminate Session
+                </button>
             </div>
         </aside>
 
-        <!-- Main Display Area -->
-        <main class="flex-1 flex flex-col overflow-y-auto bg-[#05050a] relative">
-            <header class="bg-[#080914]/80 backdrop-blur-2xl border-b border-indigo-500/20 px-4 md:px-8 py-4 sticky top-0 z-20 flex justify-between items-center">
+        <!-- Student Main Content -->
+        <main class="flex-1 overflow-y-auto bg-[#05050a] relative">
+            <header class="glass-panel sticky top-0 z-30 px-6 py-4 flex justify-between items-center border-b border-indigo-500/10">
+                <h2 id="student-header-title" class="text-sm font-bold uppercase tracking-widest text-indigo-300">ANALYTICS HUB</h2>
                 <div class="flex items-center gap-3">
-                    <button onclick="QuantumCore.toggleMobileMenu()" class="md:hidden bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 p-2 rounded-xl">
-                        <i data-lucide="menu" class="w-5 h-5"></i>
-                    </button>
-                    <h2 class="font-mono text-[11px] md:text-xs text-indigo-300 tracking-wider uppercase truncate max-w-[200px] md:max-w-none" id="headerBreadcrumb">SYSTEM_KERNEL // STUDY_MATRIX</h2>
+                    <span class="flex items-center gap-1.5 text-[10px] bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded border border-emerald-500/20">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Socket: Connected
+                    </span>
                 </div>
-                <button id="adminUploadBtn" onclick="QuantumCore.toggleModal('uploadModal')" class="hidden bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-indigo-600/30 items-center gap-2">
-                    <i data-lucide="upload-cloud" class="w-3.5 h-3.5"></i> Admin Upload
-                </button>
             </header>
 
-            <div class="p-4 md:p-10 max-w-6xl mx-auto w-full space-y-8">
-                
-                <!-- Admin Override Control Matrix (PIN Secured) -->
-                <div id="adminPanel" class="hidden bg-slate-900/90 border-2 border-indigo-500/60 p-6 rounded-3xl shadow-2xl space-y-6 backdrop-blur-xl">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                        <span class="text-[10px] font-black bg-indigo-600 text-white px-3 py-1 rounded-full uppercase tracking-widest font-mono">👑 ADMIN_FAST_PING_PANEL</span>
+            <div class="p-6 max-w-6xl mx-auto space-y-6">
+                <!-- Dynamic Content Container -->
+                <div id="student-content-dashboard" class="animate-slide-in">
+                    <!-- Advanced Dashboard with Chart.js -->
+                    <div class="grid md:grid-cols-3 gap-6">
+                        <div class="md:col-span-2 glass-card p-6 rounded-2xl border border-white/5">
+                            <h3 class="text-sm font-bold mb-4">Performance Matrix</h3>
+                            <canvas id="studentRadarChart" height="100"></canvas>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="glass-card p-6 rounded-2xl bg-gradient-to-br from-indigo-900/40 to-transparent">
+                                <h4 class="text-xs text-indigo-400 font-mono mb-1">Global Rank</h4>
+                                <p class="text-3xl font-black text-white">#42</p>
+                                <p class="text-[10px] text-slate-400 mt-2">Top 5% in Marcel Batch</p>
+                            </div>
+                            <div class="glass-card p-6 rounded-2xl">
+                                <h4 class="text-xs text-amber-400 font-mono mb-2">Classroom Wall</h4>
+                                <div id="student-announcements" class="space-y-3 text-xs">
+                                    <p class="text-slate-500 italic">No recent broadcasts.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Doubt Chat (WhatsApp Clone) -->
+                <div id="student-content-doubt" class="hidden h-[75vh] flex flex-col glass-card border border-white/10 rounded-2xl overflow-hidden animate-slide-in">
+                    <div class="bg-quantum-800 p-4 border-b border-white/5 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-emerald-600 flex items-center justify-center"><i data-lucide="bot" class="w-5 h-5 text-white"></i></div>
+                            <div>
+                                <h3 class="text-sm font-bold text-white">Subject Expert Connect</h3>
+                                <p class="text-[10px] text-emerald-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Faculty Online</p>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="grid gap-6 md:grid-cols-2">
-                        <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                            <label class="block text-xs font-bold text-indigo-400">📤 Bulk Inject Questions (JSON)</label>
-                            <input type="text" id="adminBulkTestTitle" placeholder="Test Name..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                            <textarea id="adminBulkJsonInput" placeholder='[{"q":1, "text":"Q", "a":"1", "b":"2", "c":"3", "d":"4", "ans":"A"}]' rows="4" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-white font-mono"></textarea>
-                            <button onclick="QuantumCore.injectBulkExam()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2 rounded-xl text-xs font-bold transition">Inject Exam</button>
-                        </div>
-
-                        <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                            <label class="block text-xs font-bold text-amber-400">📢 Classroom Wall Broadcast</label>
-                            <input type="text" id="adminEventText" placeholder="Announcement..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                            <input type="text" id="adminEventAuthor" placeholder="Instructor..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                            <button onclick="QuantumCore.publishClassEvent()" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 py-2 rounded-xl text-xs font-black transition">Broadcast</button>
-                        </div>
+                    <div id="chat-messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-[#0a0b12] bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')]">
+                        <!-- Messages render here -->
                     </div>
 
-                    <div class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                        <div class="flex justify-between items-center">
-                            <label class="block text-xs font-bold text-emerald-400">📥 Live WebSocket Student Doubts & Direct Reply Inbox</label>
-                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                        </div>
-                        <div id="adminChatInbox" class="space-y-3 max-h-72 overflow-y-auto font-mono text-xs">
-                            <p class="text-xs text-slate-500">Listening for live incoming student doubts...</p>
-                        </div>
+                    <div class="bg-quantum-800 p-4 border-t border-white/5 flex gap-2 items-center">
+                        <button class="p-2 text-slate-400 hover:text-white transition"><i data-lucide="paperclip" class="w-5 h-5"></i></button>
+                        <input type="text" id="chat-input-student" placeholder="Type your doubt here... (Instant Sync)" class="flex-1 bg-quantum-900 border border-slate-700 rounded-full px-5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 transition">
+                        <button onclick="App.sendChat('student')" class="bg-emerald-600 hover:bg-emerald-500 w-10 h-10 rounded-full flex items-center justify-center text-white transition transform hover:scale-105 shadow-lg"><i data-lucide="send" class="w-4 h-4 ml-1"></i></button>
                     </div>
                 </div>
 
-                <!-- Section: Study Notes Grid -->
-                <div id="sectionNotes" class="space-y-6">
-                    <div class="bg-gradient-to-r from-indigo-950/50 via-slate-900/60 to-purple-950/50 border border-indigo-500/20 p-6 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 backdrop-blur-xl">
+                <!-- Live Exam Layout -->
+                <div id="student-content-exam" class="hidden max-w-4xl mx-auto space-y-6 animate-slide-in">
+                    <div class="bg-gradient-to-r from-rose-900/40 to-transparent p-6 rounded-2xl border border-rose-500/20 flex justify-between items-center">
                         <div>
-                            <span id="activeStudyLabel" class="text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full uppercase tracking-wider">⚡ Botany Modules Matrix</span>
-                            <h3 class="text-base font-bold text-white mt-3">Advanced NEET Curriculum Modules</h3>
-                            <p class="text-xs text-slate-400 mt-1">Zero-latency cloud sync active.</p>
+                            <h3 class="text-lg font-black text-white">NEET Grand Test - Marcel Batch</h3>
+                            <p class="text-xs text-rose-400 mt-1 font-mono">Anti-Tab-Switch Monitoring Active</p>
                         </div>
-                        <button onclick="alert('Sync active.')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg transition">Verify Sync</button>
+                        <div class="text-right">
+                            <span class="block text-[10px] text-slate-400 uppercase">Time Remaining</span>
+                            <span id="exam-timer" class="text-2xl font-mono font-bold text-white">03:00:00</span>
+                        </div>
                     </div>
-                    <div id="notesContainer" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <div class="p-6 bg-slate-900/40 border border-slate-800 rounded-2xl animate-pulse text-xs text-slate-500">Synchronizing modules...</div>
-                    </div>
-                </div>
-
-                <!-- Section: Sequential Timed Exam Taker -->
-                <div id="sectionExams" class="hidden space-y-6">
-                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl space-y-6 shadow-2xl backdrop-blur-xl">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-slate-800 pb-4 gap-2">
-                            <div>
-                                <span class="text-[10px] font-extrabold bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full uppercase tracking-wider">Window: 9:00 AM – 12:00 AM</span>
-                                <h3 id="activeExamTitle" class="text-base font-bold text-white mt-2">NEET Full Mock Examination</h3>
-                            </div>
-                            <div class="text-left md:text-right">
-                                <span id="testWindowBadge" class="font-mono text-emerald-400 font-extrabold text-xs">Checking Window...</span>
-                            </div>
-                        </div>
-
-                        <div id="sequentialExamContainer" class="space-y-4">
-                            <div class="p-6 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-4 font-mono">
-                                <div class="flex justify-between items-center text-xs text-indigo-400 font-bold border-b border-slate-800 pb-2">
-                                    <span id="questionCounterIndicator">Question 1 of 180</span>
-                                    <span id="studentGoogleIdentityBadge">Google Account: Not Authenticated</span>
-                                </div>
-                                <p id="examQuestionText" class="text-sm font-bold text-white pt-2">Loading bulk questions from cloud...</p>
-                                <div class="space-y-2 text-xs text-slate-300 pt-2" id="examOptionsContainer"></div>
-                            </div>
-
-                            <div class="flex justify-between items-center pt-2">
-                                <button onclick="QuantumCore.prevQuestion()" class="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition">Previous</button>
-                                <div id="examSubmitButtonWrapper"></div>
-                                <button onclick="QuantumCore.nextQuestion()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition">Next Question</button>
-                            </div>
-                        </div>
+                    <!-- Exam Questions render here -->
+                    <div id="exam-render-area" class="glass-card p-8 rounded-2xl text-center space-y-4">
+                        <i data-lucide="server-crash" class="w-12 h-12 text-slate-600 mx-auto"></i>
+                        <p class="text-slate-400 text-sm">Awaiting admin exam broadcast...</p>
                     </div>
                 </div>
 
-                <!-- Section: Personal Assistance & Doubt Hub -->
-                <div id="sectionDoubt" class="hidden space-y-6">
-                    <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-3xl space-y-5 shadow-2xl backdrop-blur-xl">
-                        <h3 class="text-base font-extrabold text-white">💬 Live WebSocket Personal Assistance</h3>
-                        <div class="space-y-3 pt-2">
-                            <select id="chatMediaType" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white w-full font-mono">
-                                <option value="text">Text Doubt</option>
-                                <option value="image">Image Attachment (URL)</option>
-                                <option value="url">Reference Link / URL</option>
-                            </select>
-                            <textarea id="chatContentInput" placeholder="Enter query payload..." rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-white font-mono"></textarea>
-                            <button onclick="QuantumCore.sendStudentChat()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-6 py-3 rounded-xl text-xs font-black transition w-full">Transmit Query Fast-Ping</button>
-                        </div>
-                        <div class="pt-4 border-t border-slate-800 space-y-3">
-                            <h4 class="text-xs font-bold text-white">My Transmitted Query Thread & Admin Replies</h4>
-                            <div id="studentChatHistory" class="space-y-3">
-                                <p class="text-xs text-slate-500">No transmission records.</p>
-                            </div>
-                        </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 3. ADMIN COMMAND CENTER -->
+    <div id="view-admin" class="hidden h-full flex flex-col md:flex-row relative bg-slate-950">
+        <!-- Admin Sidebar -->
+        <aside class="w-full md:w-64 bg-slate-900 border-r border-amber-500/20 flex flex-col z-40">
+            <div class="p-5 border-b border-slate-800 bg-amber-500/5">
+                <h2 class="text-sm font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                    <i data-lucide="shield-alert" class="w-4 h-4"></i> OVERSEER
+                </h2>
+                <p class="text-[10px] text-slate-400 mt-1">Admin Command Port</p>
+            </div>
+            
+            <nav class="flex-1 p-3 space-y-2 font-mono text-xs">
+                <button onclick="UI.navAdmin('overview')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800 text-slate-300 transition border-l-2 border-transparent hover:border-amber-500">
+                    <i data-lucide="activity" class="w-4 h-4 text-amber-400"></i> Global Telemetry
+                </button>
+                <button onclick="UI.navAdmin('doubt-center')" class="w-full flex items-center justify-between px-3 py-2.5 rounded hover:bg-slate-800 text-slate-300 transition border-l-2 border-transparent hover:border-amber-500">
+                    <span class="flex items-center gap-3"><i data-lucide="inbox" class="w-4 h-4 text-emerald-400"></i> Live Doubt Inbox</span>
+                    <span id="admin-inbox-badge" class="bg-rose-500 text-white px-1.5 py-0.5 rounded-full text-[9px]">0</span>
+                </button>
+                <button onclick="UI.navAdmin('content')" class="w-full flex items-center gap-3 px-3 py-2.5 rounded hover:bg-slate-800 text-slate-300 transition border-l-2 border-transparent hover:border-amber-500">
+                    <i data-lucide="database" class="w-4 h-4 text-indigo-400"></i> Content Master
+                </button>
+            </nav>
+            <div class="p-4 border-t border-slate-800">
+                <button onclick="App.logout()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-xs font-bold transition">Exit Admin</button>
+            </div>
+        </aside>
+
+        <!-- Admin Main -->
+        <main class="flex-1 overflow-y-auto bg-[#020205] p-6 space-y-6 relative">
+            <header class="flex justify-between items-center pb-4 border-b border-slate-800">
+                <h1 id="admin-header-title" class="text-xl font-black text-white">Global Telemetry</h1>
+                <div class="flex gap-2">
+                    <button class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded text-xs flex items-center gap-2 hover:bg-slate-700">
+                        <i data-lucide="refresh-cw" class="w-3 h-3"></i> Force Sync
+                    </button>
+                </div>
+            </header>
+
+            <!-- Admin Live Doubt Center -->
+            <div id="admin-content-doubt-center" class="hidden h-[80vh] flex gap-4 animate-slide-in">
+                <!-- Left: Student List -->
+                <div class="w-1/3 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col">
+                    <div class="p-3 bg-slate-950 border-b border-slate-800 font-bold text-xs text-slate-400">Active Queries</div>
+                    <div id="admin-student-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+                        <!-- Populated by JS -->
                     </div>
                 </div>
+                <!-- Right: Chat Window -->
+                <div class="flex-1 bg-slate-900 border border-slate-800 rounded-xl flex flex-col">
+                    <div class="p-4 border-b border-slate-800 bg-slate-950 flex justify-between items-center">
+                        <h3 id="admin-chat-header" class="text-sm font-bold text-white">Select a student</h3>
+                        <span class="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">WebSocket Live</span>
+                    </div>
+                    <div id="admin-chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4"></div>
+                    <div class="p-4 border-t border-slate-800 bg-slate-950 flex gap-2">
+                        <input type="text" id="chat-input-admin" disabled placeholder="Type response..." class="flex-1 bg-slate-900 border border-slate-700 rounded px-4 py-2 text-sm text-white disabled:opacity-50">
+                        <button onclick="App.sendChat('admin')" id="chat-btn-admin" disabled class="bg-emerald-600 text-white px-6 rounded font-bold hover:bg-emerald-500 disabled:opacity-50 transition">Reply</button>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Section: Classroom Wall Feed -->
-                <div id="sectionClassroom" class="hidden space-y-6">
-                    <h3 class="text-base font-extrabold text-white">😂 Classroom Wall & Instructor Broadcasts</h3>
-                    <div id="eventsContainer" class="grid gap-4 sm:grid-cols-2">
-                        <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-2 shadow-xl backdrop-blur-xl">
-                            <p class="text-xs italic text-slate-200">"Negative marking tumhe khud yaad karne aayegi!"</p>
-                            <span class="text-[11px] text-indigo-400 font-bold block">— Raghuraj Sir (Chemistry)</span>
-                        </div>
+            <!-- Admin Data Injector -->
+            <div id="admin-content-content" class="hidden space-y-6 animate-slide-in">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                        <h3 class="text-sm font-bold text-indigo-400 mb-4"><i data-lucide="upload-cloud" class="inline w-4 h-4 mr-2"></i>Mass Exam Injector (JSON)</h3>
+                        <textarea id="admin-json-exam" rows="6" class="w-full bg-slate-950 border border-slate-700 rounded p-3 text-xs text-emerald-400 font-mono mb-3" placeholder='[{"q":1, "text":"...", "opts":["A","B","C","D"], "ans": 0}]'></textarea>
+                        <button onclick="App.pushContent('exam')" class="w-full bg-indigo-600 py-2 rounded text-xs font-bold text-white hover:bg-indigo-500">Inject to Live DB</button>
+                    </div>
+                    <div class="bg-slate-900 p-6 rounded-xl border border-slate-800">
+                        <h3 class="text-sm font-bold text-amber-400 mb-4"><i data-lucide="megaphone" class="inline w-4 h-4 mr-2"></i>Classroom Broadcast</h3>
+                        <input type="text" id="admin-broadcast-msg" class="w-full bg-slate-950 border border-slate-700 rounded p-3 text-xs text-white mb-3" placeholder="Urgent message for all students...">
+                        <button onclick="App.pushContent('broadcast')" class="w-full bg-amber-600 py-2 rounded text-xs font-bold text-quantum-900 hover:bg-amber-500">Global Push Notification</button>
                     </div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- Student Auth Modal (Marcel Batch Roll Number vs Google OAuth) -->
-    <div id="authModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-2xl z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-indigo-500/30 p-6 rounded-3xl max-w-md w-full space-y-5 shadow-2xl">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-base text-white">Fast-Ping Student Sign Up</h3>
-                <button onclick="QuantumCore.toggleModal('authModal')" class="text-slate-400 hover:text-white">✕</button>
-            </div>
-            
-            <div class="space-y-4">
-                <!-- Marcel Batch Classmate Option -->
-                <div class="bg-slate-950 border border-indigo-500/40 p-4 rounded-2xl space-y-3">
-                    <label class="block text-xs font-bold text-indigo-400">Marcel Batch Classmate Sign-Up</label>
-                    <p class="text-[10px] text-slate-400">Enter your Marcel batch roll number and Google account email for priority fast-ping assistance.</p>
-                    <input type="text" id="classmateRollInput" placeholder="Marcel Roll Number (e.g. MARC-104)" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                    <input type="email" id="classmateEmailInput" placeholder="Your Google Account Email..." class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono">
-                    <button onclick="QuantumCore.registerMarcelClassmate()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 rounded-xl text-xs transition">Register Marcel Priority Access</button>
-                </div>
-
-                <div class="relative flex py-1 items-center">
-                    <div class="flex-grow border-t border-slate-800"></div>
-                    <span class="flex-shrink mx-4 text-slate-500 text-[10px]">OR OTHER STUDENTS</span>
-                    <div class="flex-grow border-t border-slate-800"></div>
-                </div>
-
-                <!-- Standard Google OAuth -->
-                <button onclick="QuantumCore.socialLogin('google')" class="w-full bg-white text-slate-900 font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 hover:bg-slate-100 transition shadow-md">
-                    Sign Up via Google OAuth
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin PIN Modal -->
-    <div id="pinModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-2xl z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-indigo-500/40 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-base text-white">🔑 Admin PIN Override</h3>
-                <button onclick="QuantumCore.toggleModal('pinModal')" class="text-slate-400 hover:text-white">✕</button>
-            </div>
-            <input type="password" id="adminPinInput" placeholder="Enter secret PIN..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white font-mono">
-            <button onclick="QuantumCore.verifyAdminPin()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-xs transition">Unlock Kernel</button>
-        </div>
-    </div>
-
-    <!-- Admin Upload Notes Modal -->
-    <div id="uploadModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-2xl z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-indigo-500/40 p-6 rounded-3xl max-w-md w-full space-y-4 shadow-2xl">
-            <div class="flex justify-between items-center">
-                <h3 class="font-bold text-base text-white">Admin Upload Notes</h3>
-                <button onclick="QuantumCore.toggleModal('uploadModal')" class="text-slate-400 hover:text-white">✕</button>
-            </div>
-            <div class="space-y-3">
-                <input type="text" id="noteTitle" placeholder="Title..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white font-mono">
-                <input type="text" id="noteSubject" placeholder="Subject..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white font-mono">
-                <input type="text" id="noteUrl" placeholder="Cloud File URL" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white font-mono">
-                <button onclick="QuantumCore.uploadNote()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-xl text-xs font-bold transition">Inject Note</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Core Engine Script with WhatsApp-Style WebSockets -->
+    <!-- APPLICATION LOGIC & ARCHITECTURE -->
     <script>
-        const SUPABASE_URL = 'https://glfxzceeoaaprmjlgjyb.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
+        // Supabase Config
+        const SUPA_URL = 'https://glfxzceeoaaprmjlgjyb.supabase.co';
+        const SUPA_KEY = 'sb_publishable_KsPv3M661D3z8X8BawgpRw_O9wUGlFi';
         const ADMIN_PIN = '99508';
 
-        class QuantumEngine {
-            constructor() {
-                this.supabase = null;
-                this.currentUser = null;
-                this.isAdmin = false;
-                this.questionsList = [];
-                this.currentQuestionIdx = 0;
-                this.studentResponses = {};
-                this.initClient();
+        // Custom Notification Engine
+        const Toast = {
+            show: (msg, type = 'info') => {
+                const container = document.getElementById('toast-container');
+                const t = document.createElement('div');
+                let icon = type === 'success' ? 'check-circle' : type === 'error' ? 'alert-triangle' : 'info';
+                t.className = `toast ${type}`;
+                t.innerHTML = `<i data-lucide="${icon}" class="w-4 h-4"></i> <span>${msg}</span>`;
+                container.appendChild(t);
+                lucide.createIcons();
+                setTimeout(() => {
+                    t.style.animation = 'slideIn 0.3s ease-in reverse forwards';
+                    setTimeout(() => t.remove(), 300);
+                }, 3000);
+            }
+        };
+
+        // UI Controller Class
+        class UIController {
+            constructor() { this.initIcons(); }
+            initIcons() { lucide.createIcons(); }
+            
+            switchAuthTab(tab) {
+                document.getElementById('login-student').classList.toggle('hidden', tab !== 'student');
+                document.getElementById('login-admin').classList.toggle('hidden', tab !== 'admin');
+                document.getElementById('tab-student').className = tab === 'student' ? 'flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition' : 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition';
+                document.getElementById('tab-admin').className = tab === 'admin' ? 'flex-1 py-2 text-xs font-bold rounded-lg bg-amber-600 text-quantum-900 transition' : 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition';
             }
 
-            initClient() {
-                try {
-                    if (window.supabase && typeof window.supabase.createClient === 'function') {
-                        this.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                        this.bootstrap();
-                    } else {
-                        setTimeout(() => this.initClient(), 100);
-                    }
-                } catch(e) { 
-                    console.error(e); 
-                    this.removeLoader();
-                }
+            toggleNest(id) {
+                const el = document.getElementById(id);
+                const icon = document.getElementById(`icon-${id}`);
+                el.classList.toggle('hidden');
+                if(icon) icon.style.transform = el.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
             }
 
-            removeLoader() {
-                const loader = document.getElementById('quantumLoader');
-                if(loader) { 
-                    loader.style.opacity = '0'; 
-                    setTimeout(() => loader.remove(), 700); 
-                }
-            }
-
-            async bootstrap() {
-                const safetyTimer = setTimeout(() => this.removeLoader(), 1500);
-
-                try {
-                    lucide.createIcons();
-                    await this.checkSession().catch(e => console.log(e));
-                    await this.fetchNotes('botany').catch(e => console.log(e));
-                    await this.loadBulkExamQuestions().catch(e => console.log(e));
-                    await this.fetchClassEvents().catch(e => console.log(e));
-                    this.checkTestWindow();
-                    
-                    // --- WHATSAPP-STYLE INSTANT WEBSOCKET REAL-TIME LISTENER ---
-                    if (this.supabase) {
-                        this.supabase
-                            .channel('realtime-quantum-sync')
-                            .on(
-                                'postgres_changes',
-                                { event: '*', schema: 'public', table: 'student_chats' },
-                                (payload) => {
-                                    if (this.isAdmin) {
-                                        this.fetchAdminChats();
-                                    } else if (this.currentUser) {
-                                        this.fetchStudentChats();
-                                    }
-                                }
-                            )
-                            .subscribe();
-                    }
-
-                } catch(err) {
-                    console.error(err);
-                } finally {
-                    clearTimeout(safetyTimer);
-                    this.removeLoader();
-                }
-            }
-
-            toggleMobileMenu() {
-                document.getElementById('sidebarDrawer').classList.toggle('-translate-x-full');
-                document.getElementById('mobileDrawerBackdrop').classList.toggle('hidden');
-            }
-
-            toggleSubMenu(menuId) {
-                const el = document.getElementById(menuId);
-                if(el) el.classList.toggle('hidden');
-            }
-
-            route(section, sub = '') {
-                if(window.innerWidth < 768) this.toggleMobileMenu();
-                ['notes', 'exams', 'doubt', 'classroom'].forEach(s => {
-                    const el = document.getElementById(`section${s.charAt(0).toUpperCase() + s.slice(1)}`);
-                    if(el) el.classList.add('hidden');
+            switchView(view) {
+                ['gateway', 'student', 'admin'].forEach(v => {
+                    document.getElementById(`view-${v}`).classList.add('hidden');
                 });
-                document.getElementById(`section${section.charAt(0).toUpperCase() + section.slice(1)}`).classList.remove('hidden');
-                document.getElementById('headerBreadcrumb').innerText = `SYSTEM_KERNEL // ${section.toUpperCase()}`;
-                if(section === 'notes' && sub) this.fetchNotes(sub);
-                if(section === 'doubt') {
-                    if(this.isAdmin) this.fetchAdminChats();
-                    else this.fetchStudentChats();
-                }
+                document.getElementById(`view-${view}`).classList.remove('hidden');
             }
 
-            toggleModal(id) { document.getElementById(id).classList.toggle('hidden'); }
-
-            verifyAdminPin() {
-                if(document.getElementById('adminPinInput').value === ADMIN_PIN) {
-                    this.isAdmin = true;
-                    this.toggleModal('pinModal');
-                    document.getElementById('adminPanel').classList.remove('hidden');
-                    document.getElementById('adminUploadBtn').classList.remove('hidden');
-                    document.getElementById('adminUploadBtn').classList.add('flex');
-                    document.getElementById('badgeDisplay').innerText = "Creator Admin";
-                    document.getElementById('loggedOutView').classList.add('hidden');
-                    document.getElementById('loggedInView').classList.remove('hidden');
-                    document.getElementById('userEmailDisplay').innerText = "Admin (Override)";
-                    document.getElementById('studentGoogleIdentityBadge').innerText = "Google Account: Admin Override";
-                    this.fetchAdminChats();
-                    alert('Admin fast-ping WebSocket panel unlocked!');
-                } else { alert('Invalid PIN'); }
+            navStudent(section, sub = '') {
+                document.querySelectorAll('[id^="student-content-"]').forEach(el => el.classList.add('hidden'));
+                document.getElementById(`student-content-${section}`).classList.remove('hidden');
+                document.getElementById('student-header-title').innerText = sub ? `${section} / ${sub}` : section;
+                if(section === 'dashboard' && !App.chartInit) App.renderChart();
             }
 
-            async checkSession() {
-                if(!this.supabase || this.isAdmin) return;
-                try {
-                    const localMarcel = localStorage.getItem('marcel_classmate_session');
-                    if (localMarcel) {
-                        const parsed = JSON.parse(localMarcel);
-                        this.currentUser = { email: parsed.email };
-                        document.getElementById('loggedOutView').classList.add('hidden');
-                        document.getElementById('loggedInView').classList.remove('hidden');
-                        document.getElementById('userEmailDisplay').innerText = parsed.email;
-                        document.getElementById('studentGoogleIdentityBadge').innerText = `Marcel Classmate [Roll: ${parsed.roll}] (${parsed.email})`;
-                        document.getElementById('badgeDisplay').innerText = "Marcel Batch";
-                        this.fetchStudentChats();
-                        return;
-                    }
-
-                    const { data: { session } } = await this.supabase.auth.getSession();
-                    if(session && session.user) {
-                        this.currentUser = session.user;
-                        document.getElementById('loggedOutView').classList.add('hidden');
-                        document.getElementById('loggedInView').classList.remove('hidden');
-                        document.getElementById('userEmailDisplay').innerText = session.user.email;
-                        document.getElementById('studentGoogleIdentityBadge').innerText = `Google Account: ${session.user.email}`;
-                        this.fetchStudentChats();
-                    }
-                } catch(e) {}
+            navAdmin(section) {
+                document.querySelectorAll('[id^="admin-content-"]').forEach(el => el.classList.add('hidden'));
+                const target = document.getElementById(`admin-content-${section}`);
+                if(target) target.classList.remove('hidden');
+                document.getElementById('admin-header-title').innerText = section.replace('-', ' ').toUpperCase();
             }
-
-            registerMarcelClassmate() {
-                const roll = document.getElementById('classmateRollInput').value;
-                const email = document.getElementById('classmateEmailInput').value;
-                if(!roll || !email) { alert('Enter both Roll Number and Google Email.'); return; }
-
-                const sessionData = { roll: roll.toUpperCase(), email: email };
-                localStorage.setItem('marcel_classmate_session', JSON.stringify(sessionData));
-                this.currentUser = { email: email };
-                
-                this.toggleModal('authModal');
-                document.getElementById('loggedOutView').classList.add('hidden');
-                document.getElementById('loggedInView').classList.remove('hidden');
-                document.getElementById('userEmailDisplay').innerText = email;
-                document.getElementById('studentGoogleIdentityBadge').innerText = `Marcel Classmate [Roll: ${roll.toUpperCase()}] (${email})`;
-                document.getElementById('badgeDisplay').innerText = "Marcel Batch";
-                this.fetchStudentChats();
-                alert('Marcel priority fast-ping registration successful!');
-            }
-
-            async socialLogin(provider) {
-                await this.supabase.auth.signInWithOAuth({ provider, options: { redirectTo: window.location.origin } });
-            }
-
-            async handleLogout() {
-                localStorage.removeItem('marcel_classmate_session');
-                if(this.supabase && !this.isAdmin) await this.supabase.auth.signOut();
-                window.location.reload();
-            }
-
-            checkTestWindow() {
-                const now = new Date();
-                const hours = now.getHours();
-                const badge = document.getElementById('testWindowBadge');
-                if (this.isAdmin || (hours >= 9 || hours < 24)) {
-                    if(badge) badge.innerText = "🟢 Window Active (9am - 12am)";
-                } else {
-                    if(badge) badge.innerText = "🔴 Locked";
-                }
-            }
-
-            async sendStudentChat() {
-                const mediaType = document.getElementById('chatMediaType').value;
-                const content = document.getElementById('chatContentInput').value;
-                if(!content) { alert('Enter query.'); return; }
-
-                const email = this.currentUser ? this.currentUser.email : 'student@quantum.local';
-                const { error } = await this.supabase.from('student_chats').insert([{
-                    student_email: email,
-                    media_type: mediaType,
-                    content: content
-                }]);
-
-                if(error) alert('Error: ' + error.message);
-                else {
-                    document.getElementById('chatContentInput').value = '';
-                    if(this.currentUser) this.fetchStudentChats();
-                }
-            }
-
-            async sendAdminReply(studentEmail, chatId) {
-                const replyText = document.getElementById(`adminReplyInput_${chatId}`).value;
-                if(!replyText) { alert('Enter reply message.'); return; }
-
-                const { error } = await this.supabase.from('student_chats').insert([{
-                    student_email: studentEmail,
-                    media_type: 'admin_reply',
-                    content: `💡 Admin Response: ${replyText}`
-                }]);
-
-                if(error) {
-                    alert('Failed to send reply: ' + error.message);
-                } else {
-                    document.getElementById(`adminReplyInput_${chatId}`).value = '';
-                    this.fetchAdminChats();
-                }
-            }
-
-            async fetchStudentChats() {
-                if(!this.currentUser) return;
-                try {
-                    const { data } = await this.supabase.from('student_chats').select('*').eq('student_email', this.currentUser.email).order('created_at', { ascending: true });
-                    const container = document.getElementById('studentChatHistory');
-                    if(!data || data.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500">No transmissions.</p>`; return; }
-                    
-                    const doubts = data.filter(c => c.media_type !== 'admin_reply');
-                    const replies = data.filter(c => c.media_type === 'admin_reply');
-
-                    container.innerHTML = doubts.map(doubt => {
-                        const matchedReplies = replies.filter(r => new Date(r.created_at) >= new Date(doubt.created_at));
-                        return `
-                            <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
-                                <div class="flex justify-between items-center">
-                                    <span class="text-[9px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded font-mono uppercase">${doubt.media_type}</span>
-                                    <span class="text-[9px] text-slate-500">${new Date(doubt.created_at).toLocaleTimeString()}</span>
-                                </div>
-                                <p class="text-slate-200 text-xs">${doubt.content}</p>
-                                <div class="space-y-2 pt-2">
-                                    ${matchedReplies.length > 0 ? matchedReplies.map(r => `
-                                        <div class="bg-indigo-950/40 border border-indigo-500/40 p-3 rounded-lg text-xs space-y-1 ml-4">
-                                            <div class="flex items-center gap-1.5 text-indigo-400 font-bold text-[10px]">
-                                                <i data-lucide="check-circle-2" class="w-3 h-3"></i> Teacher / Admin Reply
-                                            </div>
-                                            <p class="text-slate-100">${r.content}</p>
-                                        </div>
-                                    `).join('') : '<p class="text-[10px] text-slate-500 italic ml-4">Waiting for teacher reply...</p>'}
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                    lucide.createIcons();
-                } catch(e) {}
-            }
-
-            async fetchAdminChats() {
-                if(!this.isAdmin) return;
-                try {
-                    const { data } = await this.supabase.from('student_chats').select('*').order('created_at', { ascending: false });
-                    const container = document.getElementById('adminChatInbox');
-                    if(!data || data.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500">Inbox empty. Listening live...</p>`; return; }
-                    
-                    const doubts = data.filter(c => c.media_type !== 'admin_reply');
-
-                    container.innerHTML = doubts.map(c => `
-                        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-3 font-mono">
-                            <div class="flex justify-between text-[10px] text-indigo-400">
-                                <span class="font-bold text-white">${c.student_email}</span>
-                                <span class="uppercase bg-slate-800 px-1.5 py-0.5 rounded text-slate-300">${c.media_type}</span>
-                            </div>
-                            <p class="text-slate-100 text-xs">${c.content}</p>
-                            
-                            <div class="pt-2 border-t border-slate-800 flex gap-2">
-                                <input type="text" id="adminReplyInput_${c.id}" placeholder="Type reply to student..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white">
-                                <button onclick="QuantumCore.sendAdminReply('${c.student_email}', '${c.id}')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap">Reply</button>
-                            </div>
+            
+            renderChatMsg(msg, isSender) {
+                const align = isSender ? 'self-end bg-emerald-600/90 text-white rounded-br-none' : 'self-start bg-quantum-800 border border-white/5 text-slate-200 rounded-bl-none';
+                return `
+                    <div class="flex flex-col max-w-[70%] ${isSender ? 'items-end ml-auto' : 'items-start'}">
+                        <div class="px-4 py-2 rounded-2xl ${align} shadow-md text-sm">
+                            ${msg.content}
                         </div>
-                    `).join('');
-                } catch(e) {}
-            }
-
-            async injectBulkExam() {
-                if(!this.isAdmin) return;
-                const title = document.getElementById('adminBulkTestTitle').value;
-                const rawJson = document.getElementById('adminBulkJsonInput').value;
-                if(!title || !rawJson) { alert('Enter title and JSON data.'); return; }
-
-                try {
-                    const questionsArr = JSON.parse(rawJson);
-                    for(let q of questionsArr) {
-                        await this.supabase.from('exam_questions').insert([{
-                            test_title: title,
-                            question_number: q.q,
-                            question_text: q.text,
-                            option_a: q.a,
-                            option_b: q.b,
-                            option_c: q.c,
-                            option_d: q.d,
-                            correct_option: q.ans.toUpperCase()
-                        }]);
-                    }
-                    alert(`Successfully injected ${questionsArr.length} questions live!`);
-                    this.loadBulkExamQuestions();
-                } catch(e) {
-                    alert('Invalid JSON: ' + e.message);
-                }
-            }
-
-            async loadBulkExamQuestions() {
-                try {
-                    const { data } = await this.supabase.from('exam_questions').select('*').order('question_number', { ascending: true });
-                    if(data && data.length > 0) {
-                        this.questionsList = data;
-                        document.getElementById('activeExamTitle').innerText = data[0].test_title;
-                        this.renderQuestion();
-                    }
-                } catch(e) {}
-            }
-
-            renderQuestion() {
-                if(this.questionsList.length === 0) {
-                    document.getElementById('examQuestionText').innerText = "No bulk exam questions published by admin yet.";
-                    return;
-                }
-                const q = this.questionsList[this.currentQuestionIdx];
-                document.getElementById('questionCounterIndicator').innerText = `Question ${this.currentQuestionIdx + 1} of ${this.questionsList.length}`;
-                document.getElementById('examQuestionText').innerText = `Q${q.question_number}. ${q.question_text}`;
-
-                const savedAns = this.studentResponses[this.currentQuestionIdx] || '';
-                document.getElementById('examOptionsContainer').innerHTML = `
-                    <label class="flex items-center gap-3 p-3 bg-slate-900 rounded-xl border border-slate-800 cursor-pointer hover:border-indigo-500">
-                        <input type="radio" name="exam_opt" value="A" ${savedAns === 'A' ? 'checked' : ''} onclick="QuantumCore.saveResponse('A')"> A. ${q.option_a}
-                    </label>
-                    <label class="flex items-center gap-3 p-3 bg-slate-900 rounded-xl border border-slate-800 cursor-pointer hover:border-indigo-500">
-                        <input type="radio" name="exam_opt" value="B" ${savedAns === 'B' ? 'checked' : ''} onclick="QuantumCore.saveResponse('B')"> B. ${q.option_b}
-                    </label>
-                    <label class="flex items-center gap-3 p-3 bg-slate-900 rounded-xl border border-slate-800 cursor-pointer hover:border-indigo-500">
-                        <input type="radio" name="exam_opt" value="C" ${savedAns === 'C' ? 'checked' : ''} onclick="QuantumCore.saveResponse('C')"> C. ${q.option_c}
-                    </label>
-                    <label class="flex items-center gap-3 p-3 bg-slate-900 rounded-xl border border-slate-800 cursor-pointer hover:border-indigo-500">
-                        <input type="radio" name="exam_opt" value="D" ${savedAns === 'D' ? 'checked' : ''} onclick="QuantumCore.saveResponse('D')"> D. ${q.option_d}
-                    </label>
-                `;
-
-                const submitWrapper = document.getElementById('examSubmitButtonWrapper');
-                if(this.currentQuestionIdx === this.questionsList.length - 1) {
-                    submitWrapper.innerHTML = `<button onclick="QuantumCore.submitFinalExam()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 px-6 py-2.5 rounded-xl text-xs font-black transition shadow-lg">Final Submit All</button>`;
-                } else {
-                    submitWrapper.innerHTML = '';
-                }
-            }
-
-            saveResponse(opt) { this.studentResponses[this.currentQuestionIdx] = opt; }
-
-            nextQuestion() {
-                if(this.currentQuestionIdx < this.questionsList.length - 1) { this.currentQuestionIdx++; this.renderQuestion(); }
-            }
-
-            prevQuestion() {
-                if(this.currentQuestionIdx > 0) { this.currentQuestionIdx--; this.renderQuestion(); }
-            }
-
-            async submitFinalExam() {
-                if(!this.currentUser && !this.isAdmin) {
-                    alert('Please sign in first to submit.');
-                    this.toggleModal('authModal');
-                    return;
-                }
-
-                const email = this.isAdmin ? 'admin@quantum.local' : this.currentUser.email;
-                let correctCount = 0;
-                this.questionsList.forEach((q, idx) => {
-                    if(this.studentResponses[idx] === q.correct_option) correctCount++;
-                });
-                let calculatedScore = correctCount * 4;
-
-                const { error } = await this.supabase.from('student_submissions').insert([{
-                    user_email: email,
-                    test_name: this.questionsList[0].test_title,
-                    score: calculatedScore,
-                    status: 'Evaluated Live'
-                }]);
-
-                if(error) alert('Submission failed: ' + error.message);
-                else alert(`Exam successfully submitted live! Your Score: ${calculatedScore} (Tracked under: ${email})`);
-            }
-
-            async publishClassEvent() {
-                if(!this.isAdmin) return;
-                const text = document.getElementById('adminEventText').value;
-                const author = document.getElementById('adminEventAuthor').value;
-                await this.supabase.from('app_settings').insert([{ setting_key: `event_${Date.now()}`, setting_value: `${text}___${author}` }]);
-                alert('Broadcasted live!');
-            }
-
-            async fetchNotes(sub) {
-                const { data } = await this.supabase.from('notes').select('*').ilike('subject', `%${sub}%`);
-                const container = document.getElementById('notesContainer');
-                if(!data || data.length === 0) { container.innerHTML = `<p class="text-xs text-slate-500">No notes in this sector.</p>`; return; }
-                container.innerHTML = data.map(n => `
-                    <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl flex flex-col justify-between space-y-4 shadow-xl">
-                        <span class="text-[10px] font-bold bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full uppercase">${n.subject}</span>
-                        <h4 class="font-bold text-xs text-white">${n.title}</h4>
-                        <a href="${n.file_url}" target="_blank" class="text-center bg-slate-950 text-slate-300 py-2 rounded-xl text-xs font-bold border border-slate-800">Access Cloud File</a>
+                        <span class="text-[9px] text-slate-500 mt-1 mx-1 font-mono">${new Date(msg.created_at || Date.now()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>
                     </div>
-                `).join('');
-            }
-
-            async uploadNote() {
-                if(!this.isAdmin) return;
-                await this.supabase.from('notes').insert([{
-                    title: document.getElementById('noteTitle').value,
-                    subject: document.getElementById('noteSubject').value,
-                    file_url: document.getElementById('noteUrl').value
-                }]);
-                alert('Uploaded!');
-                this.toggleModal('uploadModal');
+                `;
             }
         }
 
-        const QuantumCore = new QuantumEngine();
+        const UI = new UIController();
+
+        // Main Application Kernel
+        class AppKernel {
+            constructor() {
+                this.supabase = null;
+                this.user = null;
+                this.isAdmin = false;
+                this.chats = [];
+                this.activeAdminChatStudent = null;
+                this.chartInit = false;
+                this.initSupabase();
+            }
+
+            initSupabase() {
+                if (window.supabase) {
+                    this.supabase = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+                    this.checkSession();
+                } else {
+                    setTimeout(() => this.initSupabase(), 100);
+                }
+            }
+
+            async checkSession() {
+                const local = localStorage.getItem('quantum_session');
+                if (local) {
+                    const data = JSON.parse(local);
+                    if(data.type === 'admin') {
+                        this.isAdmin = true;
+                        UI.switchView('admin');
+                        this.initAdminRealtime();
+                        Toast.show('Command Center Restored', 'info');
+                    } else {
+                        this.user = data;
+                        document.getElementById('student-identity').innerText = `${data.roll} | ${data.email}`;
+                        UI.switchView('student');
+                        UI.navStudent('dashboard');
+                        this.initStudentRealtime();
+                        Toast.show(`Welcome back, ${data.roll}`, 'success');
+                    }
+                }
+            }
+
+            loginStudent() {
+                const roll = document.getElementById('authRoll').value;
+                const email = document.getElementById('authEmail').value;
+                if(!roll || !email) return Toast.show('Enter credentials', 'error');
+                
+                this.user = { type: 'student', roll: roll.toUpperCase(), email };
+                localStorage.setItem('quantum_session', JSON.stringify(this.user));
+                document.getElementById('student-identity').innerText = `${this.user.roll} | ${this.user.email}`;
+                
+                UI.switchView('student');
+                UI.navStudent('dashboard');
+                this.initStudentRealtime();
+                Toast.show('Secure Connection Established', 'success');
+            }
+
+            loginAdmin() {
+                const pin = document.getElementById('authAdminPin').value;
+                if(pin !== ADMIN_PIN) return Toast.show('UNAUTHORIZED', 'error');
+                
+                this.isAdmin = true;
+                localStorage.setItem('quantum_session', JSON.stringify({ type: 'admin' }));
+                UI.switchView('admin');
+                UI.navAdmin('doubt-center');
+                this.initAdminRealtime();
+                Toast.show('Admin Override Accepted', 'info');
+            }
+
+            logout() {
+                localStorage.removeItem('quantum_session');
+                location.reload();
+            }
+
+            // Realtime WebSocket Implementations
+            initStudentRealtime() {
+                // Subscribe to personal chats
+                this.supabase.channel(`student-${this.user.email}`)
+                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'student_chats', filter: `student_email=eq.${this.user.email}` }, payload => {
+                        this.chats.push(payload.new);
+                        this.renderStudentChat();
+                        if(payload.new.media_type === 'admin_reply') Toast.show('New Faculty Reply!', 'info');
+                    }).subscribe();
+                
+                // Subscribe to global broadcasts
+                this.supabase.channel('global-broadcasts')
+                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'app_settings' }, payload => {
+                        Toast.show('New Broadcast: ' + payload.new.setting_value, 'info');
+                        const div = document.createElement('div');
+                        div.className = "bg-indigo-900/30 border border-indigo-500/20 p-3 rounded text-sm text-indigo-200 animate-slide-in";
+                        div.innerText = payload.new.setting_value;
+                        document.getElementById('student-announcements').prepend(div);
+                    }).subscribe();
+
+                this.loadStudentChatHistory();
+            }
+
+            initAdminRealtime() {
+                this.supabase.channel('admin-inbox')
+                    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'student_chats' }, payload => {
+                        this.chats.push(payload.new);
+                        this.renderAdminInbox();
+                        Toast.show(`New Doubt from ${payload.new.student_email}`, 'info');
+                    }).subscribe();
+                
+                this.loadAdminChatHistory();
+            }
+
+            // Chat Core Logic
+            async loadStudentChatHistory() {
+                const { data } = await this.supabase.from('student_chats').select('*').eq('student_email', this.user.email).order('created_at');
+                if(data) { this.chats = data; this.renderStudentChat(); }
+            }
+
+            async loadAdminChatHistory() {
+                const { data } = await this.supabase.from('student_chats').select('*').order('created_at');
+                if(data) { this.chats = data; this.renderAdminInbox(); }
+            }
+
+            renderStudentChat() {
+                const ctn = document.getElementById('chat-messages-container');
+                ctn.innerHTML = this.chats.map(c => UI.renderChatMsg(c, c.media_type !== 'admin_reply')).join('');
+                ctn.scrollTop = ctn.scrollHeight;
+            }
+
+            renderAdminInbox() {
+                // Group by student
+                const students = [...new Set(this.chats.map(c => c.student_email))];
+                document.getElementById('admin-inbox-badge').innerText = students.length;
+                
+                document.getElementById('admin-student-list').innerHTML = students.map(email => {
+                    const msgs = this.chats.filter(c => c.student_email === email);
+                    const lastMsg = msgs[msgs.length-1];
+                    const activeStyle = this.activeAdminChatStudent === email ? 'bg-slate-800 border-l-4 border-emerald-500' : 'hover:bg-slate-800 border-l-4 border-transparent';
+                    return `
+                        <button onclick="App.selectAdminChat('${email}')" class="w-full text-left p-3 rounded-lg ${activeStyle} transition flex flex-col gap-1">
+                            <span class="text-xs font-bold text-white truncate w-full">${email}</span>
+                            <span class="text-[10px] text-slate-400 truncate w-full">${lastMsg.content}</span>
+                        </button>
+                    `;
+                }).join('');
+
+                if(this.activeAdminChatStudent) this.selectAdminChat(this.activeAdminChatStudent);
+            }
+
+            selectAdminChat(email) {
+                this.activeAdminChatStudent = email;
+                document.getElementById('admin-chat-header').innerText = `Doubt Thread: ${email}`;
+                document.getElementById('chat-input-admin').disabled = false;
+                document.getElementById('chat-btn-admin').disabled = false;
+                
+                const msgs = this.chats.filter(c => c.student_email === email);
+                const ctn = document.getElementById('admin-chat-messages');
+                ctn.innerHTML = msgs.map(c => UI.renderChatMsg(c, c.media_type === 'admin_reply')).join('');
+                ctn.scrollTop = ctn.scrollHeight;
+                this.renderAdminInbox(); // Refresh active state
+            }
+
+            async sendChat(senderType) {
+                const isStudent = senderType === 'student';
+                const inputEl = document.getElementById(`chat-input-${senderType}`);
+                const content = inputEl.value.trim();
+                if(!content) return;
+
+                const payload = {
+                    student_email: isStudent ? this.user.email : this.activeAdminChatStudent,
+                    media_type: isStudent ? 'text' : 'admin_reply',
+                    content: content
+                };
+
+                // Optimistic UI Update for zero-latency feel
+                this.chats.push({ ...payload, created_at: new Date().toISOString() });
+                if(isStudent) this.renderStudentChat();
+                else this.selectAdminChat(this.activeAdminChatStudent);
+                
+                inputEl.value = '';
+                
+                // Network Call
+                const { error } = await this.supabase.from('student_chats').insert([payload]);
+                if(error) Toast.show('Transmission failed', 'error');
+            }
+
+            async pushContent(type) {
+                if(type === 'broadcast') {
+                    const msg = document.getElementById('admin-broadcast-msg').value;
+                    if(!msg) return;
+                    await this.supabase.from('app_settings').insert([{ setting_key: `broadcast_${Date.now()}`, setting_value: msg }]);
+                    document.getElementById('admin-broadcast-msg').value = '';
+                    Toast.show('Broadcast sent globally', 'success');
+                }
+            }
+
+            // Advanced Chart.js Analytics
+            renderChart() {
+                if(this.chartInit) return;
+                const ctx = document.getElementById('studentRadarChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['Botany', 'Zoology', 'Physics', 'Chemistry', 'Mock Tests', 'Time Mgmt'],
+                        datasets: [{
+                            label: 'Current Aptitude Level',
+                            data: [85, 92, 65, 78, 88, 70],
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            pointBackgroundColor: '#06b6d4',
+                            pointBorderColor: '#fff',
+                        }]
+                    },
+                    options: {
+                        scales: { r: { angleLines: { color: 'rgba(255, 255, 255, 0.1)' }, grid: { color: 'rgba(255, 255, 255, 0.1)' }, pointLabels: { color: '#94a3b8', font: { family: 'JetBrains Mono', size: 10 } }, ticks: { display: false, min: 0, max: 100 } } },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+                this.chartInit = true;
+            }
+        }
+
+        const App = new AppKernel();
     </script>
 </body>
 </html>
